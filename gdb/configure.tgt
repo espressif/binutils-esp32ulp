@@ -145,6 +145,11 @@ bfin-*-*)
 	gdb_sim=../sim/bfin/libsim.a
 	;;
 
+esp32ulp-*-*)
+	# Target: Esp32ulp processor
+	gdb_target_obs="esp32ulp-tdep.o"
+	;;
+
 cris*)
 	# Target: CRIS
 	gdb_target_obs="cris-tdep.o cris-linux-tdep.o linux-tdep.o solib-svr4.o"

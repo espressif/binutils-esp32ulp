@@ -79,7 +79,7 @@ DIST_COMMON = NEWS README ChangeLog $(srcdir)/Makefile.in \
 	$(am__configure_deps) $(srcdir)/config.in \
 	$(srcdir)/../mkinstalldirs $(srcdir)/gdbinit.in \
 	$(srcdir)/gdbinit.in $(top_srcdir)/po/Make-in m68k-parse.c \
-	bfin-parse.c rl78-parse.c rx-parse.c itbl-parse.c itbl-lex.c \
+	bfin-parse.c esp32ulp-parse.c rl78-parse.c rx-parse.c itbl-parse.c itbl-lex.c \
 	$(srcdir)/../depcomp $(srcdir)/../ylwrap
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../bfd/acinclude.m4 \
@@ -431,6 +431,7 @@ TARGET_CPU_CFILES = \
 	config/tc-arm.c \
 	config/tc-avr.c \
 	config/tc-bfin.c \
+	config/tc-esp32ulp.c \
 	config/tc-cr16.c \
 	config/tc-cris.c \
 	config/tc-crx.c \
@@ -507,6 +508,7 @@ TARGET_CPU_HFILES = \
 	config/tc-arm.h \
 	config/tc-avr.h \
 	config/tc-bfin.h \
+	config/tc-esp32ulp.h \
 	config/tc-cr16.h \
 	config/tc-cris.h \
 	config/tc-crx.h \
@@ -665,6 +667,7 @@ noinst_SCRIPTS = $(GDBINIT)
 EXTRA_SCRIPTS = .gdbinit
 EXTRA_DIST = m68k-parse.c itbl-parse.c itbl-parse.h itbl-lex.c \
 	bfin-parse.c bfin-parse.h bfin-lex.c \
+	esp32ulp-parse.c esp32ulp-parse.h esp32ulp-lex.c \
 	rl78-parse.c rl78-parse.h \
 	rx-parse.c rx-parse.h
 
@@ -703,7 +706,7 @@ as_new_DEPENDENCIES = $(TARG_CPU_O) $(OBJ_FORMAT_O) $(ATOF_TARG_O) \
 EXTRA_as_new_SOURCES = $(CFILES) $(HFILES) $(TARGET_CPU_CFILES) \
 	$(TARGET_CPU_HFILES) $(OBJ_FORMAT_CFILES) $(OBJ_FORMAT_HFILES) \
 	$(TARG_ENV_CFILES) $(CONFIG_ATOF_CFILES) $(MULTI_CFILES) \
-	config/m68k-parse.y config/bfin-parse.y config/rl78-parse.y \
+	config/m68k-parse.y config/bfin-parse.y config/esp32ulp-parse.y config/rl78-parse.y \
 	config/rx-parse.y
 EXPECT = expect
 RUNTEST = runtest
@@ -812,6 +815,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-ieee.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-vax.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/bfin-parse.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/esp32ulp-parse.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cgen.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/compress-debug.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/cond.Po@am__quote@
@@ -866,6 +870,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-arm.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-avr.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-bfin.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-esp32ulp.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-cr16.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-cris.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/tc-crx.Po@am__quote@
@@ -1041,6 +1046,20 @@ tc-bfin.obj: config/tc-bfin.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-bfin.c' object='tc-bfin.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-bfin.obj `if test -f 'config/tc-bfin.c'; then $(CYGPATH_W) 'config/tc-bfin.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-bfin.c'; fi`
+
+tc-esp32ulp.o: config/tc-esp32ulp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32ulp.o -MD -MP -MF $(DEPDIR)/tc-esp32ulp.Tpo -c -o tc-esp32ulp.o `test -f 'config/tc-esp32ulp.c' || echo '$(srcdir)/'`config/tc-esp32ulp.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-esp32ulp.Tpo $(DEPDIR)/tc-esp32ulp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp.c' object='tc-esp32ulp.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp.o `test -f 'config/tc-esp32ulp.c' || echo '$(srcdir)/'`config/tc-esp32ulp.c
+
+tc-esp32ulp.obj: config/tc-esp32ulp.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32ulp.obj -MD -MP -MF $(DEPDIR)/tc-esp32ulp.Tpo -c -o tc-esp32ulp.obj `if test -f 'config/tc-esp32ulp.c'; then $(CYGPATH_W) 'config/tc-esp32ulp.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-esp32ulp.Tpo $(DEPDIR)/tc-esp32ulp.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp.c' object='tc-esp32ulp.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp.obj `if test -f 'config/tc-esp32ulp.c'; then $(CYGPATH_W) 'config/tc-esp32ulp.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp.c'; fi`
 
 tc-cr16.o: config/tc-cr16.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-cr16.o -MD -MP -MF $(DEPDIR)/tc-cr16.Tpo -c -o tc-cr16.o `test -f 'config/tc-cr16.c' || echo '$(srcdir)/'`config/tc-cr16.c
@@ -2466,6 +2485,7 @@ maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
 	-rm -f bfin-parse.c
+	-rm -f esp32ulp-parse.c
 	-rm -f itbl-lex.c
 	-rm -f itbl-parse.c
 	-rm -f m68k-parse.c
@@ -2639,6 +2659,22 @@ bfin-lex-wrapper.@OBJEXT@: $(srcdir)/config/bfin-lex-wrapper.c bfin-lex.c bfin-p
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='bfin-lex-wrapper.c' object='$@' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(COMPILE) -c $(srcdir)/config/bfin-lex-wrapper.c $(NO_WERROR)
+
+esp32ulp-parse.c: $(srcdir)/config/esp32ulp-parse.y
+	$(SHELL) $(YLWRAP) $(srcdir)/config/esp32ulp-parse.y y.tab.c esp32ulp-parse.c y.tab.h esp32ulp-parse.h -- $(YACCCOMPILE) -d ;
+esp32ulp-parse.h: esp32ulp-parse.c
+esp32ulp-parse.h: ; @true
+$(srcdir)/config/esp32ulp-parse.h: ; @true
+
+esp32ulp-lex.c: $(srcdir)/config/esp32ulp-lex.l
+	$(SHELL) $(YLWRAP) $(srcdir)/config/esp32ulp-lex.l lex.yy.c esp32ulp-lex.c -- $(LEXCOMPILE)
+esp32ulp-lex-wrapper.@OBJEXT@: $(srcdir)/config/esp32ulp-lex-wrapper.c esp32ulp-lex.c esp32ulp-parse.h $(srcdir)/config/esp32ulp-defs.h
+@am__fastdepCC_TRUE@	$(COMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $(srcdir)/config/esp32ulp-lex-wrapper.c $(NO_WERROR)
+@am__fastdepCC_TRUE@	mv -f $(DEPDIR)/$*.Tpo $(DEPDIR)/$*.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='esp32ulp-lex-wrapper.c' object='$@' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(COMPILE) -c $(srcdir)/config/esp32ulp-lex-wrapper.c $(NO_WERROR)
+
 rl78-parse.c: $(srcdir)/config/rl78-parse.y
 	$(SHELL) $(YLWRAP) $(srcdir)/config/rl78-parse.y y.tab.c rl78-parse.c y.tab.h rl78-parse.h -- $(YACCCOMPILE) -d ;
 rl78-parse.h: rl78-parse.c

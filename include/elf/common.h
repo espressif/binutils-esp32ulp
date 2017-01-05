@@ -210,6 +210,7 @@
 #define EM_F2MC16	104	/* Fujitsu F2MC16 */
 #define EM_MSP430	105	/* TI msp430 micro controller */
 #define EM_BLACKFIN	106	/* ADI Blackfin */
+#define EM_ESP32ULP	245	/* ESP32ULP */
 #define EM_SE_C33	107	/* S1C33 Family of Seiko Epson processors */
 #define EM_SEP		108	/* Sharp embedded microprocessor */
 #define EM_ARCA		109	/* Arca RISC Microprocessor */

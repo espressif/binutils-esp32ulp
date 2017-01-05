@@ -257,6 +257,7 @@ case $basic_machine in
 	| ba \
 	| be32 | be64 \
 	| bfin \
+	| esp32ulp \
 	| c4x | c8051 | clipper \
 	| d10v | d30v | dlx | dsp16xx \
 	| e2k | epiphany \
@@ -380,6 +381,7 @@ case $basic_machine in
 	| ba-* \
 	| be32-* | be64-* \
 	| bfin-* | bs2000-* \
+	| esp32ulp-* \
 	| c[123]* | c30-* | [cjt]90-* | c4x-* \
 	| c8051-* | clipper-* | craynv-* | cydra-* \
 	| d10v-* | d30v-* | dlx-* \
@@ -539,6 +541,14 @@ case $basic_machine in
 		;;
 	blackfin-*)
 		basic_machine=bfin-`echo $basic_machine | sed 's/^[^-]*-//'`
+		os=-linux
+		;;
+	esp32dum)
+		basic_machine=esp32ulp-unknown
+		os=-linux
+		;;
+	esp32dum-*)
+		basic_machine=esp32ulp-`echo $basic_machine | sed 's/^[^-]*-//'`
 		os=-linux
 		;;
 	bluegene*)

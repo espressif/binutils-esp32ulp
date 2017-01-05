@@ -774,6 +774,7 @@ ALL_TARGET_OBS = \
 	avr-tdep.o \
 	bfin-linux-tdep.o \
 	bfin-tdep.o \
+	esp32ulp-tdep.o \
 	bsd-uthread.o \
 	cris-linux-tdep.o \
 	cris-tdep.o \
@@ -1240,6 +1241,7 @@ HFILES_NO_SRCDIR = \
 	bcache.h \
 	bfd-target.h \
 	bfin-tdep.h \
+	esp32ulp-tdep.h \
 	block.h \
 	breakpoint.h \
 	bsd-kvm.h \

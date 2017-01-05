@@ -234,6 +234,7 @@ ALL_EMULATION_SOURCES = \
 	eelf32am33lin.c \
 	eelf32bfin.c \
 	eelf32bfinfd.c \
+	eelf32esp32ulp.c \
 	eelf32cr16.c \
 	eelf32cr16c.c \
 	eelf32crx.c \
@@ -1032,6 +1033,10 @@ eelf32bfinfd.c: $(srcdir)/emulparams/elf32bfinfd.sh \
   $(ELF_DEPS) $(srcdir)/emultempl/bfin.em \
   $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 
+
+eelf32esp32ulp.c: $(srcdir)/emulparams/elf32esp32ulp.sh \
+  $(ELF_DEPS) $(srcdir)/emultempl/esp32ulp.em \
+  $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 eelf32bmip.c: $(srcdir)/emulparams/elf32bmip.sh $(ELF_DEPS) \
   $(srcdir)/emultempl/mipself.em $(srcdir)/scripttempl/elf.sc ${GEN_DEPENDS}
 

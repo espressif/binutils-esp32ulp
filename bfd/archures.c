@@ -447,6 +447,8 @@ DESCRIPTION
 .#define bfd_mach_avrxmega7 107
 .  bfd_arch_bfin,        {* ADI Blackfin *}
 .#define bfd_mach_bfin          1
+.  bfd_arch_esp32ulp,        {* Espressif ESP32 ULP*}
+.#define bfd_mach_esp32ulp          1
 .  bfd_arch_cr16,       {* National Semiconductor CompactRISC (ie CR16). *}
 .#define bfd_mach_cr16		1
 .  bfd_arch_cr16c,       {* National Semiconductor CompactRISC. *}
@@ -580,6 +582,7 @@ extern const bfd_arch_info_type bfd_arc_arch;
 extern const bfd_arch_info_type bfd_arm_arch;
 extern const bfd_arch_info_type bfd_avr_arch;
 extern const bfd_arch_info_type bfd_bfin_arch;
+extern const bfd_arch_info_type bfd_esp32ulp_arch;
 extern const bfd_arch_info_type bfd_cr16_arch;
 extern const bfd_arch_info_type bfd_cr16c_arch;
 extern const bfd_arch_info_type bfd_cris_arch;
@@ -673,8 +676,9 @@ static const bfd_arch_info_type * const bfd_archures_list[] =
     &bfd_arc_arch,
     &bfd_arm_arch,
     &bfd_avr_arch,
-    &bfd_bfin_arch,
-    &bfd_cr16_arch,
+	&bfd_bfin_arch,
+	&bfd_esp32ulp_arch,
+	&bfd_cr16_arch,
     &bfd_cr16c_arch,
     &bfd_cris_arch,
     &bfd_crx_arch,

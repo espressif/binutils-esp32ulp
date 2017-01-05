@@ -742,6 +742,10 @@ extern bfd_boolean bfd_bfin_elf32_create_embedded_relocs
   (bfd *, struct bfd_link_info *, struct bfd_section *, struct bfd_section *,
    char **);
 
+extern bfd_boolean bfd_espdum_elf32_create_embedded_relocs
+(bfd *, struct bfd_link_info *, struct bfd_section *, struct bfd_section *,
+char **);
+
 extern bfd_boolean bfd_cr16_elf32_create_embedded_relocs
   (bfd *, struct bfd_link_info *, struct bfd_section *, struct bfd_section *,
    char **);

@@ -165,6 +165,7 @@ am33_2.0*)	 targ_archs=bfd_mn10300_arch ;;
 arc*)		 targ_archs=bfd_arc_arch ;;
 arm*)		 targ_archs=bfd_arm_arch ;;
 bfin*)		 targ_archs=bfd_bfin_arch ;;
+esp32ulp*)	 targ_archs=bfd_esp32ulp_arch ;;
 c30*)		 targ_archs=bfd_tic30_arch ;;
 c4x*)		 targ_archs=bfd_tic4x_arch ;;
 c54x*)		 targ_archs=bfd_tic54x_arch ;;
@@ -474,6 +475,12 @@ case "${targ}" in
   bfin-*-*)
     targ_defvec=bfin_elf32_vec
     targ_selvecs=bfin_elf32_fdpic_vec
+    targ_underscore=yes
+    ;;
+
+  esp32ulp-*-*)
+    targ_defvec=esp32ulp_elf32_vec
+    targ_selvecs=esp32ulp_elf32_fdpic_vec
     targ_underscore=yes
     ;;
 

@@ -258,6 +258,7 @@ if test x${all_targets} = xfalse ; then
 	bfd_arm_arch)		ta="$ta arm-dis.lo" ;;
 	bfd_avr_arch)		ta="$ta avr-dis.lo" ;;
 	bfd_bfin_arch)		ta="$ta bfin-dis.lo" ;;
+	bfd_esp32ulp_arch)	ta="$ta esp32ulp-dis.lo" ;;
 	bfd_cr16_arch)		ta="$ta cr16-dis.lo cr16-opc.lo" ;;
 	bfd_cris_arch)		ta="$ta cris-dis.lo cris-opc.lo cgen-bitset.lo" ;;
 	bfd_crx_arch)		ta="$ta crx-dis.lo crx-opc.lo" ;;
