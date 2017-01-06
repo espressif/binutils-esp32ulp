@@ -1,5 +1,8 @@
-/* esp32ulp-parse.y  Espressif ULP parser
-   Copyright (C) 2016-2017 Free Software Foundation, Inc.
+/* esp32ulp-parse.y  Espressif ESP32ULP Parser
+   
+   Copyright (c) 2016-2017 Espressif Systems (Shanghai) PTE LTD.
+
+   based on Copyright (C) 2016-2017 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 

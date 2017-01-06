@@ -1,3 +1,24 @@
+/* ESP32ULP ELF-32 support for BFD.
+Copyright (c) 2016-2017 Espressif Systems (Shanghai) PTE LTD.
+
+based on Copyright (C) 2005-2017 Free Software Foundation, Inc.
+
+This file is part of BFD, the Binary File Descriptor library.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software Foundation,
+Inc., 51 Franklin Street - Fifth Floor, Boston, MA 02110-1301, USA.  */
+
 #include "sysdep.h"
 #include "bfd.h"
 #include "libbfd.h"
@@ -6,29 +27,16 @@
 #include "dwarf2.h"
 #include "hashtab.h"
 
-/* FUNCTION : esp32ulp_pltpc_reloc
-ABSTRACT : TODO : figure out how to handle pltpc relocs.  */
-static bfd_reloc_status_type
-esp32ulp_pltpc_reloc(
-bfd *abfd ATTRIBUTE_UNUSED,
-arelent *reloc_entry ATTRIBUTE_UNUSED,
-asymbol *symbol ATTRIBUTE_UNUSED,
-void * data ATTRIBUTE_UNUSED,
-asection *input_section ATTRIBUTE_UNUSED,
-bfd *output_bfd ATTRIBUTE_UNUSED,
-char **error_message ATTRIBUTE_UNUSED)
+static bfd_reloc_status_type esp32ulp_pltpc_reloc( 
+	bfd *abfd ATTRIBUTE_UNUSED, arelent *reloc_entry ATTRIBUTE_UNUSED, asymbol *symbol ATTRIBUTE_UNUSED, 
+	void * data ATTRIBUTE_UNUSED, asection *input_section ATTRIBUTE_UNUSED, bfd *output_bfd ATTRIBUTE_UNUSED, char **error_message ATTRIBUTE_UNUSED
+	)
 {
 	bfd_reloc_status_type flag = bfd_reloc_ok;
 	return flag;
 }
-static bfd_reloc_status_type
-esp32ulp_imm16_reloc(bfd *abfd,
-arelent *reloc_entry,
-asymbol *symbol,
-void * data,
-asection *input_section,
-bfd *output_bfd,
-char **error_message ATTRIBUTE_UNUSED)
+
+static bfd_reloc_status_type esp32ulp_imm16_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
 {
 	DEBUG_TRACE("dya_pass esp32ulp_imm16_reloc\n");
 	bfd_vma relocation, x;
@@ -95,14 +103,7 @@ char **error_message ATTRIBUTE_UNUSED)
 }
 
 
-static bfd_reloc_status_type
-esp32ulp_jumprelr_reloc(bfd *abfd,
-arelent *reloc_entry,
-asymbol *symbol,
-void * data,
-asection *input_section,
-bfd *output_bfd,
-char **error_message ATTRIBUTE_UNUSED)
+static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
 {
 	bfd_vma relocation;
 	bfd_size_type addr = reloc_entry->address;
@@ -173,14 +174,7 @@ char **error_message ATTRIBUTE_UNUSED)
 	return bfd_reloc_ok;
 }
 
-static bfd_reloc_status_type
-esp32ulp_bfd_reloc(bfd *abfd,
-arelent *reloc_entry,
-asymbol *symbol,
-void * data,
-asection *input_section,
-bfd *output_bfd,
-char **error_message ATTRIBUTE_UNUSED)
+static bfd_reloc_status_type esp32ulp_bfd_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
 {
 	bfd_vma relocation;
 	bfd_size_type addr = reloc_entry->address;
@@ -306,59 +300,59 @@ char **error_message ATTRIBUTE_UNUSED)
 static reloc_howto_type esp32ulp_howto_table[] =
 {
 	/* This reloc does nothing. .  */
-	HOWTO(R_ESP32ULP_UNUSED0,	/* type.  */
-	0,			/* rightshift.  */
-	3,			/* size (0 = byte, 1 = short, 2 = long).  */
-	0,			/* bitsize.  */
-	FALSE,			/* pc_relative.  */
-	0,			/* bitpos.  */
-	complain_overflow_dont, /* complain_on_overflow.  */
-	bfd_elf_generic_reloc,	/* special_function.  */
-	"R_ESP32ULP_UNUSED0",	/* name.  */
-	FALSE,			/* partial_inplace.  */
-	0,			/* src_mask.  */
-	0,			/* dst_mask.  */
-	FALSE),		/* pcrel_offset.  */
+	HOWTO(R_ESP32ULP_UNUSED0,					/* type.  */
+	0,											/* rightshift.  */
+	3,											/* size (0 = byte, 1 = short, 2 = long).  */
+	0,											/* bitsize.  */
+	FALSE,										/* pc_relative.  */
+	0,											/* bitpos.  */
+	complain_overflow_dont,						/* complain_on_overflow.  */
+	bfd_elf_generic_reloc,						/* special_function.  */
+	"R_ESP32ULP_UNUSED0",						/* name.  */
+	FALSE,										/* partial_inplace.  */
+	0,											/* src_mask.  */
+	0,											/* dst_mask.  */
+	FALSE),										/* pcrel_offset.  */
 
 
 	HOWTO(R_ESP32ULP_RIMM16,		/* type.  */
-	0,			/* rightshift.  */
-	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
-	FALSE,			/* pc_relative.  */
-	2,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
-	esp32ulp_imm16_reloc,	/* special_function.  */
-	"R_ESP32ULP_RIMM16",	/* name.  */
-	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	0x00001FFC,		/* dst_mask.  */
-	TRUE),			/* pcrel_offset.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	16,								/* bitsize.  */
+	FALSE,							/* pc_relative.  */
+	2,								/* bitpos.  */
+	complain_overflow_signed,		/* complain_on_overflow.  */
+	esp32ulp_imm16_reloc,			/* special_function.  */
+	"R_ESP32ULP_RIMM16",			/* name.  */
+	FALSE,							/* partial_inplace.  */
+	0,								/* src_mask.  */ // dya-pass - 0
+	0x00001FFC,						/* dst_mask.  */
+	TRUE),							/* pcrel_offset.  */
 
-	HOWTO(R_ESP32ULP_JUMPR,	/* type.  */
-	0,			/* rightshift.  */
-	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	8,			/* bitsize.  */
-	TRUE,			/* pc_relative.  */
-	17,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
-	esp32ulp_jumprelr_reloc,	/* special_function.  */
-	"R_ESP32ULP_JUMPR",	/* name.  */
-	FALSE,			/* partial_inplace.  */
-	0,			  /* src_mask.  */
-	(0xff << 17),		/* dst_mask.  */
-	TRUE),			/* pcrel_offset.  */
+	HOWTO(R_ESP32ULP_JUMPR,			/* type.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	8,								/* bitsize.  */
+	TRUE,							/* pc_relative.  */
+	17,								/* bitpos.  */
+	complain_overflow_signed,		/* complain_on_overflow.  */
+	esp32ulp_jumprelr_reloc,		/* special_function.  */
+	"R_ESP32ULP_JUMPR",				/* name.  */
+	FALSE,							/* partial_inplace.  */
+	0,								/* src_mask.  */
+	(0xff << 17),					/* dst_mask.  */
+	TRUE),							/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_LOAD16,		/* type.  */
-	0,			/* rightshift.  */
-	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	16,			/* bitsize.  */
-	FALSE,			/* pc_relative.  */
-	2,			/* bitpos.  */
-	complain_overflow_signed, /* complain_on_overflow.  */
-	esp32ulp_imm16_reloc,	/* special_function.  */
-	"R_ESP32ULP_RIMM16",	/* name.  */
-	FALSE,			/* partial_inplace.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	16,								/* bitsize.  */
+	FALSE,							/* pc_relative.  */
+	2,								/* bitpos.  */
+	complain_overflow_signed,		/* complain_on_overflow.  */
+	esp32ulp_imm16_reloc,			/* special_function.  */
+	"R_ESP32ULP_RIMM16",			/* name.  */
+	FALSE,							/* partial_inplace.  */
 	0,				/* src_mask.  */ // dya-pass - 0
 	0x00001FFC,		/* dst_mask.  */
 	TRUE),			/* pcrel_offset.  */
@@ -897,21 +891,19 @@ unsigned int r_type)
 
 	return (reloc_howto_type *)NULL;
 }
-
-/* Set by ld emulation if --code-in-l1.  */
-bfd_boolean elf32_esp32ulp_code_in_l1 = 0;
-
-/* Set by ld emulation if --data-in-l1.  */
-bfd_boolean elf32_esp32ulp_data_in_l1 = 0;
+//
+///* Set by ld emulation if --code-in-l1.  */
+//bfd_boolean elf32_esp32ulp_code_in_l1 = 0;
+//
+///* Set by ld emulation if --data-in-l1.  */
+//bfd_boolean elf32_esp32ulp_data_in_l1 = 0;
 
 static void
 elf32_esp32ulp_final_write_processing(bfd *abfd,
 bfd_boolean linker ATTRIBUTE_UNUSED)
 {
-	if (elf32_esp32ulp_code_in_l1)
-		elf_elfheader(abfd)->e_flags |= EF_ESP32ULP_CODE_IN_L1;
-	if (elf32_esp32ulp_data_in_l1)
-		elf_elfheader(abfd)->e_flags |= EF_ESP32ULP_DATA_IN_L1;
+	(void)abfd;
+	(void)linker;
 }
 
 /* Return TRUE if the name is a local label.
@@ -1889,14 +1881,6 @@ _esp32ulpfdpic_osec_to_segment(bfd *output_bfd, asection *osec)
 	return (p != NULL) ? p - elf_tdata(output_bfd)->phdr : -1;
 }
 
-inline static bfd_boolean
-_esp32ulpfdpic_osec_readonly_p(bfd *output_bfd, asection *osec)
-{
-	unsigned seg = _esp32ulpfdpic_osec_to_segment(output_bfd, osec);
-
-	return !(elf_tdata(output_bfd)->phdr[seg].p_flags & PF_W);
-}
-
 /* Relocate an Blackfin ELF section.
 
 The RELOCATE_SECTION function is called by the new ELF backend linker
@@ -1937,7 +1921,7 @@ struct bfd_link_info *info,
 	Elf_Internal_Sym * local_syms,
 	asection ** local_sections)
 {
-	local_sections = local_sections; // dya - remove warning
+	(void)local_sections; // dya - remove warning
 	Elf_Internal_Shdr *symtab_hdr;
 	struct elf_link_hash_entry **sym_hashes;
 	Elf_Internal_Rela *rel;
@@ -3146,8 +3130,8 @@ _esp32ulpfdpic_check_discarded_relocs(bfd *abfd, asection *sec,
 struct bfd_link_info *info,
 	bfd_boolean *changed)
 {
-	info = info;// dya - remove warning
-	changed = changed;// dya - remove warning
+	(void)info;// dya - remove warning
+	(void)changed;// dya - remove warning
 	Elf_Internal_Shdr *symtab_hdr;
 	struct elf_link_hash_entry **sym_hashes, **sym_hashes_end;
 

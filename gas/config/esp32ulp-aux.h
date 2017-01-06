@@ -1,5 +1,5 @@
-/* esp32ulp-aux.h 
-   Copyright (C) 2005-2016 Free Software Foundation, Inc.
+/* ESP32ULP ELF-32 support for GAS 
+   Copyright (c) 2016-2017 Espressif Systems (Shanghai) PTE LTD.
 
    This file is part of GAS, the GNU Assembler.
 

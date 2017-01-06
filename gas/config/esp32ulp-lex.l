@@ -1,5 +1,8 @@
-/* esp32ulp-lex.l  ESP32 ULP 
-   Copyright (C) 2005-2016 Free Software Foundation, Inc.
+/* esp32ulp-lex.l    ESP32ULP GNU Assembler
+
+   Copyright (c) 2016-2017 Espressif Systems (Shanghai) PTE LTD.
+   
+   based on Copyright (C) 2005-2017 Free Software Foundation, Inc.
 
    This file is part of GAS, the GNU Assembler.
 

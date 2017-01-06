@@ -1,5 +1,6 @@
 /* esp32ulp.h -- Header file for ESP32ULP opcode table
-   Copyright (C) 2005-2016 Free Software Foundation, Inc.
+   
+   Copyright (c) 2016-2017 Espressif Systems (Shanghai) PTE LTD.
 
    This file is part of GDB, GAS, and the GNU binutils.
 
