@@ -38,7 +38,7 @@ static bfd_reloc_status_type esp32ulp_pltpc_reloc(
 
 static bfd_reloc_status_type esp32ulp_imm16_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
 {
-	DEBUG_TRACE("dya_pass esp32ulp_imm16_reloc\n");
+	//DEBUG_TRACE("dya_pass esp32ulp_imm16_reloc\n");
 	bfd_vma relocation, x;
 	bfd_size_type reloc_addr = reloc_entry->address;
 	bfd_vma output_base = 0;
@@ -95,7 +95,7 @@ static bfd_reloc_status_type esp32ulp_imm16_reloc(bfd *abfd, arelent *reloc_entr
 	/* Here the variable relocation holds the final address of the
 	symbol we are relocating against, plus any addend.  */
 
-	DEBUG_TRACE("dya_pass - esp32ulp_imm16_reloc = %i, reloc_addr=%i, howto->rightshift=%i\n", (unsigned int)relocation, (unsigned int)reloc_addr, (int)howto->rightshift);
+	//DEBUG_TRACE("dya_pass - esp32ulp_imm16_reloc = %i, reloc_addr=%i, howto->rightshift=%i\n", (unsigned int)relocation, (unsigned int)reloc_addr, (int)howto->rightshift);
 	relocation >>= (bfd_vma)howto->rightshift;
 	x = relocation;
 	bfd_put_16(abfd, x, (unsigned char *)data + reloc_addr);
@@ -111,7 +111,7 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 	asection *output_section;
 	bfd_boolean relocatable = (output_bfd != NULL);
 
-	DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocatable=%i\n", (int)relocatable);
+	//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocatable=%i\n", (int)relocatable);
 
 	/* Is the address of the relocation really within the section?  */
 	if (reloc_entry->address > bfd_get_section_limit(abfd, input_section))
@@ -145,7 +145,7 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 		/* This output will be relocatable ... like ld -r. */
 		reloc_entry->address += input_section->output_offset;
 		reloc_entry->addend += symbol->section->output_offset;
-		DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: address=%08x, addend=%08x, symbol->value=%08x\n", (int)reloc_entry->address, (int)reloc_entry->addend, (int)symbol->value);
+		//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: address=%08x, addend=%08x, symbol->value=%08x\n", (int)reloc_entry->address, (int)reloc_entry->addend, (int)symbol->value);
 	}
 	else
 	{
@@ -157,7 +157,7 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 	unsigned int ddd = 0;
 	memcpy(&ddd, (unsigned char *)data + addr, 4);
 	relocation -= reloc_entry->address;
-	DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
+	//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
 	ddd &= ~(0x000000ff < 17);
 	int reloc = (int)relocation;
 	if (reloc >= 0)
@@ -170,7 +170,7 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 		ddd |= ((reloc & 0x7f) << 17) | (0x01 << 24);
 	}
 	memcpy((unsigned char *)data + addr, &ddd, 4);
-	DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: final = reloc=%08x, ddd=%08x\n", (unsigned int)reloc, ddd);
+	//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: final = reloc=%08x, ddd=%08x\n", (unsigned int)reloc, ddd);
 	return bfd_reloc_ok;
 }
 
@@ -1076,7 +1076,7 @@ bfd_byte *contents, bfd_vma address,
 bfd_vma value, bfd_vma addend)
 {
 	int r_type = ELF32_R_TYPE(rel->r_info);
-	DEBUG_TRACE("dya_pass - esp32ulp_final_link_relocate r_type=%i, addend=%i\n", r_type, (unsigned int)addend);
+	//DEBUG_TRACE("dya_pass - esp32ulp_final_link_relocate r_type=%i, addend=%i\n", r_type, (unsigned int)addend);
 	if ((r_type == R_ESP32ULP_JUMPR) || (r_type == R_ESP32ULP_JUMPR_STEP))
 	{
 		bfd_reloc_status_type r = bfd_reloc_ok;
@@ -1104,7 +1104,7 @@ bfd_vma value, bfd_vma addend)
 			ddd |= ((compare & 0x0000007f) << 17) | (1 << 24);
 		}
 		memcpy(contents + address, &ddd, 4);
-		DEBUG_TRACE("dya_pass - esp32ulp_final_link_relocate: ddd=%08x, value=%08x, addr=%08x\n", ddd, (int)value, (int)address);
+		//DEBUG_TRACE("dya_pass - esp32ulp_final_link_relocate: ddd=%08x, value=%08x, addr=%08x\n", ddd, (int)value, (int)address);
 		return r;
 	}
 
@@ -1141,7 +1141,7 @@ struct bfd_link_info *info,
 
 	rel = relocs;
 	relend = relocs + input_section->reloc_count;
-	DEBUG_TRACE("dya_pass - esp32ulp_relocate_section\n");
+	//DEBUG_TRACE("dya_pass - esp32ulp_relocate_section\n");
 	for (; rel < relend; rel++, i++)
 	{
 		int r_type;
@@ -1205,7 +1205,7 @@ struct bfd_link_info *info,
 		address = rel->r_offset;
 
 		/* Then, process normally.  */
-		DEBUG_TRACE("dya_pass - esp32ulp_relocate_section r_type=%i\n", (int)r_type);
+		//DEBUG_TRACE("dya_pass - esp32ulp_relocate_section r_type=%i\n", (int)r_type);
 		switch (r_type)
 		{
 		case R_ESP32ULP_GNU_VTINHERIT:
@@ -1325,7 +1325,7 @@ struct bfd_link_info *info,
 
 		default:
 		do_default :
-			DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
+			//DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
 				   rel->r_addend = 0; // dya_pass
 				   r = esp32ulp_final_link_relocate(rel, howto, input_bfd, input_section,
 					   contents, address,

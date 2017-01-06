@@ -24,9 +24,9 @@
 
 #include "elf/reloc-macros.h"
 
-#ifndef DEBUG_TRACE
-#define DEBUG_TRACE printf
-#endif // DEBUG_TRACE
+//#ifndef DEBUG_TRACE
+//#define DEBUG_TRACE //printf
+//#endif //DEBUG_TRACE
 
 START_RELOC_NUMBERS (elf_esp32ulp_reloc_type)
   RELOC_NUMBER (R_ESP32ULP_UNUSED0, 0x00)          

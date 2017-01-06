@@ -184,9 +184,9 @@ md_assemble(char *line)
 	current_inputline[len] = ';';
 	current_inputline[len + 1] = '\0';
 
-	//if (insn) DEBUG_TRACE("dya_pass 222 insn old =%08x\n", (unsigned int)insn->value);
+	//if (insn) //DEBUG_TRACE("dya_pass 222 insn old =%08x\n", (unsigned int)insn->value);
 	state = parse(current_inputline);
-	//if (insn) DEBUG_TRACE("dya_pass 222 insn new =%08x\n", (unsigned int)insn->value);
+	//if (insn) //DEBUG_TRACE("dya_pass 222 insn new =%08x\n", (unsigned int)insn->value);
 	if (state == NO_INSN_GENERATED)
 		return;
 
@@ -208,7 +208,7 @@ md_assemble(char *line)
 		if (insn->reloc && insn->exp->symbol)
 		{
 			size = 4;
-			DEBUG_TRACE("insn->reloc && insn->exp->symbol BFD_ARELOC_ESP32ULP_PUSH size =%i, insn->exp->value=%i, insn->pcrel=%i, insn->reloc=%i\n", size, (unsigned int)insn->exp->value, insn->pcrel, insn->reloc);
+			//DEBUG_TRACE("insn->reloc && insn->exp->symbol BFD_ARELOC_ESP32ULP_PUSH size =%i, insn->exp->value=%i, insn->pcrel=%i, insn->reloc=%i\n", size, (unsigned int)insn->exp->value, insn->pcrel, insn->reloc);
 
 			//char *prev_toP = toP - 2;
 			//fix_new(frag_now, (prev_toP - frag_now->fr_literal), size, insn->exp->symbol, insn->exp->value, insn->pcrel, insn->reloc);
@@ -217,7 +217,7 @@ md_assemble(char *line)
 		}
 		else
 		{
-			DEBUG_TRACE("md_number_to_chars insn->value =%08x\n", (unsigned int)insn->value);
+			//DEBUG_TRACE("md_number_to_chars insn->value =%08x\n", (unsigned int)insn->value);
 			//md_number_to_chars(toP, insn->value, 2);
 			//toP += 2;
 			// TODO:DYA - this is main changes for 32 bit words!!!!! changes stop work
@@ -226,17 +226,17 @@ md_assemble(char *line)
 		}
 		size = 4;
 #ifdef DEBUG
-		DEBUG_TRACE(" reloc : value = %08x, pc=%08x, reloc=%08x BFD_RELOC_ESP32ULP_PLTPC = %08x\n", (unsigned int)insn->value, (unsigned int)insn->pcrel, (unsigned int)insn->reloc, BFD_RELOC_ESP32ULP_PLTPC);
+		//DEBUG_TRACE(" reloc : value = %08x, pc=%08x, reloc=%08x BFD_RELOC_ESP32ULP_PLTPC = %08x\n", (unsigned int)insn->value, (unsigned int)insn->pcrel, (unsigned int)insn->reloc, BFD_RELOC_ESP32ULP_PLTPC);
 		if (insn->exp != ((void*)(0)))
 		{
-			DEBUG_TRACE(" exp: %08x, sy_obj=%i\n", insn->exp->value, insn->exp->symbol->sy_obj.local);
+			//DEBUG_TRACE(" exp: %08x, sy_obj=%i\n", insn->exp->value, insn->exp->symbol->sy_obj.local);
 		}
 #endif
 		insn = insn->next;
 	}
 #ifdef OBJ_ELF
 	dwarf2_emit_insn(insn_size);
-	DEBUG_TRACE("dya_pass ============== >insn_size=%i\n", (unsigned int)insn_size);
+	//DEBUG_TRACE("dya_pass ============== >insn_size=%i\n", (unsigned int)insn_size);
 #endif
 
 	while (*line++ != '\0')
@@ -266,13 +266,13 @@ parse(char *line)
 	set_start_state();
 
 	/* Call yyparse here.  */
-	DEBUG_TRACE("yyparse: %s\n", line);
+	//DEBUG_TRACE("yyparse: %s\n", line);
 	state = yyparse();
-	DEBUG_TRACE("yyparse result!: %i\n", (int)state);
+	//DEBUG_TRACE("yyparse result!: %i\n", (int)state);
 	if (state == SEMANTIC_ERROR)
 	{
 		as_bad(_("Parse failed."));
-		DEBUG_TRACE("yyparse ERROR!: %s\n", line);
+		//DEBUG_TRACE("yyparse ERROR!: %s\n", line);
 		insn = 0;
 	}
 
@@ -315,7 +315,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	char *where = fixP->fx_frag->fr_literal + fixP->fx_where;
 
 	long value = *valueP;
-	DEBUG_TRACE("dya_pass - md_apply_fix: fixP->fx_r_type=%i, value=%i, fixP->fx_where=%i\n", fixP->fx_r_type, (unsigned int)value, (int)fixP->fx_where);
+	//DEBUG_TRACE("dya_pass - md_apply_fix: fixP->fx_r_type=%i, value=%i, fixP->fx_where=%i\n", fixP->fx_r_type, (unsigned int)value, (int)fixP->fx_where);
 	switch (fixP->fx_r_type)
 	{
 	case BFD_RELOC_ESP32ULP_16_IMM:
@@ -334,7 +334,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~(0xff << 17);
 		temp_val |= value;
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
 		//md_number_to_chars(where, value, 0);
 		break;
 	case BFD_RELOC_ESP32ULP_16_LOAD:
@@ -346,7 +346,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~(0xffff);
 		temp_val |= value;
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_16_LOAD temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_16_LOAD temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -359,7 +359,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xffff << 10));
 		temp_val |= (value << 10);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WR_MEM temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WR_MEM temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -372,7 +372,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xffff << 4));
 		temp_val |= (value << 4);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ALUI temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ALUI temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -385,7 +385,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xffff << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WAIT temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WAIT temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -398,7 +398,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x3fff << 16));
 		temp_val |= (value << 16);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_TSENS_CYCLE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_TSENS_CYCLE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -411,7 +411,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x3fff << 2));
 		temp_val |= (value << 2);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_TSENS_DELAY temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_TSENS_DELAY temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -424,7 +424,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x1 << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WAKE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WAKE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -437,7 +437,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x0f << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_SLEEP temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_SLEEP temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -450,7 +450,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xffff << 8));
 		temp_val |= (value << 8);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ADC_CYCLE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ADC_CYCLE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -463,7 +463,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x1 << 6));
 		temp_val |= (value << 6);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ADC_SEL temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ADC_SEL temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -476,7 +476,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x0f << 2));
 		temp_val |= (value << 2);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ADC_MUX temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ADC_MUX temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -489,7 +489,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xff << 4));
 		temp_val |= (value << 4);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_STAGE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_STAGE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -511,7 +511,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 			temp_val |= 0x80 << 17;
 		}
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_STEP temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_STEP temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -526,7 +526,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xffff << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_THRESH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_THRESH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -540,7 +540,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xff << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPS_THRESH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPS_THRESH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -553,7 +553,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x1f << 23));
 		temp_val |= (value << 23);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_HIGH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_HIGH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_REG_RW_LOW:
 		if ((value > 0x1f) || (value < -0x1f))
@@ -564,7 +564,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x1f << 18));
 		temp_val |= (value << 18);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_LOW temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_LOW temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 
 	case BFD_RELOC_ESP32ULP_REG_RW_ADDR:
@@ -576,7 +576,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x3ff << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_ADDR temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_ADDR temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_REG_RW_DATA:
 		if ((value > 0x7f) || (value < -0x7f))
@@ -587,7 +587,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xff << 10));
 		temp_val |= (value << 10);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_DATA temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_DATA temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 
 	case BFD_RELOC_ESP32ULP_I2C_RW_HIGH:
@@ -599,7 +599,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x7 << 19));
 		temp_val |= (value << 19);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_HIGH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_HIGH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_I2C_RW_LOW:
 		if ((value > 0x7) || (value < -0x7))
@@ -610,7 +610,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0x7 << 16));
 		temp_val |= (value << 16);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_LOW temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_LOW temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_I2C_RW_SEL:
 		if ((value > 0xf) || (value < -0xf))
@@ -621,7 +621,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xf << 22));
 		temp_val |= (value << 22);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_SEL temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_SEL temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_I2C_RW_ADDR:
 		if ((value > 0xff) || (value < -0xff))
@@ -632,7 +632,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xff << 0));
 		temp_val |= (value << 0);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_ADDR temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_ADDR temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_I2C_RW_DATA:
 		if ((value > 0xff) || (value < -0xff))
@@ -643,7 +643,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val &= ~((0xff << 8));
 		temp_val |= (value << 8);
 		memcpy(where, &temp_val, 4);
-		DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_DATA temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_DATA temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 
 	default:
@@ -1011,21 +1011,21 @@ esp32ulp_gen_progctrl(int prgfunc, int poprnd)
 
 INSTR_T esp32ulp_gen_alu_ADDR(int dst, int src1, int src2)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_gen_alu_add - dst=%i, src1=%i, src2=%i\n", dst, src1, src2);
+	//DEBUG_TRACE("dya_pass - esp32ulp_gen_alu_add - dst=%i, src1=%i, src2=%i\n", dst, src1, src2);
 	unsigned int local_op = I_ALUR(dst, src1, src2, ALU_SEL_ADD);
 	return GEN_OPCODE32_DYA(local_op);
 }
 
 INSTR_T esp32ulp_gen_alu_r(int dst, int src1, int src2, int operation)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_gen_alu_r - dst=%i, src1=%i, src2=%i, op = %i\n", dst, src1, src2, operation);
+	//DEBUG_TRACE("dya_pass - esp32ulp_gen_alu_r - dst=%i, src1=%i, src2=%i, op = %i\n", dst, src1, src2, operation);
 	unsigned int local_op = I_ALUR(dst, src1, src2, operation);
 	return GEN_OPCODE32_DYA(local_op);
 }
 
 INSTR_T esp32ulp_gen_alu_i(int dst, int src1, Expr_Node* addr, int operation)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_gen_alu_i - dst=%i, src1=%i, operation = %i, type=%i, op_value = %i\n", dst, src1, operation, (int)addr->type, (int)addr->value.op_value);
+	//DEBUG_TRACE("dya_pass - esp32ulp_gen_alu_i - dst=%i, src1=%i, operation = %i, type=%i, op_value = %i\n", dst, src1, operation, (int)addr->type, (int)addr->value.op_value);
 	int imm_val = EXPR_VALUE(addr);
 	unsigned int local_op = I_ALUI(dst, src1, imm_val, operation);
 	int rel = BFD_RELOC_ESP32ULP_ALUI;
@@ -1035,7 +1035,7 @@ INSTR_T esp32ulp_gen_alu_i(int dst, int src1, Expr_Node* addr, int operation)
 
 INSTR_T esp32ulp_gen_jump_r(int dst_reg, int cond)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_gen_jump_r - dst_reg=%i, cond=%i\n", dst_reg, cond);
+	//DEBUG_TRACE("dya_pass - esp32ulp_gen_jump_r - dst_reg=%i, cond=%i\n", dst_reg, cond);
 	unsigned int local_op = I_JUMP_RI(dst_reg, 0, cond, 0);
 	return GEN_OPCODE32_DYA(local_op);
 }
@@ -1060,7 +1060,7 @@ INSTR_T esp32ulp_gen_jump_relr(Expr_Node* addr, int judge, int thresh)
 
 	int val = EXPR_VALUE(addr);
 	unsigned int local_op = I_JUMP_RELR(thresh, judge, (unsigned int)val);
-	DEBUG_TRACE("dya_pass - esp32ulp_gen_jump_relr thresh=%i, judge=%i, local_op=%x\n", (int)thresh, (int)judge, local_op);
+	//DEBUG_TRACE("dya_pass - esp32ulp_gen_jump_relr thresh=%i, judge=%i, local_op=%x\n", (int)thresh, (int)judge, local_op);
 
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
 }
@@ -1070,7 +1070,7 @@ INSTR_T esp32ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond)
 	int step_val = EXPR_VALUE(step);
 	int thresh_val = EXPR_VALUE(thresh);
 
-	DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_relr\n");
+	//DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_relr\n");
 	unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val);
 	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESH)));
 }
@@ -1079,13 +1079,13 @@ INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 	int step_val = EXPR_VALUE(step);
 	int thresh_val = EXPR_VALUE(thresh);
 
-	DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_rels\n");
+	//DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_rels\n");
 	unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val);
 	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH)));
 }
 INSTR_T esp32ulp_cmd_reg_rd(Expr_Node* addr, Expr_Node* high, Expr_Node* low)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_REG_RD \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_REG_RD \n");
 	unsigned int addr_val = EXPR_VALUE(addr);
 	unsigned int high_val = EXPR_VALUE(high);
 	unsigned int low_val = EXPR_VALUE(low);
@@ -1098,7 +1098,7 @@ INSTR_T esp32ulp_cmd_reg_rd(Expr_Node* addr, Expr_Node* high, Expr_Node* low)
 }
 INSTR_T esp32ulp_cmd_reg_wr(Expr_Node* addr, Expr_Node* high, Expr_Node* low, Expr_Node* data)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_REG_WR \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_REG_WR \n");
 	unsigned int addr_val = EXPR_VALUE(addr);
 	unsigned int high_val = EXPR_VALUE(high);
 	unsigned int low_val = EXPR_VALUE(low);
@@ -1114,7 +1114,7 @@ INSTR_T esp32ulp_cmd_reg_wr(Expr_Node* addr, Expr_Node* high, Expr_Node* low, Ex
 
 INSTR_T esp32ulp_cmd_i2c_rd(Expr_Node* i2c_addr, Expr_Node* high, Expr_Node* low, Expr_Node* i2c_sel)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_I2C_RD \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_I2C_RD \n");
 	unsigned int addr_val = EXPR_VALUE(i2c_addr);
 	unsigned int high_val = EXPR_VALUE(high);
 	unsigned int low_val = EXPR_VALUE(low);
@@ -1129,7 +1129,7 @@ INSTR_T esp32ulp_cmd_i2c_rd(Expr_Node* i2c_addr, Expr_Node* high, Expr_Node* low
 }
 INSTR_T esp32ulp_cmd_i2c_wr(Expr_Node* i2c_addr, Expr_Node* high, Expr_Node* low, Expr_Node* i2c_sel, Expr_Node* data)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_I2C_RD \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_I2C_RD \n");
 	unsigned int addr_val = EXPR_VALUE(i2c_addr);
 	unsigned int high_val = EXPR_VALUE(high);
 	unsigned int low_val = EXPR_VALUE(low);
@@ -1158,26 +1158,9 @@ INSTR_T esp32ulp_gen_jump_rels(Expr_Node* addr, int judge, int thresh)
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
 }
 
-INSTR_T esp32ulp_move_const2reg(int dst_reg, int data)
-{
-	DEBUG_TRACE("dya_pass - esp32ulp_move_const2reg - dst_reg=%i, cond=%i\n", dst_reg, data);
-	return GEN_OPCODE32_DYA(data);
-}
-
-INSTR_T esp32ulp_move_addr2reg(int dst_reg, Expr_Node* addr)
-{
-	addr = addr;
-	DEBUG_TRACE("dya_pass - esp32ulp_move_const2reg - dst_reg=%i, cond=%i\n", dst_reg, (int)0);
-	unsigned int local_op = 0;// I_JUMP_RELR(0, val, cond, 1);
-
-	int rel = 0;
-	rel = BFD_RELOC_ESP32ULP_16_LOAD;
-	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
-}
-
 INSTR_T esp32ulp_wr_mem_addr(int dst_reg, int src_reg, Expr_Node* addr)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_wr_mem_addr - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, (int)0);
+	//DEBUG_TRACE("dya_pass - esp32ulp_wr_mem_addr - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, (int)0);
 	int addr_val = EXPR_VALUE(addr);
 	unsigned int local_op = WR_MEM(dst_reg, src_reg, addr_val);// I_JUMP_RELR(0, val, cond, 1);
 
@@ -1188,7 +1171,7 @@ INSTR_T esp32ulp_wr_mem_addr(int dst_reg, int src_reg, Expr_Node* addr)
 
 INSTR_T esp32ulp_wr_mem_offset(int dst_reg, int src_reg, int addr)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_wr_mem_offset - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, addr);
+	//DEBUG_TRACE("dya_pass - esp32ulp_wr_mem_offset - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, addr);
 	unsigned int local_op = WR_MEM(dst_reg, src_reg, addr);// I_JUMP_RELR(0, val, cond, 1);
 
 	return GEN_OPCODE32_DYA(local_op);
@@ -1197,7 +1180,7 @@ INSTR_T esp32ulp_wr_mem_offset(int dst_reg, int src_reg, int addr)
 
 INSTR_T esp32ulp_rd_mem_addr(int dst_reg, int src_reg, Expr_Node* addr)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_rd_mem_addr - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, (int)0);
+	//DEBUG_TRACE("dya_pass - esp32ulp_rd_mem_addr - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, (int)0);
 	int addr_val = EXPR_VALUE(addr);
 	unsigned int local_op = RD_MEM(dst_reg, src_reg, addr_val);// I_JUMP_RELR(0, val, cond, 1);
 
@@ -1208,7 +1191,7 @@ INSTR_T esp32ulp_rd_mem_addr(int dst_reg, int src_reg, Expr_Node* addr)
 
 INSTR_T esp32ulp_rd_mem_offset(int dst_reg, int src_reg, int addr)
 {
-	DEBUG_TRACE("dya_pass - esp32ulp_rd_mem_offset - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, addr);
+	//DEBUG_TRACE("dya_pass - esp32ulp_rd_mem_offset - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, addr);
 	unsigned int local_op = RD_MEM(dst_reg, src_reg, addr);// I_JUMP_RELR(0, val, cond, 1);
 
 	return GEN_OPCODE32_DYA(local_op);
@@ -1216,7 +1199,7 @@ INSTR_T esp32ulp_rd_mem_offset(int dst_reg, int src_reg, int addr)
 
 INSTR_T esp32ulp_cmd_halt()
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_HALT \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_HALT \n");
 	unsigned int local_op = OP_CMD_HALT();
 
 	return GEN_OPCODE32_DYA(local_op);
@@ -1224,7 +1207,7 @@ INSTR_T esp32ulp_cmd_halt()
 
 INSTR_T esp32ulp_cmd_sleep(Expr_Node*  cycles)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_SLEEP \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_SLEEP \n");
 	int cycles_val = EXPR_VALUE(cycles);
 	unsigned int local_op = OP_CMD_SLEEP(cycles_val);
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(cycles, BFD_RELOC_ESP32ULP_SLEEP));
@@ -1232,7 +1215,7 @@ INSTR_T esp32ulp_cmd_sleep(Expr_Node*  cycles)
 
 INSTR_T esp32ulp_cmd_wakeup(Expr_Node*  wake)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_WAKEUP \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_WAKEUP \n");
 	int wake_val = EXPR_VALUE(wake);
 	unsigned int local_op = OP_CMD_WAKEUP(wake_val);
 
@@ -1241,7 +1224,7 @@ INSTR_T esp32ulp_cmd_wakeup(Expr_Node*  wake)
 
 INSTR_T esp32ulp_cmd_stage(int dir, Expr_Node* imm)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_STAGE_INC \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_STAGE_INC \n");
 	int imm_val = EXPR_VALUE(imm);
 	unsigned int local_op = I_ALUS(dir, imm_val);
 
@@ -1250,7 +1233,7 @@ INSTR_T esp32ulp_cmd_stage(int dir, Expr_Node* imm)
 
 INSTR_T esp32ulp_cmd_stage_rst()
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_STAGE_RST \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_STAGE_RST \n");
 	unsigned int local_op = I_ALUS(ALU_SEL_SRST, 0);
 
 	return GEN_OPCODE32_DYA(local_op);
@@ -1266,7 +1249,7 @@ INSTR_T esp32ulp_cmd_wait(Expr_Node* cycles)
 
 INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* cycles, Expr_Node* delay)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_TSENS \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_TSENS \n");
 
 	int cycles_val = EXPR_VALUE(cycles);
 	int delay_val = EXPR_VALUE(delay);
@@ -1276,7 +1259,7 @@ INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* cycles, Expr_Node* delay)
 
 INSTR_T esp32ulp_cmd_adc(int dreg, Expr_Node* sar_sel, Expr_Node* mux, Expr_Node* cycles)
 {
-	DEBUG_TRACE("dya_pass - OP_CMD_ADC \n");
+	//DEBUG_TRACE("dya_pass - OP_CMD_ADC \n");
 	unsigned int sar_val = EXPR_VALUE(sar_sel);
 	unsigned int mux_val = EXPR_VALUE(mux);
 	unsigned int cycles_val = EXPR_VALUE(cycles);
