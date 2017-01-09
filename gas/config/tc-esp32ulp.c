@@ -319,7 +319,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	switch (fixP->fx_r_type)
 	{
 	case BFD_RELOC_ESP32ULP_16_IMM:
-		if (value < -0x8000 || value > 0x7fff)
+		if ((value < 0) || (value > 2047))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_16"));
 		value = value << 2;
 		md_number_to_chars(where, value, 2);
@@ -351,12 +351,12 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_WR_MEM:
-		if (value > 0x7ff)
+		if ((value > 2047) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WR_MEM"));
 		//value = value << 2;
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
-		temp_val &= ~((0xffff << 10));
+		temp_val &= ~((0x7ff << 10));
 		temp_val |= (value << 10);
 		memcpy(where, &temp_val, 4);
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_WR_MEM temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
@@ -364,7 +364,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_ALUI:
-		if (value > 0x7ff)
+		if ((value > 0x7fff) || (value < -0x7fff))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_ALUI"));
 		//value = value << 2;
 		temp_val = 0;
@@ -377,7 +377,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_WAIT:
-		if (value > 0xffff)
+		if ((value > 0xffff) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WAIT"));
 		//value = value << 2;
 		temp_val = 0;
@@ -390,12 +390,12 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_TSENS_CYCLE:
-		if (value > 0x3fff)
-			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WAIT"));
+		if ((value > 0xfff) || (value < 0))
+			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_TSENS_CYLE"));
 		//value = value << 2;
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
-		temp_val &= ~((0x3fff << 16));
+		temp_val &= ~((0xfff << 16));
 		temp_val |= (value << 16);
 		memcpy(where, &temp_val, 4);
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_TSENS_CYCLE temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
@@ -403,8 +403,8 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_TSENS_DELAY:
-		if (value > 0x3fff)
-			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WAIT"));
+		if ((value > 0x3fff) || (value < 0))
+			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_TSENS_DELAY"));
 		//value = value << 2;
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
@@ -416,7 +416,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_WAKE:
-		if (value > 1)
+		if ((value > 1) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WAKE"));
 		//value = value << 2;
 		temp_val = 0;
@@ -429,7 +429,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_SLEEP:
-		if (value > 0x0f)
+		if ((value > 0x0f) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_SLEEP"));
 		//value = value << 2;
 		temp_val = 0;
@@ -442,7 +442,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_ADC_CYCLE:
-		if (value > 0xffff)
+		if ((value > 0xffff) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_ADC_CYCLE"));
 		//value = value << 2;
 		temp_val = 0;
@@ -455,7 +455,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_ADC_SEL:
-		if (value > 0x01)
+		if ((value > 0x01) || (value < 0x00))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_ADC_SEL"));
 		//value = value << 2;
 		temp_val = 0;
@@ -468,7 +468,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_ADC_MUX:
-		if (value > 0x0f)
+		if ((value > 0x0f) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_ADC_MUX"));
 		//value = value << 2;
 		temp_val = 0;
@@ -494,7 +494,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_JUMPR_STEP:
-		if ((value > 0xFF) || (value < -0xff))
+		if ((value > 0x7F) || (value < -0x7f))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_JUMPR_STEP"));
 		//value = value << 2;
 		temp_val = 0;
@@ -545,7 +545,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_REG_RW_HIGH:
-		if ((value > 0x1f) || (value < -0x1f))
+		if ((value > 0x1f) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_REG_RW_HIGH"));
 		temp_val = 0;
 		value &= 0x1f;
@@ -556,7 +556,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_HIGH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_REG_RW_LOW:
-		if ((value > 0x1f) || (value < -0x1f))
+		if ((value > 0x1f) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_REG_RW_LOW"));
 		temp_val = 0;
 		value &= 0x1f;
@@ -579,7 +579,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_ADDR temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_REG_RW_DATA:
-		if ((value > 0x7f) || (value < -0x7f))
+		if ((value > 0xff) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_REG_RW_DATA"));
 		temp_val = 0;
 		value &= 0xff;

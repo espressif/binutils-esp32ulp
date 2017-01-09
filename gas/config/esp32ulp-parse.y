@@ -91,7 +91,7 @@
 #define CMD_TSENS(dreg, cycl, delay)  \
 	esp32ulp_cmd_tsens(dreg.regno, cycl, delay)
 
-#define CMD_ADC(dreg, mux, sar_sel, cycles)  \
+#define CMD_ADC(dreg, sar_sel, mux, cycles)  \
 	esp32ulp_cmd_adc(dreg.regno, sar_sel, mux, cycles)
 
 #define CMD_ALUR(dst, src1, src2, operation)  \
@@ -496,7 +496,7 @@ asm_1:
 	{
 		if (IS_DREG ($2))
 		{
-			notethat ("JUMP_I : dest_addr, condition\n");
+			notethat ("JUMP_R : dest_addr, condition\n");
 			$$ =  JUMP_R ($2, $4.r0);
 		}
 		else
@@ -520,7 +520,7 @@ asm_1:
 	{
 		if (IS_IMM ($2, 11))
 		{
-			notethat ("JUMP_I : dest_addr, condition\n");
+			notethat ("JUMP   : dest_addr, condition\n");
 			$$ =  JUMP_I ($2, $4.r0);
 		}
 		else
@@ -552,20 +552,6 @@ asm_1:
 			return yyerror ("Jump adress is to far");
 		}
 	}
-	/*
-	| JUMPR expr COMMA expr COMMA branchrel
-	{
-		if (IS_UIMM ($2, 11))
-		{
-			notethat ("JUMP_I : dest_addr, condition\n");
-			$$ =  JUMP_I ($2, $4.r0);
-		}
-		else
-		{
-			return yyerror ("Register mismatch");
-		}
-	}
-	*/
 	| ST REG COMMA REG COMMA expr
 	{
 		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
