@@ -330,7 +330,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	esp32ulp_imm16_reloc,			/* special_function.  */
 	"R_ESP32ULP_RIMM16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
-	0,								/* src_mask.  */ // dya-pass - 0
+	0x00001FFC,								/* src_mask.  */ // dya-pass - 0
 	0x00001FFC,						/* dst_mask.  */
 	TRUE),							/* pcrel_offset.  */
 
@@ -344,7 +344,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	esp32ulp_jumprelr_reloc,		/* special_function.  */
 	"R_ESP32ULP_JUMPR",				/* name.  */
 	FALSE,							/* partial_inplace.  */
-	0,								/* src_mask.  */
+	(0xff << 17),					/* src_mask.  */
 	(0xff << 17),					/* dst_mask.  */
 	TRUE),							/* pcrel_offset.  */
 
@@ -358,21 +358,21 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	esp32ulp_imm16_reloc,			/* special_function.  */
 	"R_ESP32ULP_RIMM16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	0x00001FFC,		/* dst_mask.  */
-	TRUE),			/* pcrel_offset.  */
-
+	0x00001FFC,						/* src_mask.  */ // dya-pass - 0
+	0x00001FFC,						/* dst_mask.  */
+	TRUE),							/* pcrel_offset.  */
+	
 	HOWTO(R_ESP32ULP_WR_MEM,		/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	11,			/* bitsize.  */
+	13,			/* bitsize.  */
 	FALSE,			/* pc_relative.  */
-	10,			/* bitpos.  */
+	8,			/* bitpos.  */
 	complain_overflow_unsigned, /* complain_on_overflow.  */
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_WR_MEM",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
+	(0x7ff << 10),				/* src_mask.  */ // dya-pass - 0
 	(0x7ff << 10),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
@@ -386,8 +386,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ALUI",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	(0xffff << 4),		/* dst_mask.  */
+	(0x00ffff << 4),	/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 4),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_WAIT,		/* type.  */
@@ -400,8 +400,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_WAIT",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	(0xffff << 0),		/* dst_mask.  */
+	(0x00ffff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 0),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_TSENS_CYCLE,		/* type.  */
@@ -414,7 +414,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_TSENS_CYCLE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
+	(0x3fff << 16),				/* src_mask.  */ // dya-pass - 0
 	(0x3fff << 16),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
@@ -428,7 +428,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_TSENS_DELAY",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
+	(0x3fff << 2),				/* src_mask.  */ // dya-pass - 0
 	(0x3fff << 2),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
@@ -443,8 +443,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ADC_CYCLE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	(0xffff << 8),		/* dst_mask.  */
+	(0x00ffff << 8),				/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 8),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
 
@@ -458,7 +458,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ADC_SEL",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
+	(0x1 << 6),				/* src_mask.  */ // dya-pass - 0
 	(0x1 << 6),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
@@ -473,7 +473,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_ADC_MUX",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
+	(0x0f << 2),				/* src_mask.  */ // dya-pass - 0
 	(0x0f << 2),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
@@ -488,7 +488,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_WAKE",			/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0x1 << 0),							/* src_mask.  */ // dya-pass - 0
 	(0x1 << 0),					/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -503,7 +503,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_SLEEP",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
+	(0x0f << 0),				/* src_mask.  */ // dya-pass - 0
 	(0x0f << 0),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
@@ -517,8 +517,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_STAGE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	(0xff << 4),		/* dst_mask.  */
+	(0x00ff << 4),				/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 4),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
 
@@ -532,8 +532,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	esp32ulp_jumprelr_reloc,	/* special_function.  */
 	"R_ESP32ULP_JUMPR_STEP",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,			  /* src_mask.  */
-	(0xff << 17),		/* dst_mask.  */
+	(0x00ff << 17),			  /* src_mask.  */
+	(0x00ff << 17),		/* dst_mask.  */
 	TRUE),			/* pcrel_offset.  */
 
 
@@ -547,8 +547,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_JUMPR_THRESH",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,				/* src_mask.  */ // dya-pass - 0
-	(0xffff << 0),		/* dst_mask.  */
+	(0x00ffff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 0),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_JUMPS_THRESH,		/* type.  */
@@ -561,8 +561,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,								/* special_function.  */
 	"R_ESP32ULP_JUMPS_THRESH",			/* name.  */
 	FALSE,								/* partial_inplace.  */
-	0,									/* src_mask.  */ // dya-pass - 0
-	(0xff << 0),						/* dst_mask.  */
+	(0x00ff << 0),									/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 0),						/* dst_mask.  */
 	FALSE),								/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_REG_RW_HIGH,	/* type.  */
@@ -575,7 +575,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_HIGH",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0x3f << 23),							/* src_mask.  */ // dya-pass - 0
 	(0x3f << 23),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -589,7 +589,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_LOW",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0x3f << 18),				/* src_mask.  */ // dya-pass - 0
 	(0x3f << 18),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -603,7 +603,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_ADDR",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0x3ff << 0),				/* src_mask.  */ // dya-pass - 0
 	(0x3ff << 0),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -617,8 +617,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_REG_RW_DATA",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
-	(0xff << 10),				/* dst_mask.  */
+	(0x00ff << 10),				/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 10),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_I2C_RW_HIGH,	/* type.  */
@@ -631,7 +631,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_HIGH",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0x7 << 19),				/* src_mask.  */ // dya-pass - 0
 	(0x7 << 19),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -645,7 +645,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_LOW",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0x7 << 16),				/* src_mask.  */ // dya-pass - 0
 	(0x7 << 16),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -659,7 +659,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_ADDR",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0xff << 0),				/* src_mask.  */ // dya-pass - 0
 	(0xff << 0),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -673,8 +673,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_DATA",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
-	(0xff << 8),				/* dst_mask.  */
+	(0x00ff << 8),				/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 8),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_I2C_RW_SEL,	/* type.  */
@@ -687,7 +687,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_SEL",		/* name.  */
 	FALSE,						/* partial_inplace.  */
-	0,							/* src_mask.  */ // dya-pass - 0
+	(0xf << 22),				/* src_mask.  */ // dya-pass - 0
 	(0xf << 22),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
 
@@ -701,7 +701,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	esp32ulp_bfd_reloc,	/* special_function.  */
 	"R_ESP32ULP_RESERVE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	0,			  /* src_mask.  */
+	0x01fe0000,		/* src_mask.  */
 	0x01fe0000,		/* dst_mask.  */
 	TRUE),			/* pcrel_offset.  */
 };
@@ -1125,6 +1125,81 @@ bfd_vma value, bfd_vma addend)
 
 }
 
+
+#define ESP32ULP_RELOC_FOR_GLOBAL_SYMBOL(info, input_bfd, input_section, rel,	\
+				r_symndx, symtab_hdr, sym_hashes,	\
+				h, sec, relocation,			\
+				unresolved_reloc, warned, ignored, sectioin_flags)	\
+  do									\
+          {									\
+      /* It seems this can happen with erroneous or unsupported		\
+   	 input (mixing a.out and elf in an archive, for example.)  */	\
+      if (sym_hashes == NULL)						\
+	return FALSE;							\
+									\
+      h = sym_hashes[r_symndx - symtab_hdr->sh_info];			\
+									\
+      if (info->wrap_hash != NULL					\
+	  && (input_section->flags & SEC_DEBUGGING) != 0)		\
+	h = ((struct elf_link_hash_entry *)				\
+	     unwrap_hash_lookup (info, input_bfd, &h->root));		\
+									\
+																											      while (h->root.type == bfd_link_hash_indirect			\
+	     || h->root.type == bfd_link_hash_warning)			\
+	h = (struct elf_link_hash_entry *) h->root.u.i.link;		\
+									\
+      warned = FALSE;							\
+      ignored = FALSE;							\
+      unresolved_reloc = FALSE;						\
+      relocation = 0;							\
+      if (h->root.type == bfd_link_hash_defined				\
+	  || h->root.type == bfd_link_hash_defweak)			\
+	  	  	  	{								\
+	  sec = h->root.u.def.section;					\
+	  if (sec == NULL						\
+	      || sec->output_section == NULL)				\
+	    /* Set a flag that will be cleared later if we find a	\
+   	       relocation value for this symbol.  output_section	\
+   	       is typically NULL for symbols satisfied by a shared	\
+   	       library.  */						\
+	    unresolved_reloc = TRUE;					\
+				  		  	  	  else								\
+			/*DEBUG_TRACE("ESP32ULP_RELOC_FOR_GLOBAL_SYMBOL - value = %08x, output_section->vma = %08x, sec->output_offset = %08x, sec->size = %08x, flags=%08x\n", (unsigned int)h->root.u.def.value, (unsigned int)sec->output_section->vma,  (unsigned int)sec->output_offset, (unsigned int)sec->output_section->rawsize, (unsigned int)sec->flags);*/ \
+	    relocation = (h->root.u.def.value				\
+			  + sec->output_section->vma    			\
+			  + sec->output_offset);											\
+			  sectioin_flags = sec->flags;										\
+	  	}																		\
+	        else if (h->root.type == bfd_link_hash_undefweak)					\
+	;																			\
+	        else if (info->unresolved_syms_in_objects == RM_IGNORE		\
+	       && ELF_ST_VISIBILITY (h->other) == STV_DEFAULT)		\
+	ignored = TRUE;							\
+	        else if (!bfd_link_relocatable (info))				\
+	{								\
+	  bfd_boolean err;						\
+	  err = (info->unresolved_syms_in_objects == RM_GENERATE_ERROR	\
+		 || ELF_ST_VISIBILITY (h->other) != STV_DEFAULT);	\
+	  (*info->callbacks->undefined_symbol) (info,			\
+						h->root.root.string,	\
+						input_bfd,		\
+						input_section,		\
+						rel->r_offset, err);	\
+	  warned = TRUE;						\
+	}								\
+      (void) unresolved_reloc;						\
+      (void) warned;							\
+      (void) ignored;							\
+      }									\
+	    while (0)
+
+
+
+
+
+
+
+
 static bfd_boolean
 esp32ulp_relocate_section(bfd * output_bfd,
 struct bfd_link_info *info,
@@ -1163,6 +1238,7 @@ struct bfd_link_info *info,
 		Elf_Internal_Sym *sym;
 		asection *sec;
 		bfd_vma relocation = 0;
+		//bfd_vma old_reloc = relocation;
 		bfd_boolean unresolved_reloc;
 		bfd_reloc_status_type r;
 		bfd_vma address;
@@ -1190,21 +1266,23 @@ struct bfd_link_info *info,
 		sym = NULL;
 		sec = NULL;
 		unresolved_reloc = FALSE;
+		
+		unsigned int section_flags = 0;
 
 		if (r_symndx < symtab_hdr->sh_info)
 		{
 			sym = local_syms + r_symndx;
 			sec = local_sections[r_symndx];
 			relocation = _bfd_elf_rela_local_sym(output_bfd, sym, &sec, rel);
+			section_flags = sec->flags;
 		}
 		else
 		{
 			bfd_boolean warned, ignored;
-
-			RELOC_FOR_GLOBAL_SYMBOL(info, input_bfd, input_section, rel,
+			ESP32ULP_RELOC_FOR_GLOBAL_SYMBOL(info, input_bfd, input_section, rel,
 				r_symndx, symtab_hdr, sym_hashes,
 				h, sec, relocation,
-				unresolved_reloc, warned, ignored);
+				unresolved_reloc, warned, ignored, section_flags);
 		}
 
 		if (sec != NULL && discarded_section(sec))
@@ -1337,7 +1415,10 @@ struct bfd_link_info *info,
 
 		default:
 		do_default :
-			//DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
+				//DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
+			    //old_reloc = relocation;
+				if (section_flags != 0) relocation = relocation >> 2;
+				//DEBUG_TRACE("relocation - 999 = %08x, old_reloc = %08x, input_section->flags = %08x, section name = %s\n", (unsigned int)relocation, (unsigned int)old_reloc, section_flags, input_section->name);
 				   rel->r_addend = 0; // dya_pass
 				   r = esp32ulp_final_link_relocate(rel, howto, input_bfd, input_section,
 					   contents, address,
@@ -1979,12 +2060,12 @@ struct bfd_link_info *info,
 		h = NULL;
 		sym = NULL;
 		sec = NULL;
-
+		unsigned int section_flags = 0;
 		if (r_symndx < symtab_hdr->sh_info)
 		{
 			sym = local_syms + r_symndx;
 			relocation = _bfd_elf_rela_local_sym(output_bfd, sym, &sec, rel);
-
+			section_flags = 0;
 			name = bfd_elf_string_from_elf_section
 				(input_bfd, symtab_hdr->sh_link, sym->st_name);
 			name = (name == NULL) ? bfd_section_name(input_bfd, sec) : name;
@@ -1994,10 +2075,10 @@ struct bfd_link_info *info,
 			bfd_boolean warned, ignored;
 			bfd_boolean unresolved_reloc;
 
-			RELOC_FOR_GLOBAL_SYMBOL(info, input_bfd, input_section, rel,
+			ESP32ULP_RELOC_FOR_GLOBAL_SYMBOL(info, input_bfd, input_section, rel,
 				r_symndx, symtab_hdr, sym_hashes,
 				h, sec, relocation,
-				unresolved_reloc, warned, ignored);
+				unresolved_reloc, warned, ignored, section_flags);
 		}
 
 		if (sec != NULL && discarded_section(sec))
@@ -2014,7 +2095,7 @@ struct bfd_link_info *info,
 		{
 			relocation = 0;
 		}
-
+		(void)section_flags;
 		switch (r_type)
 		{
 

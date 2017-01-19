@@ -98,6 +98,8 @@
 	 esp32ulp_gen_alu_r(dst.regno,src1.regno,src2.regno, operation)
 #define CMD_ALUI(dst, src1, imm, operation)  \
 	 esp32ulp_gen_alu_i(dst.regno, src1.regno, imm, operation)
+#define CMD_ALUI_DIR(dst, imm, operation)  \
+	 esp32ulp_gen_alu_i(dst.regno, 0, imm, operation)
 
 #define CMD_STAGE(dir, imm)  \
 		esp32ulp_cmd_stage(dir, imm)
@@ -457,7 +459,7 @@ asm_1:
 		if (IS_DREG ($2))
 		{
 			notethat ("MOVE : dest_reg = imm\n");
-			$$ =  CMD_ALUI ($2, $2, $4, ALU_SEL_MOV);
+			$$ =  CMD_ALUI_DIR ($2, $4, ALU_SEL_MOV);
 		}
 		else
 			return yyerror ("Register mismatch");

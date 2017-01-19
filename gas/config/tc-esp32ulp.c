@@ -319,8 +319,15 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	switch (fixP->fx_r_type)
 	{
 	case BFD_RELOC_ESP32ULP_16_IMM:
+
+		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		{
+			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+			if (sym->section->flags != 0) value = value >> 2;
+		}
 		if ((value < 0) || (value > 2047))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_16"));
+
 		value = value << 2;
 		md_number_to_chars(where, value, 2);
 		break;
@@ -329,6 +336,11 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		if (value < -0x8000 || value > 0x7fff)
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_JUMPR"));
 		//value = value << 2;
+		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		{
+			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+			if (sym->section->flags != 0) value = value >> 2;
+		}
 		unsigned int temp_val = 0;
 		memcpy(&temp_val, where, 4);
 		temp_val &= ~(0xff << 17);
@@ -351,9 +363,9 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_WR_MEM:
+		value = value >> 2;
 		if ((value > 2047) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WR_MEM"));
-		//value = value << 2;
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
 		temp_val &= ~((0x7ff << 10));
@@ -366,13 +378,29 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	case BFD_RELOC_ESP32ULP_ALUI:
 		if ((value > 0x7fff) || (value < -0x7fff))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_ALUI"));
-		//value = value << 2;
+		//value = 0x00ffff; // for tests only
+		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		{
+			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+			if (sym->section->flags != 0) value = value >> 2;
+		}
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
 		temp_val &= ~((0xffff << 4));
 		temp_val |= (value << 4);
 		memcpy(where, &temp_val, 4);
-		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ALUI temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		
+		//if (fixP->fx_addsy != NULL)
+		//{
+		//	asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+		//	DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ALUI temp_val=%08x value=%08x, flags=%08x, fixP=%08x, done=%08x, fixP->fx_addsy=%08x, flags=%08x, name=%s\n",
+		//		(unsigned int)temp_val, 
+		//		(unsigned int)value, (unsigned int)seg->flags, *(unsigned int*)fixP, (unsigned int)fixP->fx_done, *(unsigned int*)fixP->fx_addsy, sym->section->flags, sym->section->name);
+		//}
+		//else
+		//{
+		//	DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_ALUI temp_val=%08x value=%08x, flags=%08x, fixP=%08x, done=%08x, fixP->fx_addsy=%08x\n", (unsigned int)temp_val, (unsigned int)value, (unsigned int)seg->flags, *(unsigned int*)fixP, (unsigned int)fixP->fx_done, 0xdead);
+		//}
 		//md_number_to_chars(where, value, 0);
 		break;
 
@@ -494,9 +522,14 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_JUMPR_STEP:
-		if ((value > 0x7F) || (value < -0x7f))
+		if ((value > 0x1FF) || (value < -0x1ff))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_JUMPR_STEP"));
 		//value = value << 2;
+		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		{
+			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+			if (sym->section->flags != 0) value = value >> 2;
+		}
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
 		temp_val &= ~(0xff << 17);
@@ -570,6 +603,12 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	case BFD_RELOC_ESP32ULP_REG_RW_ADDR:
 		if ((value >= 0x400) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_REG_RW_ADDR"));
+
+		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		{
+			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+			if (sym->section->flags != 0) value = value >> 2;
+		}
 		temp_val = 0;
 		value &= 0x3ff;
 		memcpy(&temp_val, where, 4);
@@ -689,9 +728,13 @@ tc_gen_reloc(asection *seg ATTRIBUTE_UNUSED, fixS *fixp)
 	reloc->sym_ptr_ptr = XNEW(asymbol *);
 	*reloc->sym_ptr_ptr = symbol_get_bfdsym(fixp->fx_addsy);
 	reloc->address = fixp->fx_frag->fr_address + fixp->fx_where;
+	
+	//reloc->address = reloc->address / 4;
 
 	reloc->addend = fixp->fx_offset;
 	reloc->howto = bfd_reloc_type_lookup(stdoutput, fixp->fx_r_type);
+	
+	//DEBUG_TRACE("tc_gen_reloc - reloc->address =%08x, symvalue=%08x, seg->flags=%08x, name=%s\n", (unsigned int)reloc->address, (unsigned int)(*reloc->sym_ptr_ptr)->value, (unsigned int)seg->flags, (*reloc->sym_ptr_ptr)->name);
 
 	if (reloc->howto == (reloc_howto_type *)NULL)
 	{
@@ -1047,7 +1090,7 @@ INSTR_T esp32ulp_gen_jump_i(Expr_Node* addr, int cond)
 	rel = BFD_RELOC_ESP32ULP_16_IMM;
 
 	val = EXPR_VALUE(addr);
-	unsigned int local_op = I_JUMP_RI(0, val, cond, 1);
+	unsigned int local_op = I_JUMP_RI(0, val>>2, cond, 0);
 
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
 }
@@ -1059,7 +1102,7 @@ INSTR_T esp32ulp_gen_jump_relr(Expr_Node* addr, int judge, int thresh)
 	rel = BFD_RELOC_ESP32ULP_JUMPR;
 
 	int val = EXPR_VALUE(addr);
-	unsigned int local_op = I_JUMP_RELR(thresh, judge, (unsigned int)val);
+	unsigned int local_op = I_JUMP_RELR(thresh, judge, (unsigned int)val>>2);
 	//DEBUG_TRACE("dya_pass - esp32ulp_gen_jump_relr thresh=%i, judge=%i, local_op=%x\n", (int)thresh, (int)judge, local_op);
 
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
@@ -1071,7 +1114,7 @@ INSTR_T esp32ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond)
 	int thresh_val = EXPR_VALUE(thresh);
 
 	//DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_relr\n");
-	unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val);
+	unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val>>2);
 	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESH)));
 }
 INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
@@ -1080,7 +1123,7 @@ INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 	int thresh_val = EXPR_VALUE(thresh);
 
 	//DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_rels\n");
-	unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val);
+	unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val>>2);
 	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH)));
 }
 INSTR_T esp32ulp_cmd_reg_rd(Expr_Node* addr, Expr_Node* high, Expr_Node* low)
@@ -1162,7 +1205,7 @@ INSTR_T esp32ulp_wr_mem_addr(int dst_reg, int src_reg, Expr_Node* addr)
 {
 	//DEBUG_TRACE("dya_pass - esp32ulp_wr_mem_addr - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, (int)0);
 	int addr_val = EXPR_VALUE(addr);
-	unsigned int local_op = WR_MEM(dst_reg, src_reg, addr_val);// I_JUMP_RELR(0, val, cond, 1);
+	unsigned int local_op = WR_MEM(dst_reg, src_reg, addr_val>>2);// I_JUMP_RELR(0, val, cond, 1);
 
 	int rel = 0;
 	rel = BFD_RELOC_ESP32ULP_WR_MEM;
@@ -1182,7 +1225,7 @@ INSTR_T esp32ulp_rd_mem_addr(int dst_reg, int src_reg, Expr_Node* addr)
 {
 	//DEBUG_TRACE("dya_pass - esp32ulp_rd_mem_addr - dst_reg=%i, src_reg=%i, addr=%i\n", dst_reg, src_reg, (int)0);
 	int addr_val = EXPR_VALUE(addr);
-	unsigned int local_op = RD_MEM(dst_reg, src_reg, addr_val);// I_JUMP_RELR(0, val, cond, 1);
+	unsigned int local_op = RD_MEM(dst_reg, src_reg, addr_val>>2);// I_JUMP_RELR(0, val, cond, 1);
 
 	int rel = 0;
 	rel = BFD_RELOC_ESP32ULP_WR_MEM;

@@ -24,9 +24,9 @@ Software Foundation, 51 Franklin Street - Fifth Floor, Boston, MA
 02110-1301, USA.  */
 
 #define TC_ESP32ULP 1
-#define TC_ADI_ESP32ULP 1
 
 #define TARGET_BYTES_BIG_ENDIAN 0
+//#define OCTETS_PER_BYTE_POWER 2
 
 #define TARGET_ARCH		bfd_arch_esp32ulp
 
