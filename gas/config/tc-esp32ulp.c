@@ -328,7 +328,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		if ((value < 0) || (value > 2047))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_16"));
 
-		value = value << 2;
+		//value = value << 2;
 		md_number_to_chars(where, value, 2);
 		break;
 

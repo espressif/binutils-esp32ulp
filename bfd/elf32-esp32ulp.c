@@ -36,71 +36,71 @@ static bfd_reloc_status_type esp32ulp_pltpc_reloc(
 	return flag;
 }
 
-static bfd_reloc_status_type esp32ulp_imm16_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
-{
-	//DEBUG_TRACE("dya_pass esp32ulp_imm16_reloc\n");
-	bfd_vma relocation, x;
-	bfd_size_type reloc_addr = reloc_entry->address;
-	bfd_vma output_base = 0;
-	reloc_howto_type *howto = reloc_entry->howto;
-	asection *output_section;
-	bfd_boolean relocatable = (output_bfd != NULL);
-
-	/* Is the address of the relocation really within the section?  */
-	if (reloc_entry->address > bfd_get_section_limit(abfd, input_section))
-		return bfd_reloc_outofrange;
-
-	if (bfd_is_und_section(symbol->section)
-		&& (symbol->flags & BSF_WEAK) == 0
-		&& !relocatable)
-		return bfd_reloc_undefined;
-
-	output_section = symbol->section->output_section;
-	relocation = symbol->value;
-
-	/* Convert input-section-relative symbol value to absolute.  */
-	if (relocatable)
-		output_base = 0;
-	else
-		output_base = output_section->vma;
-
-	if (!relocatable || !strcmp(symbol->name, symbol->section->name))
-		relocation += output_base + symbol->section->output_offset;
-
-	/* Add in supplied addend.  */
-	relocation += reloc_entry->addend;
-
-	if (relocatable)
-	{
-		reloc_entry->address += input_section->output_offset;
-		reloc_entry->addend += symbol->section->output_offset;
-	}
-	else
-	{
-		reloc_entry->addend = 0;
-	}
-
-	if (howto->complain_on_overflow != complain_overflow_dont)
-	{
-		bfd_reloc_status_type flag;
-		flag = bfd_check_overflow(howto->complain_on_overflow,
-			howto->bitsize,
-			howto->rightshift,
-			bfd_arch_bits_per_address(abfd),
-			relocation);
-		if (flag != bfd_reloc_ok)
-			return flag;
-	}
-
-	/* Here the variable relocation holds the final address of the
-	symbol we are relocating against, plus any addend.  */
-
-	//DEBUG_TRACE("dya_pass - esp32ulp_imm16_reloc = %i, reloc_addr=%i, howto->rightshift=%i\n", (unsigned int)relocation, (unsigned int)reloc_addr, (int)howto->rightshift);
-	relocation >>= (bfd_vma)howto->rightshift;
-	x = relocation;
-	bfd_put_16(abfd, x, (unsigned char *)data + reloc_addr);
-	return bfd_reloc_ok;
-}
+//static bfd_reloc_status_type esp32ulp_imm16_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
+//{
+//	//DEBUG_TRACE("dya_pass esp32ulp_imm16_reloc\n");
+//	bfd_vma relocation, x;
+//	bfd_size_type reloc_addr = reloc_entry->address;
+//	bfd_vma output_base = 0;
+//	reloc_howto_type *howto = reloc_entry->howto;
+//	asection *output_section;
+//	bfd_boolean relocatable = (output_bfd != NULL);
+//
+//	/* Is the address of the relocation really within the section?  */
+//	if (reloc_entry->address > bfd_get_section_limit(abfd, input_section))
+//		return bfd_reloc_outofrange;
+//
+//	if (bfd_is_und_section(symbol->section)
+//		&& (symbol->flags & BSF_WEAK) == 0
+//		&& !relocatable)
+//		return bfd_reloc_undefined;
+//
+//	output_section = symbol->section->output_section;
+//	relocation = symbol->value;
+//
+//	/* Convert input-section-relative symbol value to absolute.  */
+//	if (relocatable)
+//		output_base = 0;
+//	else
+//		output_base = output_section->vma;
+//
+//	if (!relocatable || !strcmp(symbol->name, symbol->section->name))
+//		relocation += output_base + symbol->section->output_offset;
+//
+//	/* Add in supplied addend.  */
+//	relocation += reloc_entry->addend;
+//
+//	if (relocatable)
+//	{
+//		reloc_entry->address += input_section->output_offset;
+//		reloc_entry->addend += symbol->section->output_offset;
+//	}
+//	else
+//	{
+//		reloc_entry->addend = 0;
+//	}
+//
+//	if (howto->complain_on_overflow != complain_overflow_dont)
+//	{
+//		bfd_reloc_status_type flag;
+//		flag = bfd_check_overflow(howto->complain_on_overflow,
+//			howto->bitsize,
+//			howto->rightshift,
+//			bfd_arch_bits_per_address(abfd),
+//			relocation);
+//		if (flag != bfd_reloc_ok)
+//			return flag;
+//	}
+//
+//	/* Here the variable relocation holds the final address of the
+//	symbol we are relocating against, plus any addend.  */
+//
+//	//DEBUG_TRACE("dya_pass - esp32ulp_imm16_reloc = %i, reloc_addr=%i, howto->rightshift=%i\n", (unsigned int)relocation, (unsigned int)reloc_addr, (int)howto->rightshift);
+//	relocation >>= (bfd_vma)howto->rightshift;
+//	x = relocation;
+//	bfd_put_16(abfd, x, (unsigned char *)data + reloc_addr);
+//	return bfd_reloc_ok;
+//}
 
 
 static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
@@ -327,12 +327,12 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	FALSE,							/* pc_relative.  */
 	2,								/* bitpos.  */
 	complain_overflow_unsigned,		/* complain_on_overflow.  */
-	esp32ulp_imm16_reloc,			/* special_function.  */
+	NULL,			/* special_function.  */
 	"R_ESP32ULP_RIMM16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
 	0x00001FFC,								/* src_mask.  */ // dya-pass - 0
 	0x00001FFC,						/* dst_mask.  */
-	TRUE),							/* pcrel_offset.  */
+	FALSE),							/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_JUMPR,			/* type.  */
 	0,								/* rightshift.  */
@@ -355,12 +355,12 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	FALSE,							/* pc_relative.  */
 	2,								/* bitpos.  */
 	complain_overflow_unsigned,		/* complain_on_overflow.  */
-	esp32ulp_imm16_reloc,			/* special_function.  */
-	"R_ESP32ULP_RIMM16",			/* name.  */
+	NULL,			/* special_function.  */
+	"R_ESP32ULP_LOAD16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
 	0x00001FFC,						/* src_mask.  */ // dya-pass - 0
 	0x00001FFC,						/* dst_mask.  */
-	TRUE),							/* pcrel_offset.  */
+	FALSE),							/* pcrel_offset.  */
 	
 	HOWTO(R_ESP32ULP_WR_MEM,		/* type.  */
 	0,			/* rightshift.  */
@@ -1416,9 +1416,9 @@ struct bfd_link_info *info,
 		default:
 		do_default :
 				//DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
-			    //old_reloc = relocation;
+//				old_reloc = (unsigned int)relocation;
 				if (section_flags != 0) relocation = relocation >> 2;
-				//DEBUG_TRACE("relocation - 999 = %08x, old_reloc = %08x, input_section->flags = %08x, section name = %s\n", (unsigned int)relocation, (unsigned int)old_reloc, section_flags, input_section->name);
+//				printf("relocation - 999 = %08x, old_reloc = %08x, input_section->flags = %08x, section name = %s\n", (unsigned int)relocation, (unsigned int)old_reloc, section_flags, input_section->name);
 				   rel->r_addend = 0; // dya_pass
 				   r = esp32ulp_final_link_relocate(rel, howto, input_bfd, input_section,
 					   contents, address,
