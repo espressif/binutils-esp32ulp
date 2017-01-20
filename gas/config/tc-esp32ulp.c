@@ -533,22 +533,21 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
 		temp_val &= ~(0xff << 17);
-		if (value >= 0)
-		{
-			temp_val |= (value & 0x7f) << 17;
-		}
-		else
-		{
-			value = -value;
-			temp_val |= (value & 0x7f) << 17;
-			temp_val |= 0x80 << 17;
-		}
+		//if (value >= 0)
+		//{
+		//	temp_val |= (value & 0x7f) << 17;
+		//}
+		//else
+		//{
+		//	value = -value;
+		//	temp_val |= (value & 0x7f) << 17;
+		//	temp_val |= 0x80 << 17;
+		//}
 		memcpy(where, &temp_val, 4);
-		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_STEP temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, \n", (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3]);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_STEP value = %08x, temp_val=%08x where[0]=%02x, where[1]=%02x, where[2]=%02x, where[3]=%02x, fixP->fx_where = %i\n", 
+		//	(unsigned int)value, (unsigned int)temp_val, (unsigned int)where[0], (int)where[1], (int)where[2], (int)where[3], (int)fixP->fx_where);
 		//md_number_to_chars(where, value, 0);
 		break;
-
-
 	case BFD_RELOC_ESP32ULP_JUMPR_THRESH:
 		if ((value > 0x7fff) || (value < -0x7fff))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_JUMPR_THRESH"));
@@ -1045,8 +1044,9 @@ esp32ulp_gen_progctrl(int prgfunc, int poprnd)
 {
 	prgfunc = prgfunc;
 	poprnd = poprnd;
+	unsigned int local_op = OP_CMD_WAIT(0);
 
-	return GEN_OPCODE32_DYA(0);
+	return GEN_OPCODE32_DYA(local_op);
 }
 
 

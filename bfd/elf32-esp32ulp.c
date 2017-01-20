@@ -160,6 +160,7 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 	//DEBUG_TRACE("dya_pass esp32ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
 	ddd &= ~(0x000000ff < 17);
 	int reloc = (int)relocation;
+	reloc = reloc >> 2;
 	//printf("relock=%i \n",reloc);
 	if ((reloc > 0x7f) || (reloc < -0x7f))
 	{
@@ -414,8 +415,8 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	NULL,		/* special_function.  */
 	"R_ESP32ULP_TSENS_CYCLE",	/* name.  */
 	FALSE,			/* partial_inplace.  */
-	(0x3fff << 16),				/* src_mask.  */ // dya-pass - 0
-	(0x3fff << 16),		/* dst_mask.  */
+	(0xfff << 16),				/* src_mask.  */ // dya-pass - 0
+	(0xfff << 16),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_TSENS_DELAY,		/* type.  */
@@ -1089,33 +1090,42 @@ bfd_vma value, bfd_vma addend)
 		if (address > bfd_get_section_limit(input_bfd, input_section))
 			return bfd_reloc_outofrange;
 
-
+		value = value << 2;
+		//printf("intput value = %i, ", (int)value);
 		value += addend;
 
 		/* Perform usual pc-relative correction.  */
 		value -= input_section->output_section->vma + input_section->output_offset;
 		value -= address;
+		
+		Elf_Internal_Shdr * symtab_hdr = &elf_tdata(input_bfd)->symtab_hdr;
+
+		unsigned long r_symndx = ELF32_R_SYM(rel->r_info);
 
 		unsigned int ddd = 0;
 		memcpy(&ddd, contents + address, 4);
 		ddd &= ~(0xff << 17);
 		int compare = (int)value;
-		//printf("final reloc, compare=%i\n", compare);
-		if ((compare > 127) || (compare < -128))
+		compare = compare >> 2;
+		//printf("final reloc, compare=%i, value=%i, addend=%i, address=%i, vma=%i, flags=%08x, r_symndx=%08x, symtab_hdr->sh_info=%08x\n", compare, (unsigned int)value, (unsigned int)addend, (unsigned int)address, (unsigned int)input_section->output_section->vma, (unsigned int)input_section->flags, (unsigned int)r_symndx, (unsigned int)symtab_hdr->sh_info);
+		if (r_symndx >= symtab_hdr->sh_info) // Apply only for global symbols
 		{
-			return bfd_reloc_outofrange;
-		}
+			if ((compare > 127) || (compare < -128))
+			{
+				return bfd_reloc_outofrange;
+			}
 
-		if ((compare) >= 0)
-		{
-			ddd |= ((compare & 0x0000007f) << 17);
+			if ((compare) >= 0)
+			{
+				ddd |= ((compare & 0x0000007f) << 17);
+			}
+			else
+			{
+				compare = -compare;
+				ddd |= ((compare & 0x0000007f) << 17) | (1 << 24);
+			}
+			memcpy(contents + address, &ddd, 4);
 		}
-		else
-		{
-			compare = -compare;
-			ddd |= ((compare & 0x0000007f) << 17) | (1 << 24);
-		}
-		memcpy(contents + address, &ddd, 4);
 		//DEBUG_TRACE("dya_pass - esp32ulp_final_link_relocate: ddd=%08x, value=%08x, addr=%08x\n", ddd, (int)value, (int)address);
 		return r;
 	}
