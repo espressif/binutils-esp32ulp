@@ -1289,14 +1289,12 @@ INSTR_T esp32ulp_cmd_wait(Expr_Node* cycles)
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(cycles, rel));
 }
 
-INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* cycles, Expr_Node* delay)
+INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* delay)
 {
 	//DEBUG_TRACE("dya_pass - OP_CMD_TSENS \n");
-
-	int cycles_val = EXPR_VALUE(cycles);
 	int delay_val = EXPR_VALUE(delay);
-	unsigned int local_op = OP_CMD_TSENS(dreg, cycles_val, delay_val);
-	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(cycles, BFD_RELOC_ESP32ULP_TSENS_CYCLE), Expr_Node_Gen_Reloc(delay, BFD_RELOC_ESP32ULP_TSENS_DELAY)));
+	unsigned int local_op = OP_CMD_TSENS(dreg, delay_val);
+	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(delay, BFD_RELOC_ESP32ULP_TSENS_DELAY));
 }
 
 INSTR_T esp32ulp_cmd_adc(int dreg, Expr_Node* sar_sel, Expr_Node* mux, Expr_Node* cycles)
