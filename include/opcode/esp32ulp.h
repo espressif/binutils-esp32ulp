@@ -312,12 +312,12 @@ typedef struct{
 	unsigned int opcode : 4;         /*!< Opcode (OPCODE_ADC) */
 } cmd_adc;
 
-#define OP_CMD_ADC(d_reg, mux, sel, cycl) { *(unsigned int*)&(cmd_adc ){ \
+#define OP_CMD_ADC(d_reg, mux, sel) { *(unsigned int*)&(cmd_adc ){ \
     .dreg = d_reg, \
     .sar_mux = mux, \
     .sar_sel = sel, \
     .unused1 = 0, \
-    .cycles = cycl, \
+    .cycles = 0, \
     .unused2 = 0, \
     .opcode = OPCODE_ADC } }
 

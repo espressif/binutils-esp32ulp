@@ -91,8 +91,8 @@
 #define CMD_TSENS(dreg, delay)  \
 	esp32ulp_cmd_tsens(dreg.regno, delay)
 
-#define CMD_ADC(dreg, sar_sel, mux, cycles)  \
-	esp32ulp_cmd_adc(dreg.regno, sar_sel, mux, cycles)
+#define CMD_ADC(dreg, sar_sel, mux)  \
+	esp32ulp_cmd_adc(dreg.regno, sar_sel, mux)
 
 #define CMD_ALUR(dst, src1, src2, operation)  \
 	 esp32ulp_gen_alu_r(dst.regno,src1.regno,src2.regno, operation)
@@ -613,7 +613,7 @@ asm_1:
 		if (IS_DREG ($2))
 		{
 	        notethat ("ProgCtrl: ADC \n");
-			$$ =  CMD_ADC($2, $4, $6, $8);
+			$$ =  CMD_ADC($2, $4, $6);
 		}
 		else
 		{
