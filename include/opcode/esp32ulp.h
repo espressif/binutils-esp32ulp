@@ -277,10 +277,10 @@ typedef struct {
 } cmd_tsens;                        /*!< Format of TSENS instruction */
 
 
-#define OP_CMD_TSENS(dreg, cycl, delay) { *(unsigned int*)&(cmd_tsens ){ \
+#define OP_CMD_TSENS(dreg, delay) { *(unsigned int*)&(cmd_tsens ){ \
     .dreg = dreg, \
 	.wait_delay = delay,\
-	.cycles = cycl,\
+	.cycles = 0,\
     .opcode = OPCODE_TSENS } }
 
 

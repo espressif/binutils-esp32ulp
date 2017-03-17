@@ -457,7 +457,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_SLEEP:
-		if ((value > 0x0f) || (value < 0))
+		if ((value > 4) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_SLEEP"));
 		//value = value << 2;
 		temp_val = 0;
@@ -916,7 +916,6 @@ Expr_Node_Gen_Reloc(Expr_Node * head, int parent_reloc)
 		case BFD_RELOC_ESP32ULP_WR_MEM:
 		case BFD_RELOC_ESP32ULP_ALUI:
 		case BFD_RELOC_ESP32ULP_WAIT:
-		case BFD_RELOC_ESP32ULP_TSENS_CYCLE:
 		case BFD_RELOC_ESP32ULP_TSENS_DELAY:
 		case BFD_RELOC_ESP32ULP_WAKE:
 		case BFD_RELOC_ESP32ULP_SLEEP:

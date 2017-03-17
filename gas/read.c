@@ -863,7 +863,7 @@ read_a_source_file (const char *name)
 #ifndef NO_LISTING
 	  /* If listing is on, and we are expanding a macro, then give
 	     the listing code the contents of the expanded line.  */
-	  if (listing)
+	  //if (listing)
 	    {
 	      if ((listing & LISTING_MACEXP) && macro_nest > 0)
 		{

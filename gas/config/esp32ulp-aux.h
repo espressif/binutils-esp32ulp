@@ -41,7 +41,7 @@ INSTR_T esp32ulp_cmd_halt(void);
 INSTR_T esp32ulp_cmd_sleep(Expr_Node*  cycles);
 INSTR_T esp32ulp_cmd_wakeup(Expr_Node*  wake);
 INSTR_T esp32ulp_cmd_wait(Expr_Node* cycles);
-INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* cycles, Expr_Node* delay);
+INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* delay);
 INSTR_T esp32ulp_cmd_adc(int dreg,  Expr_Node* sar_sel, Expr_Node* mux, Expr_Node* cycles);
 INSTR_T esp32ulp_gen_alu_r(int dst, int src1, int src2, int operation);
 INSTR_T esp32ulp_gen_alu_i(int dst, int src1, Expr_Node* imm, int operation);

@@ -300,8 +300,8 @@ listing_newline (char *ps)
   static const char *last_file = NULL;
   list_info_type *new_i = NULL;
 
-  if (listing == 0)
-    return;
+  //if (listing == 0)
+  //  return;
 
   if (now_seg == absolute_section)
     return;

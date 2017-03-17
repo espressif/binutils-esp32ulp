@@ -88,8 +88,8 @@
 #define CMD_WAIT(cycles)  \
 	 esp32ulp_cmd_wait(cycles)
 
-#define CMD_TSENS(dreg, cycl, delay)  \
-	esp32ulp_cmd_tsens(dreg.regno, cycl, delay)
+#define CMD_TSENS(dreg, delay)  \
+	esp32ulp_cmd_tsens(dreg.regno, delay)
 
 #define CMD_ADC(dreg, sar_sel, mux, cycles)  \
 	esp32ulp_cmd_adc(dreg.regno, sar_sel, mux, cycles)
@@ -275,8 +275,6 @@ extern int yylex (void);
 %type <expr> eterm
 %type <reg> REG
 %type <expr> expr
-%type <r0> plus_minus
-%type <r0> op_bar_op
 %type <expr> got
 %type <expr> got_or_expr
 %type <value> any_gotrel GOT GOT17M4 FUNCDESC_GOT17M4
@@ -598,12 +596,12 @@ asm_1:
 	  notethat ("ProgCtrl: SLEEP\n");
 	  $$ = CMD_SLEEP($2);
 	}	
-	| TSENS REG COMMA expr COMMA expr
+	| TSENS REG COMMA expr
 	{
 		if (IS_DREG ($2))
 		{
 	        notethat ("ProgCtrl: TSENS\n");
-			$$ =  CMD_TSENS($2, $4, $6);
+			$$ =  CMD_TSENS($2, $4);
 		}
 		else
 		{
