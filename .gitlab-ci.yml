@@ -2,7 +2,7 @@ stages:
   - build
   - deploy
 
-build_template_app:
+build_linux:
   stage: build
   image: espressif/esp32-ci-env
   tags:
@@ -17,14 +17,45 @@ build_template_app:
     GIT_STRATEGY: fetch
 
   script:
-    - ./configure --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim --target=esp32ulp-elf --prefix=$PWD/build
+    - ./configure --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim 
     - echo "MAKEINFO = :" >> Makefile
     - make
     - make install-strip
     - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-linux64
     - mv build ${REL_NAME}
     - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
-    - mkdir dist
+    - mkdir -p dist
+    - mv ${REL_NAME}.tar.gz dist/
+
+build_windows:
+  stage: build
+  image: thewtex/cross-compiler-windows-x64
+  tags:
+    - build
+
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
+
+  variables:
+    GIT_STRATEGY: fetch
+
+  script:
+    - export CC=
+    - export CPP=
+    - export CXX=
+    - export LD=
+    - export AS=
+    - export AR=
+    - ./configure --host=x86_64-w64-mingw32.static --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim 
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - make install-strip
+    - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-win64
+    - mv build ${REL_NAME}
+    - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
+    - mkdir -p dist
     - mv ${REL_NAME}.tar.gz dist/
 
 
