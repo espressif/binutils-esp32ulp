@@ -1,0 +1,92 @@
+stages:
+  - build
+  - deploy
+
+build_linux:
+  stage: build
+  image: espressif/esp32-ci-env
+  tags:
+    - build
+
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
+
+  variables:
+    GIT_STRATEGY: fetch
+
+  script:
+    - ./configure --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim 
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - make install-strip
+    - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-linux64
+    - mv build ${REL_NAME}
+    - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
+    - mkdir -p dist
+    - mv ${REL_NAME}.tar.gz dist/
+
+build_windows:
+  stage: build
+  image: thewtex/cross-compiler-windows-x64
+  tags:
+    - build
+
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
+
+  variables:
+    GIT_STRATEGY: fetch
+
+  script:
+    - export CC=
+    - export CPP=
+    - export CXX=
+    - export LD=
+    - export AS=
+    - export AR=
+    - ./configure --host=x86_64-w64-mingw32.static --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim 
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - make install-strip
+    - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-win64
+    - mv build ${REL_NAME}
+    - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
+    - mkdir -p dist
+    - mv ${REL_NAME}.tar.gz dist/
+
+
+push_master_to_github:
+  before_script:
+    - echo "Not setting up GitLab key, not fetching submodules"
+  stage: deploy
+  only:
+    - master
+    - /^release\/v.*$/
+  tags:
+    - deploy
+  when: on_success
+  image: espressif/esp32-ci-env
+  variables:
+    GIT_STRATEGY: clone
+    GITHUB_PUSH_REFS: refs/remotes/origin/release refs/remotes/origin/master
+  script:
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - echo -n $GH_PUSH_KEY > ~/.ssh/id_rsa_base64
+    - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
+    - chmod 600 ~/.ssh/id_rsa
+    - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
+    - git remote add github git@github.com:espressif/binutils-esp32ulp.git
+    # What the next line of script does: goes through the list of refs for all branches we push to github,
+    # generates a snippet of shell which is evaluated. The snippet checks CI_BUILD_REF against the SHA
+    # (aka objectname) at tip of each branch, and if any SHAs match then it checks out the local branch
+    # and then pushes that ref to a corresponding github branch
+    #
+    # NB: In gitlab 9.x, CI_BUILD_REF was deprecated. New name is CI_COMMIT_REF. If below command suddenly
+    # generates bash syntax errors, this is probably why.
+    - eval $(git for-each-ref --shell bash --format 'if [ $CI_BUILD_REF == %(objectname) ]; then git checkout -B %(refname:strip=3); git push --follow-tags github %(refname:strip=3); fi;' $GITHUB_PUSH_REFS)
+
