@@ -586,10 +586,10 @@ asm_1:
 	  notethat ("ProgCtrl: END\n");
 	  $$ = CMD_HALT ();
 	}	
-	| WAKE expr
+	| WAKE 
 	{
 	  notethat ("ProgCtrl: CMD_WAKEUP\n");
-	  $$ = CMD_WAKEUP($2);
+	  $$ = CMD_WAKEUP(NULL);
 	}	
 	| SLEEP expr
 	{

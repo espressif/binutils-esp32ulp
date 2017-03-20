@@ -328,6 +328,8 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		}
 		if ((value < 0) || (value > 2047))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_16"));
+		if ((value%4) != 0) 
+			as_bad_where(fixP->fx_file, fixP->fx_line, _("Esp32Ulp is 32-bit addressing processor. Relative jump value must be divided by 4."));
 
 		//value = value << 2;
 		md_number_to_chars(where, value, 2);
@@ -1091,8 +1093,8 @@ INSTR_T esp32ulp_gen_jump_i(Expr_Node* addr, int cond)
 	rel = BFD_RELOC_ESP32ULP_16_IMM;
 
 	val = EXPR_VALUE(addr);
+	if ((val % 4) != 0) error("%s","Esp32Ulp is 32-bit addressing processor. Relative jump value must be divided by 4.");
 	unsigned int local_op = I_JUMP_RI(0, val>>2, cond, 0);
-
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
 }
 
@@ -1259,11 +1261,13 @@ INSTR_T esp32ulp_cmd_sleep(Expr_Node*  cycles)
 
 INSTR_T esp32ulp_cmd_wakeup(Expr_Node*  wake)
 {
+	(void)wake;
 	//DEBUG_TRACE("dya_pass - OP_CMD_WAKEUP \n");
-	int wake_val = EXPR_VALUE(wake);
-	unsigned int local_op = OP_CMD_WAKEUP(wake_val);
-
-	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(wake, BFD_RELOC_ESP32ULP_WAKE));
+	//int wake_val = EXPR_VALUE(wake);
+	//unsigned int local_op = OP_CMD_WAKEUP(wake_val);
+	//return conscode(gencode(local_op), Expr_Node_Gen_Reloc(wake, BFD_RELOC_ESP32ULP_WAKE));
+	unsigned int local_op = OP_CMD_WAKEUP(1);
+	return GEN_OPCODE32_DYA(local_op);
 }
 
 INSTR_T esp32ulp_cmd_stage(int dir, Expr_Node* imm)
