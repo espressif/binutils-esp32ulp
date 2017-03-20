@@ -319,11 +319,12 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	switch (fixP->fx_r_type)
 	{
 	case BFD_RELOC_ESP32ULP_16_IMM:
-
 		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
 		{
 			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
-			if (sym->section->flags != 0) value = value >> 2;
+			int force_reloc = S_FORCE_RELOC(fixP->fx_addsy, 1);
+			//printf("force_reloc = %i \n", force_reloc);
+			if (force_reloc != 0) if (sym->section->flags != 0) value = value >> 2;
 		}
 		if ((value < 0) || (value > 2047))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_16"));
@@ -339,7 +340,8 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
 		{
 			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
-			if (sym->section->flags != 0) value = value >> 2;
+			int force_reloc = S_FORCE_RELOC(fixP->fx_addsy, 1);
+			if (force_reloc != 0) if (sym->section->flags != 0) value = value >> 2;
 		}
 		unsigned int temp_val = 0;
 		memcpy(&temp_val, where, 4);
