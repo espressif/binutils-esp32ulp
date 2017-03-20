@@ -58,6 +58,34 @@ build_windows:
     - mkdir -p dist
     - mv ${REL_NAME}.tar.gz dist/
 
+build_macos:
+  stage: build
+  tags:
+    - build_macos
+
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
+
+  variables:
+    GIT_STRATEGY: fetch
+
+  script:
+    - export CC=gcc-4.9
+    - export CPP=cpp-4.9
+    - export CXX=g++-4.9
+    - make distclean || true
+    - ./configure --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
+    - echo "MAKEINFO = :" >> Makefile
+    - make CFLAGS=-Wno-error=deprecated-declarations
+    - make install-strip
+    - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-macos
+    - mv build ${REL_NAME}
+    - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
+    - mkdir -p dist
+    - mv ${REL_NAME}.tar.gz dist/
+
 
 push_master_to_github:
   before_script:
