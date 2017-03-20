@@ -114,7 +114,7 @@
 #define LISTING_RHS_WIDTH 100
 #endif
 #ifndef LISTING_LHS_CONT_LINES
-#define LISTING_LHS_CONT_LINES 4
+#define LISTING_LHS_CONT_LINES 100
 #endif
 #define MAX_DATELEN 30
 
@@ -1279,7 +1279,6 @@ listing_listing (char *name ATTRIBUTE_UNUSED)
 		     && !list->file->at_end)
 		{
 		  unsigned int address;
-
 		  p = buffer_line (list->file, buffer, width);
 
 		  if (list->file->linenum < list_line)
