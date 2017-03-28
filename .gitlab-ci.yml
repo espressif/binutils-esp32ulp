@@ -4,7 +4,7 @@ stages:
 
 build_linux:
   stage: build
-  image: espressif/esp32-ci-env
+  image: espressif/esp32-toolchain
   tags:
     - build
 
@@ -17,19 +17,18 @@ build_linux:
     GIT_STRATEGY: fetch
 
   script:
-    - ./configure --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim 
+    - ./configure --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
     - echo "MAKEINFO = :" >> Makefile
     - make
     - make install-strip
-    - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-linux64
-    - mv build ${REL_NAME}
-    - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
+    - export REL_NAME=esp32ulp-elf-binutils-linux64-`git describe --always`
+    - tar czvf ${REL_NAME}.tar.gz esp32ulp-elf-binutils/
     - mkdir -p dist
     - mv ${REL_NAME}.tar.gz dist/
 
 build_windows:
   stage: build
-  image: thewtex/cross-compiler-windows-x64
+  image: espressif/esp32-toolchain
   tags:
     - build
 
@@ -48,13 +47,39 @@ build_windows:
     - export LD=
     - export AS=
     - export AR=
-    - ./configure --host=x86_64-w64-mingw32.static --target=esp32ulp-elf --prefix=$PWD/build --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim 
+    - ./configure --host=i686-w64-mingw32 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
     - echo "MAKEINFO = :" >> Makefile
     - make
     - make install-strip
-    - export REL_NAME=esp32ulp-elf-binutils-`git describe --always`-win64
-    - mv build ${REL_NAME}
-    - tar czvf ${REL_NAME}.tar.gz ${REL_NAME}/
+    - export REL_NAME=esp32ulp-elf-binutils-win32-`git describe --always`
+    - zip -r ${REL_NAME}.zip esp32ulp-elf-binutils/
+    - mkdir -p dist
+    - mv ${REL_NAME}.zip dist/
+
+build_macos:
+  stage: build
+  tags:
+    - build_macos
+
+  artifacts:
+    paths:
+      - dist
+    expire_in: 2 weeks
+
+  variables:
+    GIT_STRATEGY: fetch
+
+  script:
+    - export CC=gcc-4.9
+    - export CPP=cpp-4.9
+    - export CXX=g++-4.9
+    - make distclean || true
+    - ./configure --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
+    - echo "MAKEINFO = :" >> Makefile
+    - make CFLAGS=-Wno-error=deprecated-declarations
+    - make install-strip
+    - export REL_NAME=esp32ulp-elf-binutils-macos-`git describe --always`
+    - tar czvf ${REL_NAME}.tar.gz esp32ulp-elf-binutils/
     - mkdir -p dist
     - mv ${REL_NAME}.tar.gz dist/
 
