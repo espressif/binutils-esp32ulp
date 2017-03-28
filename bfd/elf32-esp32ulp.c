@@ -628,7 +628,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	19,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_HIGH",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -642,7 +642,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	16,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_LOW",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -656,7 +656,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	0,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_ADDR",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -670,7 +670,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	8,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_DATA",		/* name.  */
 	FALSE,						/* partial_inplace.  */
@@ -684,7 +684,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	16,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	22,							/* bitpos.  */
-	complain_overflow_signed,	/* complain_on_overflow.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
 	NULL,						/* special_function.  */
 	"R_ESP32ULP_I2C_RW_SEL",		/* name.  */
 	FALSE,						/* partial_inplace.  */

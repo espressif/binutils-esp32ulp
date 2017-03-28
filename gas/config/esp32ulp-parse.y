@@ -642,7 +642,7 @@ asm_1:
 	}
 	| I2C_WR expr COMMA expr COMMA expr COMMA expr COMMA expr
 	{
-		notethat ("ProgCtrl: I2C_RD - i2c_addr, value, high, low, i2c_sel\n");
+		notethat ("ProgCtrl: I2C_WR - i2c_addr, value, high, low, i2c_sel\n");
 	    $$ = CMD_I2C_WR($2, $6, $8, $10, $4);
 	}
 	/* --------------------------------------------------------------------------------------------------*/
