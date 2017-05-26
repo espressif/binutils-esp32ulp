@@ -608,6 +608,18 @@ asm_1:
 			return yyerror ("Register mismatch");
 		}
 	}	
+	| ADC REG COMMA expr COMMA expr
+	{
+		if (IS_DREG ($2))
+		{
+	        notethat ("ProgCtrl: ADC \n");
+			$$ =  CMD_ADC($2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}	
 	| ADC REG COMMA expr COMMA expr COMMA expr 
 	{
 		if (IS_DREG ($2))
