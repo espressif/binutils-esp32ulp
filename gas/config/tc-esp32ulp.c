@@ -1082,7 +1082,7 @@ INSTR_T esp32ulp_gen_alu_i(int dst, int src1, Expr_Node* addr, int operation)
 INSTR_T esp32ulp_gen_jump_r(int dst_reg, int cond)
 {
 	//DEBUG_TRACE("dya_pass - esp32ulp_gen_jump_r - dst_reg=%i, cond=%i\n", dst_reg, cond);
-	unsigned int local_op = I_JUMP_RI(dst_reg, 0, cond, 0);
+	unsigned int local_op = I_JUMP_RI(dst_reg, 0, cond, 1);
 	return GEN_OPCODE32_DYA(local_op);
 }
 INSTR_T esp32ulp_gen_jump_i(Expr_Node* addr, int cond)
