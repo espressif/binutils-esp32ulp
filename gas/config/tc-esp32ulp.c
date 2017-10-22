@@ -526,8 +526,6 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_JUMPR_STEP:
-		if ((value > 0x1FF) || (value < -0x1ff))
-			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_JUMPR_STEP"));
 		//value = value << 2;
 		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
 		{
