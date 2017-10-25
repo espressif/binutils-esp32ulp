@@ -112,9 +112,29 @@ int yylex (void);
     yylval.value = parse_int (&yytext);
     return NUMBER;
   }
-[[:alpha:]\x80-\xff_$.][[:alnum:]\x80-\xff_$.]* {
-    yylval.symbol = symbol_find_or_make (yytext);
-    symbol_mark_used (yylval.symbol);
+([0-9]+[bf])|([[:alpha:]\x80-\xff_$.][[:alnum:]\x80-\xff_$.]*) {
+    if (isdigit(yytext[0])) {
+        char lc= yytext[strlen(yytext)-1];
+        if (lc == 'b') {
+            char *name = fb_label_name (atoi(yytext), 0);
+            yylval.symbol = symbol_find (name);
+            if ((yylval.symbol!= NULL) && (S_IS_DEFINED (yylval.symbol))) {
+                know (SEG_NORMAL (S_GET_SEGMENT (yylval.symbol)));
+            } else {
+                as_bad (_("backward ref to unknown label \"%d:\""),	(int) atoi(yytext));
+            }
+        } else if (lc == 'f') {
+            char *name = fb_label_name (atoi(yytext), 1);
+            yylval.symbol = symbol_find_or_make (name);
+            #ifndef many_segments
+              know (S_GET_SEGMENT (yylval.symbol) == undefined_section
+                 || S_GET_SEGMENT (yylval.symbol) == text_section || S_GET_SEGMENT (yylval.symbol) == data_section);
+            #endif
+        }
+    } else {
+        yylval.symbol = symbol_find_or_make (yytext);
+        symbol_mark_used (yylval.symbol);
+    }
     return SYMBOL;
   }
 
