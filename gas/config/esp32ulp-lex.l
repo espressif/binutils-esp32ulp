@@ -22,6 +22,8 @@
    02110-1301, USA.  */
 %{
 
+#include <ctype.h>
+
 #include "as.h"
 #include "esp32ulp-defs.h"
 #include "esp32ulp-parse.h"
