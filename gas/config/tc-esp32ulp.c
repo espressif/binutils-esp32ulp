@@ -380,7 +380,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_ALUI:
-		if ((value > 0x7fff) || (value < -0x7fff))
+		if ((value > 0xffff) || (value < -0xffff))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_ALUI"));
 		//value = 0x00ffff; // for tests only
 		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
