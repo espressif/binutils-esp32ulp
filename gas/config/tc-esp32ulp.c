@@ -1043,8 +1043,8 @@ happens in esp32ulp-lex.l.  */
 INSTR_T
 esp32ulp_gen_progctrl(int prgfunc, int poprnd)
 {
-	prgfunc = prgfunc;
-	poprnd = poprnd;
+	(void) prgfunc;
+	(void) poprnd;
 	unsigned int local_op = OP_CMD_WAIT(0);
 
 	return GEN_OPCODE32_DYA(local_op);
@@ -1192,8 +1192,8 @@ INSTR_T esp32ulp_cmd_i2c_wr(Expr_Node* i2c_addr, Expr_Node* high, Expr_Node* low
 
 INSTR_T esp32ulp_gen_jump_rels(Expr_Node* addr, int judge, int thresh)
 {
-	judge = judge;
-	thresh = thresh;
+	(void) judge;
+	(void) thresh;
 	int rel = 0;
 
 	rel = BFD_RELOC_ESP32ULP_JUMPR;

@@ -1907,41 +1907,6 @@ in a single instruction.  */
 #define ESP32ULPFDPIC_LZPLT_BLOCK_SIZE ((bfd_vma) LZPLT_NORMAL_SIZE * LZPLT_ENTRIES + LZPLT_RESOLVER_EXTRA)
 #define ESP32ULPFDPIC_LZPLT_RESOLV_LOC (LZPLT_NORMAL_SIZE * LZPLT_ENTRIES / 2)
 
-/* Add a dynamic relocation to the SRELOC section.  */
-
-inline static bfd_vma
-_esp32ulpfdpic_add_dyn_reloc(bfd *output_bfd, asection *sreloc, bfd_vma offset,
-int reloc_type, long dynindx, bfd_vma addend,
-struct esp32ulpfdpic_relocs_info *entry)
-{
-	Elf_Internal_Rela outrel;
-	bfd_vma reloc_offset;
-
-	outrel.r_offset = offset;
-	outrel.r_info = ELF32_R_INFO(dynindx, reloc_type);
-	outrel.r_addend = addend;
-
-	reloc_offset = sreloc->reloc_count * sizeof(Elf32_External_Rel);
-	BFD_ASSERT(reloc_offset < sreloc->size);
-	bfd_elf32_swap_reloc_out(output_bfd, &outrel,
-		sreloc->contents + reloc_offset);
-	sreloc->reloc_count++;
-
-	/* If the entry's index is zero, this relocation was probably to a
-	linkonce section that got discarded.  We reserved a dynamic
-	relocation, but it was for another entry than the one we got at
-	the time of emitting the relocation.  Unfortunately there's no
-	simple way for us to catch this situation, since the relocation
-	is cleared right before calling relocate_section, at which point
-	we no longer know what the relocation used to point to.  */
-	if (entry->symndx)
-	{
-		BFD_ASSERT(entry->dynrelocs > 0);
-		entry->dynrelocs--;
-	}
-
-	return reloc_offset;
-}
 
 /* Add a fixup to the ROFIXUP section.  */
 
@@ -1964,8 +1929,13 @@ struct esp32ulpfdpic_relocs_info *entry)
 
 	if (entry && entry->symndx)
 	{
-		/* See discussion about symndx == 0 in _esp32ulpfdpic_add_dyn_reloc
-		above.  */
+		/* If the entry's index is zero, this relocation was probably to a
+		linkonce section that got discarded.  We reserved a dynamic
+		relocation, but it was for another entry than the one we got at
+		the time of emitting the relocation.  Unfortunately there's no
+		simple way for us to catch this situation, since the relocation
+		is cleared right before calling relocate_section, at which point
+		we no longer know what the relocation used to point to.  */
 		BFD_ASSERT(entry->fixups > 0);
 		entry->fixups--;
 	}

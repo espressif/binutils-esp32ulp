@@ -147,7 +147,7 @@ static long parse_int (char **end)
   char fmt = '\0';
   int not_done = 1;
   int shiftvalue = 0;
-  char * char_bag;
+  const char * char_bag;
   long value = 0;
   char *arg = *end;
 
