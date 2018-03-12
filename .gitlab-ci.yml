@@ -4,7 +4,7 @@ stages:
 
 build_linux:
   stage: build
-  image: espressif/esp32-toolchain
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain
   tags:
     - build
 
@@ -28,7 +28,7 @@ build_linux:
 
 build_windows:
   stage: build
-  image: espressif/esp32-toolchain
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
   tags:
     - build
 
@@ -47,7 +47,7 @@ build_windows:
     - export LD=
     - export AS=
     - export AR=
-    - ./configure --host=i686-w64-mingw32 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
+    - ./configure --host=i686-w64-mingw32 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim CC=i686-w64-mingw32-gcc
     - echo "MAKEINFO = :" >> Makefile
     - make
     - make install-strip
@@ -58,8 +58,9 @@ build_windows:
 
 build_macos:
   stage: build
+  image: $CI_DOCKER_REGISTRY/osxcross
   tags:
-    - build_macos
+    - build
 
   artifacts:
     paths:
@@ -70,13 +71,9 @@ build_macos:
     GIT_STRATEGY: fetch
 
   script:
-    - export CC=gcc-4.9
-    - export CPP=cpp-4.9
-    - export CXX=g++-4.9
-    - make distclean || true
-    - ./configure --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
+    - ./configure --host=x86_64-apple-darwin12 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim CC=x86_64-apple-darwin12-cc
     - echo "MAKEINFO = :" >> Makefile
-    - make CFLAGS=-Wno-error=deprecated-declarations
+    - make
     - make install-strip
     - export REL_NAME=esp32ulp-elf-binutils-macos-`git describe --always`
     - tar czvf ${REL_NAME}.tar.gz esp32ulp-elf-binutils/
