@@ -602,8 +602,13 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_REG_RW_ADDR:
-		if ((value >= 0x400) || (value < 0))
-			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_REG_RW_ADDR"));
+		if ((value > 255) || (value < 0)){
+			if (!((value >= DR_REG_RTCCNTL_BASE) && (value < DR_REG_RTCIO_BASE)) ){
+				as_bad_where(fixP->fx_file, fixP->fx_line, _("Register address out of range. Must be in range of 0.255 or 0x3ff48000..0x3ff48400."));
+			} else {
+				value = (value - DR_REG_RTCCNTL_BASE)/4;
+			}
+		}
 
 		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
 		{
@@ -619,8 +624,13 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_REG_RW_ADDR temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
 	case BFD_RELOC_ESP32ULP_REG_RW_DATA:
-		if ((value > 0xff) || (value < 0))
-			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32ULP_REG_RW_DATA"));
+		if ((value > 255) || (value < 0)){
+			if (!((value >= DR_REG_RTCCNTL_BASE) && (value < DR_REG_RTCIO_BASE)) ){
+				as_bad_where(fixP->fx_file, fixP->fx_line, _("Register address out of range. Must be in range of 0.255 or 0x3ff48000..0x3ff48400."));
+			} else {
+				value = (value - DR_REG_RTCCNTL_BASE)/4;
+			}
+		}
 		temp_val = 0;
 		value &= 0xff;
 		memcpy(&temp_val, where, 4);
@@ -1134,6 +1144,15 @@ INSTR_T esp32ulp_cmd_reg_rd(Expr_Node* addr, Expr_Node* high, Expr_Node* low)
 	unsigned int high_val = EXPR_VALUE(high);
 	unsigned int low_val = EXPR_VALUE(low);
 
+	if (addr_val > 255)
+	{
+		if ((addr_val >= DR_REG_RTCCNTL_BASE) && (addr_val < DR_REG_RTCIO_BASE))
+		{
+			addr_val = (addr_val - DR_REG_RTCCNTL_BASE)/4;
+		} else {
+			error("%s","Register address out of range. Must be 0..255, or in range of 0x3ff48000 .. 0x3ff48400.");
+		}
+	}
 	unsigned int local_op = I_RD_REG(addr_val, low_val, high_val);
 
 	return conscode(gencode(local_op),
@@ -1148,6 +1167,15 @@ INSTR_T esp32ulp_cmd_reg_wr(Expr_Node* addr, Expr_Node* high, Expr_Node* low, Ex
 	unsigned int low_val = EXPR_VALUE(low);
 	unsigned int data_val = EXPR_VALUE(data);
 
+	if (addr_val > 255)
+	{
+		if ((addr_val >= DR_REG_RTCCNTL_BASE) && (addr_val < DR_REG_RTCIO_BASE))
+		{
+			addr_val = (addr_val - DR_REG_RTCCNTL_BASE)/4;
+		} else {
+			error("%s","Register address out of range. Must be 0..255, or in range of 0x3ff48000 .. 0x3ff48400.");
+		}
+	}
 	unsigned int local_op = I_WR_REG(addr_val, low_val, high_val, data_val);
 
 	return conscode(gencode(local_op),
