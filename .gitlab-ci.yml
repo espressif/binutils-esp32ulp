@@ -1,114 +1,241 @@
 stages:
   - build
   - deploy
+  - release_stage1
+  - release_submit
+
+image: $CI_DOCKER_REGISTRY/esp32-toolchain
+
+variables:
+
+  #
+  # System environment
+
+  # Common parameters for the 'make' during CI tests
+  MAKEFLAGS: "-j4 --no-keep-going"
+
+  # Binutils configure options
+  BINUTILS_CONFIGURE_OPTS: "--disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim"
+
+  # GitHub Tool options
+  GITHUB_USER: "${GH_USER}"
+  GITHUB_REPO: "${GH_REPO}"
+  GITHUB_TOKEN: "${GH_TOKEN}"
+
+  #
+  # CI settings
+
+  # clone - is a nice reentrant strategy for medium size repository
+  GIT_STRATEGY: clone
+  GIT_SUBMODULE_STRATEGY: none
+
+  #
+  # Customization of jobs
+
+  DIST_ART_DIR: "dist"
+  DIST_NAME: "esp32ulp-elf-binutils"
+  DIST_INSTALLED_DIR: "${DIST_NAME}"
+  ARCHIVE_TOOL: "tar czvf"
+#  UNARCHIVE_TOOL: "tar xvf"
+  ARCHIVE_EXT: "tar.gz"
+  GH_TOOL_NAME: github-release
+  GH_TOOL: "./${DIST_ART_DIR}/${GH_TOOL_NAME}"
+  RELEASE_DESC: "New release"
+
+.get_release_name: &get_release_name |
+  PREFX=${CI_PROJECT_NAME}
+  tmpVER=$( tmpTAG=$(git describe --tags | grep -E "^v[0-9]") && ( echo $tmpTAG | sed -n -r "s|^v(.*)|\1|gp" ) || echo "" )
+  if [ ! $tmpVER ]; then
+    tmpVER=$( tmpTAG=$(git describe --tags | grep -E "^${PREFX}-")  && ( echo $tmpTAG | sed -n -r "s|^${PREFX}-(.*)|\1|gp" ) || echo "" )
+    if [ ! $tmpVER ]; then
+      echo "There is not a correct tag"; exit 1
+    fi
+  fi
+  REL_VERSION=$tmpVER
+  REL_NAME=${CI_PROJECT_NAME}-${PLATFORM_NAME}-${REL_VERSION}
+  ARCHIVE_NAME=${REL_NAME}.${ARCHIVE_EXT}
+  echo "PLATFORM_NAME: $PLATFORM_NAME"
+  echo "REL_VERSION: $REL_VERSION"
+  echo "REL_NAME: $REL_NAME"
+  echo "ARCHIVE_NAME: $ARCHIVE_NAME"
+
+.dist_archive: &dist_archive |
+  ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR}
+  mkdir -p ${DIST_ART_DIR}
+  mv ${ARCHIVE_NAME} ${DIST_ART_DIR}
+  echo "${ARCHIVE_NAME}" > ${DIST_ART_DIR}/dist_name_${PLATFORM_NAME}
+
+.add_gh_key_remote: &add_gh_key_remote |
+  command -v ssh-agent >/dev/null || exit 1
+  eval $(ssh-agent -s)
+  printf '%s\n' "${GH_PUSH_KEY}" | tr -d '\r' | ssh-add - > /dev/null
+  mkdir -p ~/.ssh && chmod 700 ~/.ssh
+  [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+  git remote remove github || true
+  git remote add github ${GH_PUSH_REPO}
+
+.gh_getting_tool: &gh_getting_tool |
+  # do not download if it was installed locally
+  LOCAL_TOOL_PATH=$(command -v ${GH_TOOL_NAME}) && cp ${LOCAL_TOOL_PATH} . || wget --no-verbose -O $GH_TOOL_NAME $GH_TOOL_URL
+  chmod +x ./$GH_TOOL_NAME
+
+.gh_upload_archive: &gh_upload_archive |
+  ARCHIVE_NAME=$(cat ${DIST_ART_DIR}/dist_name_${PLATFORM_NAME})
+  echo Release ${GH_REL_TAG}, file ${ARCHIVE_NAME}
+  ${GH_TOOL} upload -s ${GITHUB_TOKEN} --tag ${GH_REL_TAG} -f ${DIST_ART_DIR}/${ARCHIVE_NAME} -n ${ARCHIVE_NAME}
+
+# prefix should be like a $CI_PROJECT_NAME, but we cannot use variable here
+.release_tag_filter: &release_tag_filter
+  only:
+    - /^v[0-9].*$/
+    - /^binutils-esp32ulp-.*$/
+
+.release_submit_action: &release_submit_action
+  when: manual
+  allow_failure: true
+
+before_script:
+  - set -o errexit; set -o pipefail; set -o nounset
+  - test ${DEBUG_SHELL:-""} && set -x
 
 build_linux:
   stage: build
   image: $CI_DOCKER_REGISTRY/esp32-toolchain
   tags:
     - build
-
   artifacts:
     paths:
-      - dist
+      - ${DIST_ART_DIR}
     expire_in: 2 weeks
-
   variables:
-    GIT_STRATEGY: fetch
-
+    PLATFORM_NAME: "linux64"
   script:
-    - ./configure --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim
+    - *get_release_name
+    - MAKEFLAGS= ./configure --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS}
     - echo "MAKEINFO = :" >> Makefile
     - make
-    - make install-strip
-    - export REL_NAME=esp32ulp-elf-binutils-linux64-`git describe --always`
-    - tar czvf ${REL_NAME}.tar.gz esp32ulp-elf-binutils/
-    - mkdir -p dist
-    - mv ${REL_NAME}.tar.gz dist/
+    - MAKEFLAGS= make install-strip
+    - *dist_archive
 
 build_windows:
   stage: build
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
   tags:
     - build
-
   artifacts:
     paths:
-      - dist
+      - ${DIST_ART_DIR}
     expire_in: 2 weeks
-
   variables:
-    GIT_STRATEGY: fetch
-
+    PLATFORM_NAME: "win32"
+    ARCHIVE_TOOL: "zip -r"
+    ARCHIVE_EXT: "zip"
   script:
+    - *get_release_name
     - export CC=
     - export CPP=
     - export CXX=
     - export LD=
     - export AS=
     - export AR=
-    - ./configure --host=i686-w64-mingw32 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim CC=i686-w64-mingw32-gcc
+    - MAKEFLAGS= ./configure --host=i686-w64-mingw32 --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS} CC=i686-w64-mingw32-gcc
     - echo "MAKEINFO = :" >> Makefile
     - make
-    - make install-strip
-    - export REL_NAME=esp32ulp-elf-binutils-win32-`git describe --always`
-    - zip -r ${REL_NAME}.zip esp32ulp-elf-binutils/
-    - mkdir -p dist
-    - mv ${REL_NAME}.zip dist/
+    - MAKEFLAGS= make install-strip
+    - *dist_archive
 
 build_macos:
   stage: build
   image: $CI_DOCKER_REGISTRY/osxcross
   tags:
     - build
-
   artifacts:
     paths:
-      - dist
+      - ${DIST_ART_DIR}
     expire_in: 2 weeks
-
   variables:
-    GIT_STRATEGY: fetch
-
+    PLATFORM_NAME: "macos"
   script:
-    - ./configure --host=x86_64-apple-darwin12 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils --disable-doc --disable-gdb --disable-libdecnumber --disable-readline --disable-sim CC=x86_64-apple-darwin12-cc
+    - *get_release_name
+    - MAKEFLAGS= ./configure --host=x86_64-apple-darwin12 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils ${BINUTILS_CONFIGURE_OPTS} CC=x86_64-apple-darwin12-cc
     - echo "MAKEINFO = :" >> Makefile
     - make
-    - make install-strip
-    - export REL_NAME=esp32ulp-elf-binutils-macos-`git describe --always`
-    - tar czvf ${REL_NAME}.tar.gz esp32ulp-elf-binutils/
-    - mkdir -p dist
-    - mv ${REL_NAME}.tar.gz dist/
-
+    - MAKEFLAGS= make install-strip
+    - *dist_archive
 
 push_master_to_github:
-  before_script:
-    - echo "Not setting up GitLab key, not fetching submodules"
   stage: deploy
   only:
     - master
-    - /^release\/v.*$/
-  tags:
-    - deploy
   when: on_success
-  image: espressif/esp32-ci-env
+  dependencies: []
   variables:
     GIT_STRATEGY: clone
-    GITHUB_PUSH_REFS: refs/remotes/origin/release refs/remotes/origin/master
   script:
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - echo -n $GH_PUSH_KEY > ~/.ssh/id_rsa_base64
-    - base64 --decode --ignore-garbage ~/.ssh/id_rsa_base64 > ~/.ssh/id_rsa
-    - chmod 600 ~/.ssh/id_rsa
-    - echo -e "Host github.com\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
-    - git remote add github git@github.com:espressif/binutils-esp32ulp.git
-    # What the next line of script does: goes through the list of refs for all branches we push to github,
-    # generates a snippet of shell which is evaluated. The snippet checks CI_BUILD_REF against the SHA
-    # (aka objectname) at tip of each branch, and if any SHAs match then it checks out the local branch
-    # and then pushes that ref to a corresponding github branch
-    #
-    # NB: In gitlab 9.x, CI_BUILD_REF was deprecated. New name is CI_COMMIT_REF. If below command suddenly
-    # generates bash syntax errors, this is probably why.
-    - eval $(git for-each-ref --shell bash --format 'if [ $CI_BUILD_REF == %(objectname) ]; then git checkout -B %(refname:strip=3); git push --follow-tags github %(refname:strip=3); fi;' $GITHUB_PUSH_REFS)
+    - *add_gh_key_remote
+    - git push github HEAD:master
 
+get_gh_tools:
+  stage: build
+  <<: *release_tag_filter
+  artifacts:
+    paths:
+      - ${DIST_ART_DIR}
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - *gh_getting_tool
+    - mkdir -p ${DIST_ART_DIR}
+    - mv ${GH_TOOL_NAME} ${DIST_ART_DIR}/
+
+release_tag_draft:
+  stage: release_stage1
+  <<: *release_tag_filter
+  when: on_success
+  script:
+    - *add_gh_key_remote
+    - git push --force github ${CI_COMMIT_TAG}
+    # release draft
+    - ${GH_TOOL} delete -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} || true
+    - ${GH_TOOL} release -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}" --draft
+    - GH_REL_TAG=${CI_COMMIT_TAG}
+    # Upload archives
+    - PLATFORM_NAME="linux64"
+    - *gh_upload_archive
+    - PLATFORM_NAME="win32"
+    - *gh_upload_archive
+    - PLATFORM_NAME="macos"
+    - *gh_upload_archive
+
+Release_tag_submit:
+  stage: release_submit
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  dependencies:
+    - get_gh_tools
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - ${GH_TOOL} edit -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}"
+
+Pre-Release_tag_submit:
+  stage: release_submit
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  dependencies:
+    - get_gh_tools
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - ${GH_TOOL} edit -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}" --pre-release
+
+Delete_tag_release:
+  stage: release_submit
+  <<: *release_tag_filter
+  <<: *release_submit_action
+  dependencies:
+    - get_gh_tools
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - ${GH_TOOL} delete -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} || true
