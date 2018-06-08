@@ -166,9 +166,8 @@ This is called for every line that contains real assembly code.  */
 void
 md_assemble(char *line)
 {
-	char *toP = 0;
-	int size, insn_size;
-	struct esp32ulp_insn *tmp_insn;
+	char *toP ;
+	int  insn_size;
 	size_t len;
 	static size_t buffer_len = 0;
 	static char *current_inputline;
@@ -184,47 +183,35 @@ md_assemble(char *line)
 	current_inputline[len] = ';';
 	current_inputline[len + 1] = '\0';
 
-	//if (insn) //DEBUG_TRACE("dya_pass 222 insn old =%08x\n", (unsigned int)insn->value);
+	// run the parser on the instruction
+	//   it will return a list of chained "insn",
+	// 	 the first contains the opcode of the instruction
+	//   and may be followed by other "insn" like an address
 	state = parse(current_inputline);
-	//if (insn) //DEBUG_TRACE("dya_pass 222 insn new =%08x\n", (unsigned int)insn->value);
-	if (state == NO_INSN_GENERATED)
+	if (state == NO_INSN_GENERATED || !insn)
 		return;
 
-	for (insn_size = 0, tmp_insn = insn; tmp_insn; tmp_insn = tmp_insn->next)
-		if (!tmp_insn->reloc || !tmp_insn->exp->symbol)
-			insn_size += 2;
-	// TODO:DYA insn_size - must be 4 in any case
+	// add 4 bytes to the fragment code buffer to put the new instruction
+	// and get buffer pointer (toP) on where to write the instruction
 	insn_size = 4;
-	if (insn_size)
-		toP = frag_more(insn_size);
-
-	last_insn_size = insn_size;
+	toP = frag_more(insn_size);			
 
 #ifdef DEBUG
 	printf("INS: %s\n", line);
 #endif
+	md_number_to_chars(toP, insn->value, insn_size);	// put the 4-byte instruction into the current fragment code buffer 
+	
 	while (insn)
 	{
 		if (insn->reloc && insn->exp->symbol)
 		{
-			size = 4;
 			//DEBUG_TRACE("insn->reloc && insn->exp->symbol BFD_ARELOC_ESP32ULP_PUSH size =%i, insn->exp->value=%i, insn->pcrel=%i, insn->reloc=%i\n", size, (unsigned int)insn->exp->value, insn->pcrel, insn->reloc);
 
-			//char *prev_toP = toP - 2;
-			//fix_new(frag_now, (prev_toP - frag_now->fr_literal), size, insn->exp->symbol, insn->exp->value, insn->pcrel, insn->reloc);
-			// were - shift from current word... 
-			fix_new(frag_now, 0, size, insn->exp->symbol, insn->exp->value, insn->pcrel, insn->reloc);
+			// generate a relocation request for this instruction so that linker will put the right address
+			//   toP is the pointer on this instruction in the buffer of the current code fragment 
+			//   frag_now->fr_literal is the pointer on the begining of the buffer of the current code fragment
+			fix_new(frag_now, toP - frag_now->fr_literal, insn_size, insn->exp->symbol, insn->exp->value, insn->pcrel, insn->reloc);
 		}
-		else
-		{
-			//DEBUG_TRACE("md_number_to_chars insn->value =%08x\n", (unsigned int)insn->value);
-			//md_number_to_chars(toP, insn->value, 2);
-			//toP += 2;
-			// TODO:DYA - this is main changes for 32 bit words!!!!! changes stop work
-			md_number_to_chars(toP, insn->value, 4);
-			toP += 4;
-		}
-		size = 4;
 #ifdef DEBUG
 		//DEBUG_TRACE(" reloc : value = %08x, pc=%08x, reloc=%08x BFD_RELOC_ESP32ULP_PLTPC = %08x\n", (unsigned int)insn->value, (unsigned int)insn->pcrel, (unsigned int)insn->reloc, BFD_RELOC_ESP32ULP_PLTPC);
 		if (insn->exp != ((void*)(0)))
