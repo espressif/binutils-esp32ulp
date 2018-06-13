@@ -85,3 +85,12 @@
 	.global  max_reg_Low2
 	.global  min_reg_data2
 	.global  max_reg_data2
+
+
+
+   	.global  _temp_dataw
+        _temp_dataw: .int    1111
+   	.global  _temp_dataw331
+        _temp_dataw331: .int    1234567
+   	.global  _temp_dataw2
+        _temp_dataw2: .int    1234567

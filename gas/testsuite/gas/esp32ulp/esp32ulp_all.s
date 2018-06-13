@@ -160,26 +160,22 @@ labelsd:  STAGE_DEC  1                          // stage_cnt--;
         NOP                                     // do something
         JUMPS       labelsd,0,GT                // jump to address label if stage_cnt > 0
 
-// Wake
-        .set wake_debug, 1                      // set global constant
-        WAKE     wake_debug                     // Wakeup the chip
-
 // Sleep
-        .set sleep_cnt, 10                      // set global constant
+        .set sleep_cnt, 3                      // set global constant
         SLEEP  sleep_cnt                        // Sleep for 10 cycles
 // Wait
         .set  wait_cnt, 10                      // set global constant
         WAIT  wait_cnt                          // wait for 10 cycles
 
 // TSENS
-        TSENS     R1, 10, 10                    // Measure temperature sensor for 10 cycles,
+        TSENS     R1, 10                        // Measure temperature sensor for 10 cycles,
                                                 // move result to R1 and wait 10 cycles
 // ADC
        ADC      R1, 0, 1, 100                   // Measure value form ADC0 pad 2,
                                                 //for 10 cycles and move result to R1
 // REG_RD/REG_WR
 
-        REG_RD      0x120, 1, 2                 // R0[1:2] = REG[0x120]
-        REG_WR      0x120, 1, 2,0x10            // REG[0x120] = 0x10[1:2]
+        REG_RD      0x20, 1, 2                 // R0[1:2] = REG[0x120]
+        REG_WR      0x20, 1, 2,0x10            // REG[0x120] = 0x10[1:2]
 
         HALT                                    // Move chip to powerdown

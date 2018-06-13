@@ -1,0 +1,161 @@
+ESP32ULP GAS  esp32ulp_ranges.s 			page 1
+
+
+   1              		.text
+   2              		.set min_add, -32767
+   3              		.global min_add1
+   4              		.global max_add2
+   5              	
+   6              		.set  min_wait1, 0
+   7              		.set  max_wait1, 65535
+   8              		.global  min_wait2
+   9              		.global  max_wait2
+  10              	
+  11              		.set  min_jump1, 0
+  12              		.set  max_jump1, 2044
+  13              		.global  min_jump2
+  14              		.global  max_jump2
+  15              	
+  16              		.set  min_jumpr1, -80- 0
+  17              		.set  max_jumpr1, 80 + 0
+  18              		.set  min_thresh1, -32767-0
+  19              		.set  max_thresh1, 32767 +0
+  20              		.global  min_jumpr2
+  21              		.global  max_jumpr2
+  22              		.global  min_thresh2
+  23              		.global  max_thresh2
+  24              	
+  25              	
+  26              		.set  min_threshs1, -256
+  27              		.set  max_threshs1, 255
+  28              		.global  min_threshs1
+  29              		.global  max_threshs1
+  30              	
+  31              		.set  min_wr_mem1, 0 - 0
+  32              		.set  max_wr_mem1, 2047 + 0
+  33              		//.global  min_wr_mem1
+  34              		//.global  max_wr_mem1
+  35              		.global  min_wr_mem2
+  36              		.global  max_wr_mem2
+  37              	
+  38              	
+  39              		.set  min_sleep1, 0 - 0
+  40              		.set  max_sleep1, 3 + 0
+  41              		.global  min_sleep2
+  42              		.global  max_sleep2
+  43              	
+  44              		.set  min_wake1, 0 - 0
+  45              		.set  max_wake1, 1 + 0
+  46              	
+  47              	__start:
+  48 0000 00000040 	        nop
+  49 0004 1900F8FF 	        Add R1, R2, min_add
+  50 0008 09000072 	        Add R1, R2, min_add1
+  51 000c 09000072 	        Add R1, R2, max_add2
+  52              	
+  53 0010 00000040 	        WAIT  min_wait1
+  54 0014 FFFF0040 	        WAIT  max_wait1
+  55              	
+  56 0018 00000040 	          WAIT  min_wait2
+  57 001c 00000040 	          WAIT  max_wait2
+ESP32ULP GAS  esp32ulp_ranges.s 			page 2
+
+
+  58              	
+  59 0020 00000080 		JUMP min_jump1
+  60 0024 FC070080 		JUMP max_jump1
+  61              	
+  62 0028 00000080 		JUMP min_jump2	
+  63 002c 00000080 		JUMP max_jump2
+  64              			
+  65 0030 01800082 		JUMPR min_jumpr1, min_thresh1, LT	
+  66 0034 FF7F0082 		JUMPR max_jumpr1, max_thresh1, LT
+  67              	
+  68 0038 00001C83 		JUMPR min_jumpr2, min_thresh2, LT	
+  69 003c 00001E83 		JUMPR max_jumpr2, max_thresh2, LT	
+  70              	
+  71 0040 00002185 		JUMPS min_jumpr2, min_threshs3, EQ	
+  72 0044 00002385 		JUMPS max_jumpr2, max_threshs3, EQ	
+  73              	
+  74 0048 00002585 		JUMPS min_jumpr2, min_threshs3, EQ	
+  75 004c 00002785 		JUMPS max_jumpr2, max_threshs3, EQ	
+  76              	
+  77              	
+  78 0050 09000068 		ST   R1, R2, min_wr_mem1
+  79 0054 09FC0768 		ST   R1, R2, max_wr_mem1
+  80 0058 09000068 		ST   R1, R2, min_wr_mem2
+  81 005c 09000068 		ST   R1, R2, max_wr_mem2
+  82              		
+  83 0060 090000D0 		LD   R1, R2, min_wr_mem1
+  84 0064 09FC07D0 		LD   R1, R2, max_wr_mem1
+  85 0068 090000D0 		LD   R1, R2, min_wr_mem2
+  86 006c 090000D0 		LD   R1, R2, max_wr_mem2
+  87              	
+  88 0070 00000092 		SLEEP min_sleep1
+  89 0074 03000092 		SLEEP max_sleep1
+  90 0078 00000092 		SLEEP min_sleep2
+  91 007c 00000092 		SLEEP max_sleep2
+  92              	
+  93              		.set  min_tsens_meas1, 0 - 0
+  94              		.set  max_tsens_meas1, 4095 + 0
+  95              		.set  min_tsens_wait1, 0 - 0
+  96              		.set  max_tsens_wait1, 16383 + 0
+  97              		.global  min_tsens_meas2
+  98              		.global  max_tsens_meas2
+  99              		.global  min_tsens_wait2
+ 100              		.global  max_tsens_wait2
+ 101              	
+ 102 0080 010000A0 		TSENS     R1, min_tsens_wait1
+ 103 0084 FDFF00A0 		TSENS     R1, max_tsens_wait1
+ 104 0088 010000A0 		TSENS     R1, min_tsens_wait2
+ 105 008c 010000A0 		TSENS     R1, max_tsens_wait2
+ 106              		
+ 107              		.set  min_adc_sel, 0 - 0  
+ 108              		.set  max_adc_sel, 1 + 0  
+ 109              		.set  min_adc_mux, 0 - 0  
+ 110              		.set  max_adc_mux, 15 + 0  
+ 111              		.set  min_adc_cyc, 0 - 0
+ 112              		.set  max_adc_cyc, 65535 + 0
+ 113              		.global  min_adc_sel2
+ 114              		.global  max_adc_sel2
+ESP32ULP GAS  esp32ulp_ranges.s 			page 3
+
+
+ 115              		.global  min_adc_mux2
+ 116              		.global  max_adc_mux2
+ 117              		.global  min_adc_cyc2
+ 118              		.global  max_adc_cyc2
+ 119              		
+ 120 0090 01000050 		ADC   R1, min_adc_sel, min_adc_mux, min_adc_cyc
+ 121 0094 7D000050 		ADC   R1, max_adc_sel, max_adc_mux, max_adc_cyc
+ 122              	
+ 123 0098 01000050 		ADC   R1, min_adc_sel2, min_adc_mux2, min_adc_cyc2
+ 124 009c 01000050 		ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
+ 125              	
+ 126              	    .set  min_reg_Addr, 0 - 0
+ 127              	    .set  max_reg_Addr, 255 + 0
+ 128              	    .set  min_reg_High, 0 - 0
+ 129              	    .set  max_reg_High, 31 + 0
+ 130              	    .set  min_reg_Low, 0 - 0
+ 131              	    .set  max_reg_Low, 31 + 0
+ 132              	    .set  min_reg_data, 0 - 0
+ 133              	    .set  max_reg_data, 255 + 0
+ 134              	
+ 135 00a0 00000020 		REG_RD  min_reg_Addr, min_reg_High, min_reg_Low 	
+ 136 00a4 FF00FC2F 		REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
+ 137 00a8 00000010 		REG_WR  min_reg_Addr, min_reg_High, min_reg_Low, min_reg_data
+ 138 00ac FFFCFF1F 		REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
+ 139              	
+ 140              		.global  min_reg_Addr2
+ 141              		.global  max_reg_Addr2
+ 142              		.global  min_reg_High2
+ 143              		.global  max_reg_High2
+ 144              		.global  min_reg_Low2
+ 145              		.global  max_reg_Low2
+ 146              		.global  min_reg_data2
+ 147              		.global  max_reg_data2
+ 148              	
+ 149 00b0 00000020 		REG_RD  min_reg_Addr2, min_reg_High2, min_reg_Low2 	
+ 150 00b4 00000020 		REG_RD  max_reg_Addr2, max_reg_High2, max_reg_Low2 
+ 151 00b8 00000010 		REG_WR  min_reg_Addr2, min_reg_High2, min_reg_Low2, min_reg_data2
+ 152 00bc 00000010 		REG_WR  max_reg_Addr2, max_reg_High2, max_reg_Low2, max_reg_data2

@@ -1,0 +1,20 @@
+ESP32ULP GAS  test_reg.s 			page 1
+
+
+   1              		.text
+   2              	    .set const1, 216
+   3              	    .set const2, 0x3ff48014
+   4              	
+   5              	    .set bit_mask, 0x8000
+   6              	
+   7              	
+   8              	start:
+   9 0000 0C008023 	    reg_rd 12, 7, 0
+  10 0004 00008023 	    reg_rd 0x3ff48000, 7, 0
+  11              	
+  12 0008 D8008023 	    reg_rd const1, 7, 0
+  13              	//    reg_rd const2, 7, 0
+  14 000c 00000040 	    nop
+  15 0010 00000040 	    nop
+  16 0014 00000040 	    nop
+  17              	

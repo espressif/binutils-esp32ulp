@@ -1,0 +1,24 @@
+ESP32ULP GAS  addi.S 			page 1
+
+
+   1              		 .data
+   2 0000 2A00     	foodata:	.word 42
+   3 0002 0000     		.text
+   4              		.global BBB
+   5              		.global AAA
+   6              		.global CCC
+   7              		.global QQQ
+   8              		.global __start
+   9              		.global ooo1
+  10              		.global ooo2
+  11              		.global ooo3
+  12              		.set KKK, 0x03
+  13              		.set ddd, 0x2222
+  14              	
+  15              	__start:
+  16              	//        nop
+  17 0000 00000040 	CCC:     nop
+  18 0004 11024938 	        i2c_wr  0x11, 2, 1,1,1
+  19 0008 00000040 	        nop
+  20 000c 00000040 	ooo1:   nop
+  21 0010 0B000068 	        ST     r3, r2, CCC

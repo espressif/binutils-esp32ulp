@@ -448,7 +448,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		break;
 
 	case BFD_RELOC_ESP32ULP_SLEEP:
-		if ((value > 4) || (value < 0))
+		if ((value > 16) || (value < 0))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_SLEEP"));
 		//value = value << 2;
 		temp_val = 0;

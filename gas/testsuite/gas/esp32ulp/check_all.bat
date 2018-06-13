@@ -1,0 +1,9 @@
+..\..\..\as-new.exe -al addi.S > addi.lst
+..\..\..\as-new.exe -al esp32ulp_all.s > esp32ulp_all.lst
+..\..\..\as-new.exe -al esp32ulp_globals.s > esp32ulp_globals.lst
+..\..\..\as-new.exe -al esp32ulp_ranges.s > esp32ulp_ranges.lst
+..\..\..\as-new.exe -al test_and.s > test_and.lst
+..\..\..\as-new.exe -al test_jumpr.S  > test_jumpr.lst
+..\..\..\as-new.exe -al test_reg.s  > test_reg.lst
+..\..\..\as-new.exe -al test1.S  > test1.lst
+..\..\..\as-new.exe -al test_macro.s  > test_macro.lst
