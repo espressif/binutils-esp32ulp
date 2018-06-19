@@ -9,7 +9,7 @@
 	.global  max_wait2
 
 	.set  min_jump1, 0
-	.set  max_jump1, 2047
+	.set  max_jump1, 2044
 	.global  min_jump2
 	.global  max_jump2
 
@@ -37,7 +37,7 @@
 
 
 	.set  min_sleep1, 0 - 0
-	.set  max_sleep1, 15 + 0
+	.set  max_sleep1, 3 + 0
 	.global  min_sleep2
 	.global  max_sleep2
 
@@ -56,7 +56,7 @@ __start:
           WAIT  min_wait2
           WAIT  max_wait2
 
-	JUMP min_jump1	
+	JUMP min_jump1
 	JUMP max_jump1
 
 	JUMP min_jump2	
@@ -90,11 +90,6 @@ __start:
 	SLEEP min_sleep2
 	SLEEP max_sleep2
 
-	WAKE	min_wake1
-	WAKE	max_wake1	
-	WAKE	min_wake2
-	WAKE	max_wake2
-
 	.set  min_tsens_meas1, 0 - 0
 	.set  max_tsens_meas1, 4095 + 0
 	.set  min_tsens_wait1, 0 - 0
@@ -104,10 +99,10 @@ __start:
 	.global  min_tsens_wait2
 	.global  max_tsens_wait2
 
-	TSENS     R1, min_tsens_meas1, min_tsens_wait1
-	TSENS     R1, max_tsens_meas1, max_tsens_wait1
-	TSENS     R1, min_tsens_meas2, min_tsens_wait2
-	TSENS     R1, max_tsens_meas2, max_tsens_wait2
+	TSENS     R1, min_tsens_wait1
+	TSENS     R1, max_tsens_wait1
+	TSENS     R1, min_tsens_wait2
+	TSENS     R1, max_tsens_wait2
 	
 	.set  min_adc_sel, 0 - 0  
 	.set  max_adc_sel, 1 + 0  
@@ -129,7 +124,7 @@ __start:
 	ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
 
     .set  min_reg_Addr, 0 - 0
-    .set  max_reg_Addr, 1023 + 0
+    .set  max_reg_Addr, 255 + 0
     .set  min_reg_High, 0 - 0
     .set  max_reg_High, 31 + 0
     .set  min_reg_Low, 0 - 0
@@ -138,7 +133,7 @@ __start:
     .set  max_reg_data, 255 + 0
 
 	REG_RD  min_reg_Addr, min_reg_High, min_reg_Low 	
-	REG_RD  max_reg_Addr, max_reg_High, max_reg_Low 
+	REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
 	REG_WR  min_reg_Addr, min_reg_High, min_reg_Low, min_reg_data
 	REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
 
