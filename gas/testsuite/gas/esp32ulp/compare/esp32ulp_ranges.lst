@@ -1,4 +1,4 @@
-ESP32ULP GAS  esp32ulp_ranges.s 			page 1
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
 
 
    1              		.text
@@ -58,7 +58,7 @@ ESP32ULP GAS  esp32ulp_ranges.s 			page 1
   55              	
   56 0018 00000040 	          WAIT  min_wait2
   57 001c 00000040 	          WAIT  max_wait2
-ESP32ULP GAS  esp32ulp_ranges.s 			page 2
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 2
 
 
   58              	
@@ -118,7 +118,7 @@ ESP32ULP GAS  esp32ulp_ranges.s 			page 1
  112              		.set  max_adc_cyc, 65535 + 0
  113              		.global  min_adc_sel2
  114              		.global  max_adc_sel2
-ESP32ULP GAS  esp32ulp_ranges.s 			page 3
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 3
 
 
  115              		.global  min_adc_mux2

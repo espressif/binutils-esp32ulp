@@ -1,4 +1,4 @@
-ESP32ULP GAS  esp32ulp_globals.s 			page 1
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_globals.s 			page 1
 
 
    1              		.text
@@ -58,7 +58,7 @@ ESP32ULP GAS  esp32ulp_globals.s 			page 1
   55              		.global  min_tsens_wait2
   56              		.global  max_tsens_wait2
   57              	
-ESP32ULP GAS  esp32ulp_globals.s 			page 2
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_globals.s 			page 2
 
 
   58              		.set  min_adc_sel2, 0 - 0  

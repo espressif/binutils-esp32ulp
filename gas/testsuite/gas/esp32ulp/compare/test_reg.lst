@@ -1,4 +1,4 @@
-ESP32ULP GAS  test_reg.s 			page 1
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/test_reg.s 			page 1
 
 
    1              		.text

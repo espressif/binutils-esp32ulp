@@ -1,6 +1,7 @@
 stages:
   - build
   - deploy
+  - test
   - release_stage1
   - release_submit
 
@@ -116,6 +117,30 @@ build_linux:
     - make
     - MAKEFLAGS= make install-strip
     - *dist_archive
+
+test_linux:
+  stage: test
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain
+  tags:
+    - build
+  artifacts:
+    paths:
+      - ${DIST_ART_DIR}
+    expire_in: 2 weeks
+  variables:
+    PLATFORM_NAME: "linux64"
+  dependencies:
+    - build_linux    
+  script:
+    - *get_release_name
+    - MAKEFLAGS= ./configure --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS}
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - ./gas/testsuite/gas/esp32ulp/check_all.sh
+    - cd gas/testsuite/gas/esp32ulp/compare
+    - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
+    - echo "Compare test done"
+
 
 build_windows:
   stage: build

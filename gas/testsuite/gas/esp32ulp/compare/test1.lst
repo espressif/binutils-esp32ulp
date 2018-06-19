@@ -1,4 +1,4 @@
-ESP32ULP GAS  test1.S 			page 1
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/test1.s 			page 1
 
 
    1              		.macro nops
