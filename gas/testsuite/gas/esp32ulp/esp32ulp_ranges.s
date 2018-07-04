@@ -124,7 +124,7 @@ __start:
 	ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
 
     .set  min_reg_Addr, 0 - 0
-    .set  max_reg_Addr, 255 + 0
+    .set  max_reg_Addr, 0x3ff + 0
     .set  min_reg_High, 0 - 0
     .set  max_reg_High, 31 + 0
     .set  min_reg_Low, 0 - 0

@@ -77,7 +77,8 @@ START_RELOC_NUMBERS (elf_esp32ulp_reloc_type)
 
 #define	EF_ESP32ULP_PIC_FLAGS	(EF_ESP32ULP_PIC | EF_ESP32ULP_FDPIC)
 
+#define DR_REG_MAX_DIRECT                       0x3ff
 #define DR_REG_RTCCNTL_BASE                     0x3ff48000
-#define DR_REG_RTCIO_BASE                       0x3ff48400
+#define DR_REG_IO_MUX_BASE                      0x3ff49000
 
 #endif /* _ELF_ESP32ULP_H */

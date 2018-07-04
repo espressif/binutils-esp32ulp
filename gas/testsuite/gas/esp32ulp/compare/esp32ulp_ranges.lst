@@ -133,7 +133,7 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
  124 009c 01000050 		ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
  125              	
  126              	    .set  min_reg_Addr, 0 - 0
- 127              	    .set  max_reg_Addr, 255 + 0
+ 127              	    .set  max_reg_Addr, 0x3ff + 0
  128              	    .set  min_reg_High, 0 - 0
  129              	    .set  max_reg_High, 31 + 0
  130              	    .set  min_reg_Low, 0 - 0
@@ -142,9 +142,9 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
  133              	    .set  max_reg_data, 255 + 0
  134              	
  135 00a0 00000020 		REG_RD  min_reg_Addr, min_reg_High, min_reg_Low 	
- 136 00a4 FF00FC2F 		REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
+ 136 00a4 FF03FC2F 		REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
  137 00a8 00000010 		REG_WR  min_reg_Addr, min_reg_High, min_reg_Low, min_reg_data
- 138 00ac FFFCFF1F 		REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
+ 138 00ac FFFFFF1F 		REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
  139              	
  140              		.global  min_reg_Addr2
  141              		.global  max_reg_Addr2
