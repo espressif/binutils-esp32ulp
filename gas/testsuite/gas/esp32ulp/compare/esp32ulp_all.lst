@@ -136,58 +136,60 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_all.s 			page 1
  127              	
  128              	//jumps
  129              	
- 130 00e8 14000384 	         JUMPS     4, 20, EQ                    //Jump to address “position + 16” if value in S
- 131 00ec 00000040 	         nop
- 132 00f0 00000040 	         nop
+ 130 00e8 14000284 	         JUMPS     4, 20, EQ                    //Jump to address “position + 16” if value in S
+ 130      14000384 
+ 131 00f0 00000040 	         nop
+ 132 00f4 00000040 	         nop
  133              	        .global    labeljs                      //declaration of variable label
  134              	// Just making loop with 16 times NOP operation
- 135 00f4 00004074 	        STAGE_RST                               // set stage_cnt to 0
- 136 00f8 10000074 	labeljs:  STAGE_INC  1                          // stage_cnt++;
- 137 00fc 00000040 	        NOP                                     // do something
- 138 0100 10000485 	        JUMPS       labeljs,16,LT               // jump to address label if stage_cnt < 16
- 139 0104 00000040 	        nop
+ 135 00f8 00004074 	        STAGE_RST                               // set stage_cnt to 0
+ 136 00fc 10000074 	labeljs:  STAGE_INC  1                          // stage_cnt++;
+ 137 0100 00000040 	        NOP                                     // do something
+ 138 0104 10000485 	        JUMPS       labeljs,16,LT               // jump to address label if stage_cnt < 16
+ 139 0108 00000040 	        nop
  140              	// Stage count
- 141 0108 00004074 	        STAGE_RST
+ 141 010c 00004074 	        STAGE_RST
  142              	// Stage Inc
- 143 010c A0000074 	        STAGE_INC      10                       // stage_cnt += 10;
+ 143 0110 A0000074 	        STAGE_INC      10                       // stage_cnt += 10;
  144              	
  145              	        .global    labelsi                      //declaration of variable label
  146              	// Just making loop with 16 times NOP operation
- 147 0110 00004074 	        STAGE_RST                               // set stage_cnt to 0
- 148 0114 10000074 	labelsi:  STAGE_INC  1                          // stage_cnt++;
- 149 0118 00000040 	        NOP                                     // do something
- 150 011c 10000485 	        JUMPS       labelsi,16,LT               // jump to address label if stage_cnt < 16
+ 147 0114 00004074 	        STAGE_RST                               // set stage_cnt to 0
+ 148 0118 10000074 	labelsi:  STAGE_INC  1                          // stage_cnt++;
+ 149 011c 00000040 	        NOP                                     // do something
+ 150 0120 10000485 	        JUMPS       labelsi,16,LT               // jump to address label if stage_cnt < 16
  151              	// Stage Dec
  152              	
- 153 0120 A0002074 	        STAGE_DEC      10                       // stage_cnt -= 10;
+ 153 0124 A0002074 	        STAGE_DEC      10                       // stage_cnt -= 10;
  154              	
  155              	        .global    labelsd                      //declaration of variable label
  156              	// Just making loop with 16 times NOP operation
- 157 0124 00004074 	        STAGE_RST                               // set stage_cnt to 0
- 158 0128 00010074 	        STAGE_INC  16                           // set stage_cnt to 16
- 159 012c 10002074 	labelsd:  STAGE_DEC  1                          // stage_cnt--;
- 160 0130 00000040 	        NOP                                     // do something
- 161 0134 00800485 	        JUMPS       labelsd,0,GT                // jump to address label if stage_cnt > 0
+ 157 0128 00004074 	        STAGE_RST                               // set stage_cnt to 0
+ 158 012c 00010074 	        STAGE_INC  16                           // set stage_cnt to 16
+ 159 0130 10002074 	labelsd:  STAGE_DEC  1                          // stage_cnt--;
+ 160 0134 00000040 	        NOP                                     // do something
+ 161 0138 00000384 	        JUMPS       labelsd,0,GT                // jump to address label if stage_cnt > 0
+ 161      00800685 
  162              	
  163              	// Sleep
  164              	        .set sleep_cnt, 3                      // set global constant
- 165 0138 03000092 	        SLEEP  sleep_cnt                        // Sleep for 10 cycles
+ 165 0140 03000092 	        SLEEP  sleep_cnt                        // Sleep for 10 cycles
  166              	// Wait
  167              	        .set  wait_cnt, 10                      // set global constant
- 168 013c 0A000040 	        WAIT  wait_cnt                          // wait for 10 cycles
+ 168 0144 0A000040 	        WAIT  wait_cnt                          // wait for 10 cycles
  169              	
- 170              	// TSENS
- 171 0140 290000A0 	        TSENS     R1, 10                        // Measure temperature sensor for 10 cycles,
 ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_all.s 			page 4
 
 
+ 170              	// TSENS
+ 171 0148 290000A0 	        TSENS     R1, 10                        // Measure temperature sensor for 10 cycles,
  172              	                                                // move result to R1 and wait 10 cycles
  173              	// ADC
- 174 0144 05000050 	       ADC      R1, 0, 1, 100                   // Measure value form ADC0 pad 2,
+ 174 014c 05000050 	       ADC      R1, 0, 1, 100                   // Measure value form ADC0 pad 2,
  175              	                                                //for 10 cycles and move result to R1
  176              	// REG_RD/REG_WR
  177              	
- 178 0148 20008820 	        REG_RD      0x20, 1, 2                 // R0[1:2] = REG[0x120]
- 179 014c 20408810 	        REG_WR      0x20, 1, 2,0x10            // REG[0x120] = 0x10[1:2]
+ 178 0150 20008820 	        REG_RD      0x20, 1, 2                 // R0[1:2] = REG[0x120]
+ 179 0154 20408810 	        REG_WR      0x20, 1, 2,0x10            // REG[0x120] = 0x10[1:2]
  180              	
- 181 0150 000000B0 	        HALT                                    // Move chip to powerdown
+ 181 0158 000000B0 	        HALT                                    // Move chip to powerdown

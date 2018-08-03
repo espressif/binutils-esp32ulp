@@ -100,6 +100,7 @@ struct esp32ulp_insn
 	struct expression_cell *exp;
 	int pcrel;
 	int reloc;
+	int mult; // Multiple instructions command
 };
 
 #define INSTR_T struct esp32ulp_insn*

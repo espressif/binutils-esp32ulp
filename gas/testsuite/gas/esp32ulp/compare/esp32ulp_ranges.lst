@@ -74,27 +74,31 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
   68 0038 00001C83 		JUMPR min_jumpr2, min_thresh2, LT	
   69 003c 00001E83 		JUMPR max_jumpr2, max_thresh2, LT	
   70              	
-  71 0040 00002185 		JUMPS min_jumpr2, min_threshs3, EQ	
-  72 0044 00002385 		JUMPS max_jumpr2, max_threshs3, EQ	
+  71 0040 00000284 		JUMPS min_jumpr2, min_threshs3, EQ	
+  71      00002385 
+  72 0048 00000284 		JUMPS max_jumpr2, max_threshs3, EQ	
+  72      00002785 
   73              	
-  74 0048 00002585 		JUMPS min_jumpr2, min_threshs3, EQ	
-  75 004c 00002785 		JUMPS max_jumpr2, max_threshs3, EQ	
+  74 0050 00000284 		JUMPS min_jumpr2, min_threshs3, EQ	
+  74      00002B85 
+  75 0058 00000284 		JUMPS max_jumpr2, max_threshs3, EQ	
+  75      00002F85 
   76              	
   77              	
-  78 0050 09000068 		ST   R1, R2, min_wr_mem1
-  79 0054 09FC0768 		ST   R1, R2, max_wr_mem1
-  80 0058 09000068 		ST   R1, R2, min_wr_mem2
-  81 005c 09000068 		ST   R1, R2, max_wr_mem2
+  78 0060 09000068 		ST   R1, R2, min_wr_mem1
+  79 0064 09FC0768 		ST   R1, R2, max_wr_mem1
+  80 0068 09000068 		ST   R1, R2, min_wr_mem2
+  81 006c 09000068 		ST   R1, R2, max_wr_mem2
   82              		
-  83 0060 090000D0 		LD   R1, R2, min_wr_mem1
-  84 0064 09FC07D0 		LD   R1, R2, max_wr_mem1
-  85 0068 090000D0 		LD   R1, R2, min_wr_mem2
-  86 006c 090000D0 		LD   R1, R2, max_wr_mem2
+  83 0070 090000D0 		LD   R1, R2, min_wr_mem1
+  84 0074 09FC07D0 		LD   R1, R2, max_wr_mem1
+  85 0078 090000D0 		LD   R1, R2, min_wr_mem2
+  86 007c 090000D0 		LD   R1, R2, max_wr_mem2
   87              	
-  88 0070 00000092 		SLEEP min_sleep1
-  89 0074 03000092 		SLEEP max_sleep1
-  90 0078 00000092 		SLEEP min_sleep2
-  91 007c 00000092 		SLEEP max_sleep2
+  88 0080 00000092 		SLEEP min_sleep1
+  89 0084 03000092 		SLEEP max_sleep1
+  90 0088 00000092 		SLEEP min_sleep2
+  91 008c 00000092 		SLEEP max_sleep2
   92              	
   93              		.set  min_tsens_meas1, 0 - 0
   94              		.set  max_tsens_meas1, 4095 + 0
@@ -105,32 +109,32 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
   99              		.global  min_tsens_wait2
  100              		.global  max_tsens_wait2
  101              	
- 102 0080 010000A0 		TSENS     R1, min_tsens_wait1
- 103 0084 FDFF00A0 		TSENS     R1, max_tsens_wait1
- 104 0088 010000A0 		TSENS     R1, min_tsens_wait2
- 105 008c 010000A0 		TSENS     R1, max_tsens_wait2
+ 102 0090 010000A0 		TSENS     R1, min_tsens_wait1
+ 103 0094 FDFF00A0 		TSENS     R1, max_tsens_wait1
+ 104 0098 010000A0 		TSENS     R1, min_tsens_wait2
+ 105 009c 010000A0 		TSENS     R1, max_tsens_wait2
  106              		
  107              		.set  min_adc_sel, 0 - 0  
  108              		.set  max_adc_sel, 1 + 0  
  109              		.set  min_adc_mux, 0 - 0  
  110              		.set  max_adc_mux, 15 + 0  
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 3
+
+
  111              		.set  min_adc_cyc, 0 - 0
  112              		.set  max_adc_cyc, 65535 + 0
  113              		.global  min_adc_sel2
  114              		.global  max_adc_sel2
-ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 3
-
-
  115              		.global  min_adc_mux2
  116              		.global  max_adc_mux2
  117              		.global  min_adc_cyc2
  118              		.global  max_adc_cyc2
  119              		
- 120 0090 01000050 		ADC   R1, min_adc_sel, min_adc_mux, min_adc_cyc
- 121 0094 7D000050 		ADC   R1, max_adc_sel, max_adc_mux, max_adc_cyc
+ 120 00a0 01000050 		ADC   R1, min_adc_sel, min_adc_mux, min_adc_cyc
+ 121 00a4 7D000050 		ADC   R1, max_adc_sel, max_adc_mux, max_adc_cyc
  122              	
- 123 0098 01000050 		ADC   R1, min_adc_sel2, min_adc_mux2, min_adc_cyc2
- 124 009c 01000050 		ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
+ 123 00a8 01000050 		ADC   R1, min_adc_sel2, min_adc_mux2, min_adc_cyc2
+ 124 00ac 01000050 		ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
  125              	
  126              	    .set  min_reg_Addr, 0 - 0
  127              	    .set  max_reg_Addr, 0x3ff + 0
@@ -141,10 +145,10 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
  132              	    .set  min_reg_data, 0 - 0
  133              	    .set  max_reg_data, 255 + 0
  134              	
- 135 00a0 00000020 		REG_RD  min_reg_Addr, min_reg_High, min_reg_Low 	
- 136 00a4 FF03FC2F 		REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
- 137 00a8 00000010 		REG_WR  min_reg_Addr, min_reg_High, min_reg_Low, min_reg_data
- 138 00ac FFFFFF1F 		REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
+ 135 00b0 00000020 		REG_RD  min_reg_Addr, min_reg_High, min_reg_Low 	
+ 136 00b4 FF03FC2F 		REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
+ 137 00b8 00000010 		REG_WR  min_reg_Addr, min_reg_High, min_reg_Low, min_reg_data
+ 138 00bc FFFFFF1F 		REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
  139              	
  140              		.global  min_reg_Addr2
  141              		.global  max_reg_Addr2
@@ -155,7 +159,7 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
  146              		.global  min_reg_data2
  147              		.global  max_reg_data2
  148              	
- 149 00b0 00000020 		REG_RD  min_reg_Addr2, min_reg_High2, min_reg_Low2 	
- 150 00b4 00000020 		REG_RD  max_reg_Addr2, max_reg_High2, max_reg_Low2 
- 151 00b8 00000010 		REG_WR  min_reg_Addr2, min_reg_High2, min_reg_Low2, min_reg_data2
- 152 00bc 00000010 		REG_WR  max_reg_Addr2, max_reg_High2, max_reg_Low2, max_reg_data2
+ 149 00c0 00000020 		REG_RD  min_reg_Addr2, min_reg_High2, min_reg_Low2 	
+ 150 00c4 00000020 		REG_RD  max_reg_Addr2, max_reg_High2, max_reg_Low2 
+ 151 00c8 00000010 		REG_WR  min_reg_Addr2, min_reg_High2, min_reg_Low2, min_reg_data2
+ 152 00cc 00000010 		REG_WR  max_reg_Addr2, max_reg_High2, max_reg_Low2, max_reg_data2

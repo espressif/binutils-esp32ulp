@@ -221,6 +221,15 @@ md_assemble(char *line)
 		}
 #endif
 		insn = insn->next;
+		if (insn)
+		{
+			int ml = insn->mult;
+			if (ml != 0)
+			{
+				toP = frag_more(insn_size);
+				md_number_to_chars(toP, insn->value, insn_size);	// put the 4-byte instruction into the current fragment code buffer 
+			}
+		}
 	}
 #ifdef OBJ_ELF
 	dwarf2_emit_insn(insn_size);
@@ -1123,9 +1132,67 @@ INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 	int step_val = EXPR_VALUE(step);
 	int thresh_val = EXPR_VALUE(thresh);
 
-	//DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_rels\n");
-	unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val>>2);
-	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH)));
+	if ((cond == 3) || (cond == 4)) // EQ == 3, GT = 4
+	{
+
+		unsigned int walk_cond = 0;
+		unsigned int result_cond = 0;
+
+		if (cond == 3) // EQ
+		{
+			//	Jumps   Next, threshold, LT
+			//	Jumps   step, threshold, LE
+			//Next : something
+			walk_cond = 0;
+			result_cond = 2;
+		}
+		if (cond == 4) // GT
+		{
+			//	Jumps   Next,  threshold, LE
+			//	Jumps   step, threshold,  GE
+			//Next : something
+
+			walk_cond = 2;
+			result_cond = 1;
+		}
+		unsigned int local_walk = I_JUMP_RELS(thresh_val, walk_cond, 4 >> 2);
+		unsigned int local_result = I_JUMP_RELS(thresh_val, result_cond, step_val >> 2);
+
+		INSTR_T result = conscode(gencode(local_result),
+			conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP),
+			Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH)
+			)
+			);
+		INSTR_T walk1 = conscode(gencode(local_walk),
+			conctcode(Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH), NULL
+			)
+			);
+
+		// We have to find last instruction in walk1 and connect
+		// result to them
+		INSTR_T last_inst = walk1->next;
+		while (last_inst->next)
+		{
+			last_inst = last_inst->next;
+		}
+		walk1->mult = 0;
+		result->mult = 1;
+		last_inst->next = result;
+		return walk1;
+	}
+	else // LE, LT, GE
+	{
+		unsigned int local_op = I_JUMP_RELS(thresh_val, cond, step_val >> 2);
+
+		INSTR_T result = conscode(gencode(local_op),
+			conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP),
+			Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH)
+			)
+			);
+		
+		return result;
+	}
+		   
 }
 INSTR_T esp32ulp_cmd_reg_rd(Expr_Node* addr, Expr_Node* high, Expr_Node* low)
 {
