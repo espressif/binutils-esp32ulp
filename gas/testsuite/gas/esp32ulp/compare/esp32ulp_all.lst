@@ -136,7 +136,7 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_all.s 			page 1
  127              	
  128              	//jumps
  129              	
- 130 00e8 14000284 	         JUMPS     4, 20, EQ                    //Jump to address “position + 16” if value in S
+ 130 00e8 14000484 	         JUMPS     4, 20, EQ                    //Jump to address “position + 16” if value in S
  130      14000384 
  131 00f0 00000040 	         nop
  132 00f4 00000040 	         nop
@@ -168,7 +168,7 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_all.s 			page 1
  158 012c 00010074 	        STAGE_INC  16                           // set stage_cnt to 16
  159 0130 10002074 	labelsd:  STAGE_DEC  1                          // stage_cnt--;
  160 0134 00000040 	        NOP                                     // do something
- 161 0138 00000384 	        JUMPS       labelsd,0,GT                // jump to address label if stage_cnt > 0
+ 161 0138 00000584 	        JUMPS       labelsd,0,GT                // jump to address label if stage_cnt > 0
  161      00800685 
  162              	
  163              	// Sleep

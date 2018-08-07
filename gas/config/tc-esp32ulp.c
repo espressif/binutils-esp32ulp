@@ -1127,18 +1127,29 @@ INSTR_T esp32ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond)
 	unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val>>2);
 	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESH)));
 }
+
+// Conditions for JUMPS instructions
+#define JUMPS_EQ 3 
+#define JUMPS_GT 4
+#define JUMPS_LE 2
+#define JUMPS_LT 0
+#define JUMPS_GE 1
+
+// Step to reach next instruction
+#define NEXT_INSTRUCTION_STEP  4
+
 INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 {
 	int step_val = EXPR_VALUE(step);
 	int thresh_val = EXPR_VALUE(thresh);
 
-	if ((cond == 3) || (cond == 4)) // EQ == 3, GT = 4
+	if ((cond == JUMPS_EQ) || (cond == JUMPS_GT)) // EQ == 3, GT = 4
 	{
-
+		// Conditions for multiple instructions
 		unsigned int walk_cond = 0;
 		unsigned int result_cond = 0;
 
-		if (cond == 3) // EQ
+		if (cond == JUMPS_EQ) // EQ
 		{
 			//	Jumps   Next, threshold, LT
 			//	Jumps   step, threshold, LE
@@ -1146,7 +1157,7 @@ INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 			walk_cond = 0;
 			result_cond = 2;
 		}
-		if (cond == 4) // GT
+		if (cond == JUMPS_GT) // GT
 		{
 			//	Jumps   Next,  threshold, LE
 			//	Jumps   step, threshold,  GE
@@ -1155,14 +1166,21 @@ INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 			walk_cond = 2;
 			result_cond = 1;
 		}
-		unsigned int local_walk = I_JUMP_RELS(thresh_val, walk_cond, 4 >> 2);
+		// Step over next jumps
+		unsigned int local_walk = I_JUMP_RELS(thresh_val, walk_cond, (NEXT_INSTRUCTION_STEP*2) >> 2);
+		// In case of back jump, we have to add additional jumps instruction to the step value
+		if (step_val < 0) step_val = step_val - 4;
+
+		// Step to the target instruction
 		unsigned int local_result = I_JUMP_RELS(thresh_val, result_cond, step_val >> 2);
 
+		// Main instruction that makes jump
 		INSTR_T result = conscode(gencode(local_result),
 			conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP),
 			Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH)
 			)
 			);
+		// Additional instructiion for add additional check of the condition
 		INSTR_T walk1 = conscode(gencode(local_walk),
 			conctcode(Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPS_THRESH), NULL
 			)

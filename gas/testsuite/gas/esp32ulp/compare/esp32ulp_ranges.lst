@@ -74,14 +74,14 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32ulp_ranges.s 			page 1
   68 0038 00001C83 		JUMPR min_jumpr2, min_thresh2, LT	
   69 003c 00001E83 		JUMPR max_jumpr2, max_thresh2, LT	
   70              	
-  71 0040 00000284 		JUMPS min_jumpr2, min_threshs3, EQ	
+  71 0040 00000484 		JUMPS min_jumpr2, min_threshs3, EQ	
   71      00002385 
-  72 0048 00000284 		JUMPS max_jumpr2, max_threshs3, EQ	
+  72 0048 00000484 		JUMPS max_jumpr2, max_threshs3, EQ	
   72      00002785 
   73              	
-  74 0050 00000284 		JUMPS min_jumpr2, min_threshs3, EQ	
+  74 0050 00000484 		JUMPS min_jumpr2, min_threshs3, EQ	
   74      00002B85 
-  75 0058 00000284 		JUMPS max_jumpr2, max_threshs3, EQ	
+  75 0058 00000484 		JUMPS max_jumpr2, max_threshs3, EQ	
   75      00002F85 
   76              	
   77              	
