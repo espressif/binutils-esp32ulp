@@ -60,6 +60,12 @@ variables:
   echo "REL_NAME: $REL_NAME"
   echo "ARCHIVE_NAME: $ARCHIVE_NAME"
 
+.set_displayed_version: &set_displayed_version |
+  # Use the REL_VERSION for the "--version" text
+  # The substitution will be made in the 'make' step
+  export ESP_VERSION=${REL_VERSION}
+  sed -ri 's/(.*)(bfd_version_string=)(.*)( ;\\)$/\1\2"\\"$(ESP_VERSION)\\""\4/' bfd/Makefile.in
+
 .dist_archive: &dist_archive |
   ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR}
   mkdir -p ${DIST_ART_DIR}
@@ -112,6 +118,7 @@ build_linux:
     PLATFORM_NAME: "linux64"
   script:
     - *get_release_name
+    - *set_displayed_version
     - MAKEFLAGS= ./configure --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS}
     - echo "MAKEINFO = :" >> Makefile
     - make
@@ -133,6 +140,7 @@ test_linux:
     - build_linux    
   script:
     - *get_release_name
+    - *set_displayed_version
     - MAKEFLAGS= ./configure --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS}
     - echo "MAKEINFO = :" >> Makefile
     - make
@@ -157,6 +165,7 @@ build_windows:
     ARCHIVE_EXT: "zip"
   script:
     - *get_release_name
+    - *set_displayed_version
     - export CC=
     - export CPP=
     - export CXX=
@@ -182,6 +191,7 @@ build_macos:
     PLATFORM_NAME: "macos"
   script:
     - *get_release_name
+    - *set_displayed_version
     - MAKEFLAGS= ./configure --host=x86_64-apple-darwin12 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils ${BINUTILS_CONFIGURE_OPTS} CC=x86_64-apple-darwin12-cc
     - echo "MAKEINFO = :" >> Makefile
     - make
