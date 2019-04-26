@@ -12459,6 +12459,18 @@ _ACEOF
         fi
         ;;
 
+      esp32s2ulp)
+        echo ${extra_objects} | grep -s "esp32s2ulp-parse.o"
+        if test $? -ne 0 ; then
+          extra_objects="$extra_objects esp32s2ulp-parse.o"
+        fi
+
+        echo ${extra_objects} | grep -s "esp32s2ulp-lex-wrapper.o"
+        if test $? -ne 0 ; then
+          extra_objects="$extra_objects esp32s2ulp-lex-wrapper.o"
+        fi
+        ;;
+
       epiphany | fr30 | ip2k | iq2000 | lm32 | m32r | or1k)
 	using_cgen=yes
 	;;

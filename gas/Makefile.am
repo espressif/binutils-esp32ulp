@@ -136,6 +136,7 @@ TARGET_CPU_CFILES = \
 	config/tc-avr.c \
 	config/tc-bfin.c \
 	config/tc-esp32ulp.c \
+	config/tc-esp32s2ulp.c \
 	config/tc-cr16.c \
 	config/tc-cris.c \
 	config/tc-crx.c \
@@ -213,6 +214,7 @@ TARGET_CPU_HFILES = \
 	config/tc-avr.h \
 	config/tc-bfin.h \
 	config/tc-esp32ulp.h \
+	config/tc-esp32s2ulp.h \
 	config/tc-cr16.h \
 	config/tc-cris.h \
 	config/tc-crx.h \
@@ -379,6 +381,7 @@ EXTRA_SCRIPTS = .gdbinit
 EXTRA_DIST = m68k-parse.c itbl-parse.c itbl-parse.h itbl-lex.c \
 	bfin-parse.c bfin-parse.h bfin-lex.c \
 	esp32ulp-parse.c esp32ulp-parse.h esp32ulp-lex.c \
+	esp32s2ulp-parse.c esp32s2ulp-parse.h esp32s2ulp-lex.c \
 	rl78-parse.c rl78-parse.h \
 	rx-parse.c rx-parse.h
 

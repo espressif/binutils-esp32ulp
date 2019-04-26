@@ -150,6 +150,11 @@ esp32ulp-*-*)
 	gdb_target_obs="esp32ulp-tdep.o"
 	;;
 
+esp32s2ulp-*-*)
+	# Target: Esp32-s2ulp processor
+	gdb_target_obs="esp32s2ulp-tdep.o"
+	;;
+
 cris*)
 	# Target: CRIS
 	gdb_target_obs="cris-tdep.o cris-linux-tdep.o linux-tdep.o solib-svr4.o"

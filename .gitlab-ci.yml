@@ -1,7 +1,7 @@
 stages:
   - build
-  - test
   - deploy
+  - test
   - release_stage1
   - release_submit
 
@@ -34,8 +34,11 @@ variables:
   # Customization of jobs
 
   DIST_ART_DIR: "dist"
+  DIST_ART_DIR_S2: "dist_s2"
   DIST_NAME: "esp32ulp-elf-binutils"
+  DIST_NAME_S2: "esp32s2ulp-elf-binutils"
   DIST_INSTALLED_DIR: "${DIST_NAME}"
+  DIST_INSTALLED_DIR_S2: "${DIST_NAME_S2}"
   ARCHIVE_TOOL: "tar czvf"
 #  UNARCHIVE_TOOL: "tar xvf"
   ARCHIVE_EXT: "tar.gz"
@@ -72,6 +75,12 @@ variables:
   mv ${ARCHIVE_NAME} ${DIST_ART_DIR}
   echo "${ARCHIVE_NAME}" > ${DIST_ART_DIR}/dist_name_${PLATFORM_NAME}
 
+.dist_archive_s2: &dist_archive_s2 |
+  ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR_S2}
+  mkdir -p ${DIST_ART_DIR_S2}
+  mv ${ARCHIVE_NAME} ${DIST_ART_DIR_S2}
+  echo "${ARCHIVE_NAME}" > ${DIST_ART_DIR_S2}/dist_name_s2_${PLATFORM_NAME}
+
 .add_gh_key_remote: &add_gh_key_remote |
   command -v ssh-agent >/dev/null || exit 1
   eval $(ssh-agent -s)
@@ -105,7 +114,8 @@ before_script:
   - set -o errexit; set -o pipefail; set -o nounset
   - test ${DEBUG_SHELL:-""} && set -x
 
-build_linux:
+# =====   Main Stages for esp32-ulp ==========================
+build_linux_esp32-ulp:
   stage: build
   image: $CI_DOCKER_REGISTRY/esp32-toolchain
   tags:
@@ -125,7 +135,7 @@ build_linux:
     - MAKEFLAGS= make install-strip
     - *dist_archive
 
-test_linux:
+test_linux_esp32-ulp:
   stage: test
   image: $CI_DOCKER_REGISTRY/esp32-toolchain
   tags:
@@ -137,7 +147,7 @@ test_linux:
   variables:
     PLATFORM_NAME: "linux64"
   dependencies:
-    - build_linux
+    - build_linux_esp32-ulp    
   script:
     - *get_release_name
     - *set_displayed_version
@@ -149,8 +159,7 @@ test_linux:
     - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
     - echo "Compare test done"
 
-
-build_windows:
+build_windows_esp32-ulp:
   stage: build
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
   tags:
@@ -178,7 +187,7 @@ build_windows:
     - MAKEFLAGS= make install-strip
     - *dist_archive
 
-build_macos:
+build_macos_esp32-ulp:
   stage: build
   image: $CI_DOCKER_REGISTRY/osxcross
   tags:
@@ -197,6 +206,102 @@ build_macos:
     - make
     - MAKEFLAGS= make install-strip
     - *dist_archive
+# ==============================================================
+
+# =====   Main Stages for esp32s2-ulp ==========================
+build_linux_esp32s2-ulp:
+  stage: build
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain
+  tags:
+    - build
+  artifacts:
+    paths:
+      - ${DIST_ART_DIR_S2}
+    expire_in: 2 weeks
+  variables:
+    PLATFORM_NAME: "linux64"
+  script:
+    - *get_release_name
+    - *set_displayed_version
+    - MAKEFLAGS= ./configure --target=esp32s2ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR_S2 ${BINUTILS_CONFIGURE_OPTS}
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - MAKEFLAGS= make install-strip
+    - *dist_archive_s2
+
+test_linux_esp32s2-ulp:
+  stage: test
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain
+  tags:
+    - build
+  artifacts:
+    paths:
+      - ${DIST_ART_DIR_S2}
+    expire_in: 2 weeks
+  variables:
+    PLATFORM_NAME: "linux64"
+  dependencies:
+    - build_linux_esp32s2-ulp    
+  script:
+    - *get_release_name
+    - *set_displayed_version
+    - MAKEFLAGS= ./configure --target=esp32s2ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR_S2 ${BINUTILS_CONFIGURE_OPTS}
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - ./gas/testsuite/gas/esp32s2ulp/check_all.sh
+    - cd gas/testsuite/gas/esp32s2ulp/compare
+    - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
+    - echo "Compare test done"
+
+build_windows_esp32s2-ulp:
+  stage: build
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
+  tags:
+    - build
+  artifacts:
+    paths:
+      - ${DIST_ART_DIR_S2}
+    expire_in: 2 weeks
+  variables:
+    PLATFORM_NAME: "win32"
+    ARCHIVE_TOOL: "zip -r"
+    ARCHIVE_EXT: "zip"
+  script:
+    - *get_release_name
+    - *set_displayed_version
+    - export CC=
+    - export CPP=
+    - export CXX=
+    - export LD=
+    - export AS=
+    - export AR=
+    - MAKEFLAGS= ./configure --host=i686-w64-mingw32 --target=esp32s2ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR_S2 ${BINUTILS_CONFIGURE_OPTS} CC=i686-w64-mingw32-gcc
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - MAKEFLAGS= make install-strip
+    - *dist_archive_s2
+
+build_macos_esp32s2-ulp:
+  stage: build
+  image: $CI_DOCKER_REGISTRY/osxcross
+  tags:
+    - build
+  artifacts:
+    paths:
+      - ${DIST_ART_DIR_S2}
+    expire_in: 2 weeks
+  variables:
+    PLATFORM_NAME: "macos"
+  script:
+    - *get_release_name
+    - *set_displayed_version
+    - MAKEFLAGS= ./configure --host=x86_64-apple-darwin12 --target=esp32s2ulp-elf --prefix=$PWD/esp32s2ulp-elf-binutils ${BINUTILS_CONFIGURE_OPTS} CC=x86_64-apple-darwin12-cc
+    - echo "MAKEINFO = :" >> Makefile
+    - make
+    - MAKEFLAGS= make install-strip
+    - *dist_archive_s2
+
+# ==============================================================
 
 push_master_to_github:
   stage: deploy

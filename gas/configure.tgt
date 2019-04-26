@@ -55,6 +55,7 @@ case ${cpu} in
   arm*)			cpu_type=arm endian=little ;;
   bfin*)		cpu_type=bfin endian=little ;;
   esp32ulp*)		cpu_type=esp32ulp endian=little ;;
+  esp32s2ulp*)		cpu_type=esp32s2ulp endian=little ;;
   c4x*)			cpu_type=tic4x ;;
   cr16*)		cpu_type=cr16 endian=little ;;
   crisv32)		cpu_type=cris arch=crisv32 ;;
@@ -173,6 +174,7 @@ case ${generic_target} in
   bfin-*elf)				fmt=elf ;;
 
   esp32ulp-*elf)			fmt=elf ;;
+  esp32s2ulp-*elf)			fmt=elf ;;
   cr16-*-elf*)				fmt=elf ;;
 
   cris-*-linux-* | crisv32-*-linux-*)

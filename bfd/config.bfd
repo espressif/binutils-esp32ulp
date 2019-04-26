@@ -166,6 +166,7 @@ arc*)		 targ_archs=bfd_arc_arch ;;
 arm*)		 targ_archs=bfd_arm_arch ;;
 bfin*)		 targ_archs=bfd_bfin_arch ;;
 esp32ulp*)	 targ_archs=bfd_esp32ulp_arch ;;
+esp32s2ulp*) targ_archs=bfd_esp32s2ulp_arch ;;
 c30*)		 targ_archs=bfd_tic30_arch ;;
 c4x*)		 targ_archs=bfd_tic4x_arch ;;
 c54x*)		 targ_archs=bfd_tic54x_arch ;;
@@ -481,6 +482,12 @@ case "${targ}" in
   esp32ulp-*-*)
     targ_defvec=esp32ulp_elf32_vec
     targ_selvecs=esp32ulp_elf32_fdpic_vec
+    targ_underscore=yes
+    ;;
+
+  esp32s2ulp-*-*)
+    targ_defvec=esp32s2ulp_elf32_vec
+    targ_selvecs=esp32s2ulp_elf32_fdpic_vec
     targ_underscore=yes
     ;;
 

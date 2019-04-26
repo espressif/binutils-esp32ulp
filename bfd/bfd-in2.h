@@ -753,6 +753,10 @@ extern bfd_boolean bfd_esp32ulp_elf32_create_embedded_relocs
 (bfd *, struct bfd_link_info *, struct bfd_section *, struct bfd_section *,
 char **);
 
+extern bfd_boolean bfd_esp32s2ulp_elf32_create_embedded_relocs
+(bfd *, struct bfd_link_info *, struct bfd_section *, struct bfd_section *,
+char **);
+
 extern bfd_boolean bfd_cr16_elf32_create_embedded_relocs
   (bfd *, struct bfd_link_info *, struct bfd_section *, struct bfd_section *,
    char **);
@@ -2295,6 +2299,8 @@ enum bfd_architecture
 #define bfd_mach_bfin          1
   bfd_arch_esp32ulp,        /* Espressif Incorporated - esp32ulp*/
 #define bfd_mach_esp32ulp          1
+  bfd_arch_esp32s2ulp,        /* Espressif Incorporated - esp32s2ulp*/
+#define bfd_mach_esp32s2ulp          1
   bfd_arch_cr16,       /* National Semiconductor CompactRISC (ie CR16). */
 #define bfd_mach_cr16          1
   bfd_arch_cr16c,       /* National Semiconductor CompactRISC. */
@@ -3998,6 +4004,108 @@ pc-relative or some form of GOT-indirect relocation.  */
   /* arithmetic relocation.  */
   BFD_ARELOC_ESP32ULP_ADDR,
   /* ---------------  End of esp dummy  ----------------------------------*/
+  /* ================   ESP32-S2ULP Processor   ==========================*/
+  BFD_RELOC_ESP32S2ULP_16_IMM,
+  BFD_RELOC_ESP32S2ULP_JUMPR,
+  BFD_RELOC_ESP32S2ULP_16_LOAD,
+  BFD_RELOC_ESP32S2ULP_WR_MEM,
+  BFD_RELOC_ESP32S2ULP_ALUI,
+  BFD_RELOC_ESP32S2ULP_WAIT,
+  BFD_RELOC_ESP32S2ULP_TSENS_CYCLE,
+  BFD_RELOC_ESP32S2ULP_TSENS_DELAY,
+  
+  BFD_RELOC_ESP32S2ULP_ADC_CYCLE,
+  BFD_RELOC_ESP32S2ULP_ADC_SEL,
+  BFD_RELOC_ESP32S2ULP_ADC_MUX,
+  BFD_RELOC_ESP32S2ULP_WAKE,
+  BFD_RELOC_ESP32S2ULP_SLEEP,
+  BFD_RELOC_ESP32S2ULP_STAGE,
+
+  BFD_RELOC_ESP32S2ULP_JUMPR_STEP,
+  BFD_RELOC_ESP32S2ULP_JUMPR_THRESH,
+  BFD_RELOC_ESP32S2ULP_JUMPS_THRESH,
+
+  BFD_RELOC_ESP32S2ULP_REG_RW_HIGH,
+  BFD_RELOC_ESP32S2ULP_REG_RW_LOW,
+  BFD_RELOC_ESP32S2ULP_REG_RW_ADDR,
+  BFD_RELOC_ESP32S2ULP_REG_RW_DATA,
+
+  BFD_RELOC_ESP32S2ULP_I2C_RW_HIGH,
+  BFD_RELOC_ESP32S2ULP_I2C_RW_LOW,
+  BFD_RELOC_ESP32S2ULP_I2C_RW_ADDR,
+  BFD_RELOC_ESP32S2ULP_I2C_RW_DATA,
+  BFD_RELOC_ESP32S2ULP_I2C_RW_SEL,
+
+  BFD_RELOC_ESP32S2ULP_WR_MEM_LABEL,
+
+  BFD_RELOC_ESP32S2ULP_RESERVE,
+  /* GOT relocation.  */
+  BFD_RELOC_ESP32S2ULP_GOT,
+
+  /* PLTPC relocation.  */
+  BFD_RELOC_ESP32S2ULP_PLTPC,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_PUSH,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_CONST,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_ADD,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_SUB,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_MULT,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_DIV,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_MOD,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_LSHIFT,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_RSHIFT,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_AND,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_OR,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_XOR,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_LAND,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_LOR,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_LEN,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_NEG,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_COMP,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_PAGE,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_HWPAGE,
+
+  /* arithmetic relocation.  */
+  BFD_ARELOC_ESP32S2ULP_ADDR,
+  /* ---------------  End of esp32s2 dummy  ----------------------------------*/
+
 
   /* Mitsubishi D10V relocs.
 This is a 10-bit reloc with the right 2 bits

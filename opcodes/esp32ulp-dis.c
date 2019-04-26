@@ -1,4 +1,4 @@
-/* ESPULP ELF support for BFD.
+/* ESP32ULP ELF support for BFD.
 Copyright (c) 2016-2017 Espressif Systems (Shanghai) PTE LTD.
 
 This file is part of BFD, the Binary File Descriptor library.

@@ -837,6 +837,9 @@ case "${target}" in
   esp32ulp-*-*)
     noconfigdirs="$noconfigdirs target-boehm-gc"
     ;;
+  esp32s2ulp-*-*)
+    noconfigdirs="$noconfigdirs target-boehm-gc"
+    ;;
   cris-*-* | crisv32-*-*)
     unsupported_languages="$unsupported_languages java"
     case "${target}" in

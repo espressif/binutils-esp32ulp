@@ -323,4 +323,5 @@
   <syscall name="fanotify_init" number="371"/>
   <syscall name="fanotify_mark" number="372"/>
   <syscall name="prlimit64" number="373"/>
+  <syscall name="esp32s2ulp_spinlock" number="374"/>
 </syscalls_info>
