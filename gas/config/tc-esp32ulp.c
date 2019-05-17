@@ -941,6 +941,11 @@ Expr_Node_Gen_Reloc(Expr_Node * head, int parent_reloc)
 		case BFD_RELOC_ESP32ULP_REG_RW_LOW:
 		case BFD_RELOC_ESP32ULP_REG_RW_ADDR:
 		case BFD_RELOC_ESP32ULP_REG_RW_DATA:
+		case BFD_RELOC_ESP32ULP_I2C_RW_HIGH:
+		case BFD_RELOC_ESP32ULP_I2C_RW_LOW:
+		case BFD_RELOC_ESP32ULP_I2C_RW_ADDR:
+		case BFD_RELOC_ESP32ULP_I2C_RW_DATA:
+		case BFD_RELOC_ESP32ULP_I2C_RW_SEL:
 			note1 = conscode(gencode(value), NULL_CODE);
 			pcrel = 0;
 			break;
@@ -1456,8 +1461,7 @@ esp32ulp_eol_in_insn(char *line)
 	return FALSE;
 }
 
-bfd_boolean
-esp32ulp_start_label(char *s)
+bfd_boolean esp32ulp_start_label(char *s)
 {
 	while (*s != 0)
 	{
