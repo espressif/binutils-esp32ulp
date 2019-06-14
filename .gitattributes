@@ -18,3 +18,5 @@
 #     file gets renamed again ...
 
 ChangeLog       merge=merge-changelog
+
+*               text=auto
