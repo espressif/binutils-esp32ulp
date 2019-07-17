@@ -1,7 +1,7 @@
 stages:
   - build
-  - deploy
   - test
+  - deploy
   - release_stage1
   - release_submit
 
@@ -137,7 +137,7 @@ test_linux:
   variables:
     PLATFORM_NAME: "linux64"
   dependencies:
-    - build_linux    
+    - build_linux
   script:
     - *get_release_name
     - *set_displayed_version
