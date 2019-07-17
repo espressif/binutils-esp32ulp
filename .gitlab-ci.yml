@@ -1,7 +1,8 @@
 stages:
   - build
-  - deploy
+  - private_deploy
   - test
+  - public_deploy
   - release_stage1
   - release_submit
 
@@ -26,25 +27,25 @@ variables:
   #
   # CI settings
 
-  # clone - is a nice reentrant strategy for medium size repository
-  GIT_STRATEGY: clone
   GIT_SUBMODULE_STRATEGY: none
 
   #
   # Customization of jobs
 
-  DIST_ART_DIR: "dist"
-  DIST_ART_DIR_S2: "dist_s2"
-  DIST_NAME: "esp32ulp-elf-binutils"
-  DIST_NAME_S2: "esp32s2ulp-elf-binutils"
-  DIST_INSTALLED_DIR: "${DIST_NAME}"
-  DIST_INSTALLED_DIR_S2: "${DIST_NAME_S2}"
-  ARCHIVE_TOOL: "tar czvf"
-#  UNARCHIVE_TOOL: "tar xvf"
+  DIST_INSTALLED_DIR: "${CONF_TARGET}-binutils"
+  ARCHIVE_TOOL: "tar czf"
+  UNARCHIVE_TOOL: "tar xf"
   ARCHIVE_EXT: "tar.gz"
   GH_TOOL_NAME: github-release
-  GH_TOOL: "./${DIST_ART_DIR}/${GH_TOOL_NAME}"
+  GH_TOOL: "./dist/${GH_TOOL_NAME}"
   RELEASE_DESC: "New release"
+
+.use_ci_tools: &use_ci_tools |
+  curl -sSL ${CIT_LOADER_URL} -o cit_loader.sh && sh cit_loader.sh
+  source citools/import_functions
+
+before_script:
+  - *use_ci_tools
 
 .get_release_name: &get_release_name |
   PREFX=${CI_PROJECT_NAME}
@@ -52,11 +53,11 @@ variables:
   if [ ! $tmpVER ]; then
     tmpVER=$( tmpTAG=$(git describe --tags | grep -E "^${PREFX}-")  && ( echo $tmpTAG | sed -n -r "s|^${PREFX}-(.*)|\1|gp" ) || echo "" )
     if [ ! $tmpVER ]; then
-      echo "There is not a correct tag"; exit 1
+      tmpVER=$(git describe --abbrev=6)
     fi
   fi
   REL_VERSION=$tmpVER
-  REL_NAME=${CI_PROJECT_NAME}-${PLATFORM_NAME}-${REL_VERSION}
+  REL_NAME="binutils-${CONF_TARGET%-elf}-${PLATFORM_NAME}-${REL_VERSION}"
   ARCHIVE_NAME=${REL_NAME}.${ARCHIVE_EXT}
   echo "PLATFORM_NAME: $PLATFORM_NAME"
   echo "REL_VERSION: $REL_VERSION"
@@ -71,22 +72,12 @@ variables:
 
 .dist_archive: &dist_archive |
   ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR}
-  mkdir -p ${DIST_ART_DIR}
-  mv ${ARCHIVE_NAME} ${DIST_ART_DIR}
-  echo "${ARCHIVE_NAME}" > ${DIST_ART_DIR}/dist_name_${PLATFORM_NAME}
-
-.dist_archive_s2: &dist_archive_s2 |
-  ${ARCHIVE_TOOL} ${ARCHIVE_NAME} ${DIST_INSTALLED_DIR_S2}
-  mkdir -p ${DIST_ART_DIR_S2}
-  mv ${ARCHIVE_NAME} ${DIST_ART_DIR_S2}
-  echo "${ARCHIVE_NAME}" > ${DIST_ART_DIR_S2}/dist_name_s2_${PLATFORM_NAME}
+  mkdir -p dist
+  mv ${ARCHIVE_NAME} dist/
+  echo "${ARCHIVE_NAME}" > dist/file_${PLATFORM_NAME}_${CONF_TARGET}
 
 .add_gh_key_remote: &add_gh_key_remote |
-  command -v ssh-agent >/dev/null || exit 1
-  eval $(ssh-agent -s)
-  printf '%s\n' "${GH_PUSH_KEY}" | tr -d '\r' | ssh-add - > /dev/null
-  mkdir -p ~/.ssh && chmod 700 ~/.ssh
-  [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config || ssh-keyscan -t rsa github.com >> ~/.ssh/known_hosts
+  cit_add_ssh_key "${GH_PUSH_KEY}"
   git remote remove github || true
   git remote add github ${GH_PUSH_REPO}
 
@@ -96,9 +87,9 @@ variables:
   chmod +x ./$GH_TOOL_NAME
 
 .gh_upload_archive: &gh_upload_archive |
-  ARCHIVE_NAME=$(cat ${DIST_ART_DIR}/dist_name_${PLATFORM_NAME})
+  ARCHIVE_NAME=$(cat dist/file_${PLATFORM_NAME}_${CONF_TARGET})
   echo Release ${GH_REL_TAG}, file ${ARCHIVE_NAME}
-  ${GH_TOOL} upload -s ${GITHUB_TOKEN} --tag ${GH_REL_TAG} -f ${DIST_ART_DIR}/${ARCHIVE_NAME} -n ${ARCHIVE_NAME}
+  ${GH_TOOL} upload -s ${GITHUB_TOKEN} --tag ${GH_REL_TAG} -f dist/${ARCHIVE_NAME} -n ${ARCHIVE_NAME}
 
 # prefix should be like a $CI_PROJECT_NAME, but we cannot use variable here
 .release_tag_filter: &release_tag_filter
@@ -106,227 +97,206 @@ variables:
     - /^v[0-9].*$/
     - /^binutils-esp32ulp-.*$/
 
-.release_submit_action: &release_submit_action
+.manual_action: &manual_action
   when: manual
   allow_failure: true
 
-before_script:
-  - set -o errexit; set -o pipefail; set -o nounset
-  - test ${DEBUG_SHELL:-""} && set -x
+.configure_native: &configure_native |
+  MAKEFLAGS= ./configure \
+  --target=${CONF_TARGET} \
+  --prefix="${PWD}/${DIST_INSTALLED_DIR}" \
+  ${BINUTILS_CONFIGURE_OPTS}
 
-# =====   Main Stages for esp32-ulp ==========================
-build_linux_esp32-ulp:
+.configure_crossbuild: &configure_crossbuild |
+  MAKEFLAGS= ./configure \
+  --host=${CONF_HOST} \
+  --target=${CONF_TARGET} \
+  --prefix="${PWD}/${DIST_INSTALLED_DIR}" \
+  ${BINUTILS_CONFIGURE_OPTS}
+
+.after_configure: &after_configure |
+  echo "MAKEINFO = :" >> Makefile
+
+.build_dist: &build_dist |
+  make
+  MAKEFLAGS= make install-strip
+
+# Builds
+
+.build_template: &build_template
   stage: build
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain
-  tags:
-    - build
   artifacts:
     paths:
-      - ${DIST_ART_DIR}
-    expire_in: 2 weeks
-  variables:
-    PLATFORM_NAME: "linux64"
+      - dist
+      - config.log
+    when: always
+    expire_in: 6 weeks
+  after_script:
+    # Just for cleaning space, no other causes. Don't remove artifacts
+    - git add -f dist config.log
+    - git clean -ffxdq
+
+.build_template_linux: &build_template_linux
+  <<: *build_template
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain
   script:
     - *get_release_name
     - *set_displayed_version
-    - MAKEFLAGS= ./configure --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS}
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - MAKEFLAGS= make install-strip
+    - *configure_native
+    - *after_configure
+    - *build_dist
     - *dist_archive
 
-test_linux_esp32-ulp:
-  stage: test
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR}
-    expire_in: 2 weeks
+esp32_lin_amd64:
+  <<: *build_template_linux
   variables:
-    PLATFORM_NAME: "linux64"
-  dependencies:
-    - build_linux_esp32-ulp    
+    PLATFORM_NAME: "linux-amd64"
+    CONF_TARGET: "esp32ulp-elf"
+
+esp32s2_lin_amd64:
+  <<: *build_template_linux
+  variables:
+    PLATFORM_NAME: "linux-amd64"
+    CONF_TARGET: "esp32s2ulp-elf"
+
+
+.build_template_crossbuild: &build_template_crossbuild
+  <<: *build_template
   script:
     - *get_release_name
     - *set_displayed_version
-    - MAKEFLAGS= ./configure --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS}
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - ./gas/testsuite/gas/esp32ulp/check_all.sh
-    - cd gas/testsuite/gas/esp32ulp/compare
-    - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
-    - echo "Compare test done"
+    - *configure_crossbuild
+    - *after_configure
+    - *build_dist
+    - *dist_archive
 
-build_windows_esp32-ulp:
-  stage: build
+esp32_win:
+  <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR}
-    expire_in: 2 weeks
   variables:
     PLATFORM_NAME: "win32"
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - export CC=
-    - export CPP=
-    - export CXX=
-    - export LD=
-    - export AS=
-    - export AR=
-    - MAKEFLAGS= ./configure --host=i686-w64-mingw32 --target=esp32ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR ${BINUTILS_CONFIGURE_OPTS} CC=i686-w64-mingw32-gcc
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - MAKEFLAGS= make install-strip
-    - *dist_archive
+    CC: "i686-w64-mingw32-gcc"
+    CXX: "i686-w64-mingw32-g++"
+    CONF_HOST: "i686-w64-mingw32"
+    CONF_TARGET: "esp32ulp-elf"
 
-build_macos_esp32-ulp:
-  stage: build
-  image: $CI_DOCKER_REGISTRY/osxcross
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR}
-    expire_in: 2 weeks
-  variables:
-    PLATFORM_NAME: "macos"
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - MAKEFLAGS= ./configure --host=x86_64-apple-darwin12 --target=esp32ulp-elf --prefix=$PWD/esp32ulp-elf-binutils ${BINUTILS_CONFIGURE_OPTS} CC=x86_64-apple-darwin12-cc
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - MAKEFLAGS= make install-strip
-    - *dist_archive
-# ==============================================================
-
-# =====   Main Stages for esp32s2-ulp ==========================
-build_linux_esp32s2-ulp:
-  stage: build
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR_S2}
-    expire_in: 2 weeks
-  variables:
-    PLATFORM_NAME: "linux64"
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - MAKEFLAGS= ./configure --target=esp32s2ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR_S2 ${BINUTILS_CONFIGURE_OPTS}
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - MAKEFLAGS= make install-strip
-    - *dist_archive_s2
-
-test_linux_esp32s2-ulp:
-  stage: test
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR_S2}
-    expire_in: 2 weeks
-  variables:
-    PLATFORM_NAME: "linux64"
-  dependencies:
-    - build_linux_esp32s2-ulp    
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - MAKEFLAGS= ./configure --target=esp32s2ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR_S2 ${BINUTILS_CONFIGURE_OPTS}
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - ./gas/testsuite/gas/esp32s2ulp/check_all.sh
-    - cd gas/testsuite/gas/esp32s2ulp/compare
-    - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
-    - echo "Compare test done"
-
-build_windows_esp32s2-ulp:
-  stage: build
+esp32s2_win:
+  <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR_S2}
-    expire_in: 2 weeks
   variables:
     PLATFORM_NAME: "win32"
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - export CC=
-    - export CPP=
-    - export CXX=
-    - export LD=
-    - export AS=
-    - export AR=
-    - MAKEFLAGS= ./configure --host=i686-w64-mingw32 --target=esp32s2ulp-elf --prefix=$PWD/$DIST_INSTALLED_DIR_S2 ${BINUTILS_CONFIGURE_OPTS} CC=i686-w64-mingw32-gcc
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - MAKEFLAGS= make install-strip
-    - *dist_archive_s2
+    CC: "i686-w64-mingw32-gcc"
+    CXX: "i686-w64-mingw32-g++"
+    CONF_HOST: "i686-w64-mingw32"
+    CONF_TARGET: "esp32s2ulp-elf"
 
-build_macos_esp32s2-ulp:
-  stage: build
-  image: $CI_DOCKER_REGISTRY/osxcross
-  tags:
-    - build
-  artifacts:
-    paths:
-      - ${DIST_ART_DIR_S2}
-    expire_in: 2 weeks
+esp32_macos:
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross
   variables:
     PLATFORM_NAME: "macos"
-  script:
-    - *get_release_name
-    - *set_displayed_version
-    - MAKEFLAGS= ./configure --host=x86_64-apple-darwin12 --target=esp32s2ulp-elf --prefix=$PWD/esp32s2ulp-elf-binutils ${BINUTILS_CONFIGURE_OPTS} CC=x86_64-apple-darwin12-cc
-    - echo "MAKEINFO = :" >> Makefile
-    - make
-    - MAKEFLAGS= make install-strip
-    - *dist_archive_s2
+    CC: "x86_64-apple-darwin12-clang"
+    CXX: "x86_64-apple-darwin12-clang++"
+    CONF_HOST: "x86_64-apple-darwin12"
+    CONF_TARGET: "esp32ulp-elf"
 
-# ==============================================================
+esp32s2_macos:
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross
+  variables:
+    PLATFORM_NAME: "macos"
+    CC: "x86_64-apple-darwin12-clang"
+    CXX: "x86_64-apple-darwin12-clang++"
+    CONF_HOST: "x86_64-apple-darwin12"
+    CONF_TARGET: "esp32s2ulp-elf"
+
+# Tests
+
+.test_template: &test_template
+  stage: test
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain
+  artifacts:
+    paths:
+      - ${TEST_CMP_DIR}
+    expire_in: 6 weeks
+  after_script:
+    - git add -f ${TEST_CMP_DIR}
+    - git clean -ffxdq
+  script:
+    - ARCHIVE_NAME=$(cat dist/file_${PLATFORM_NAME}_${CONF_TARGET})
+    - ${UNARCHIVE_TOOL} dist/${ARCHIVE_NAME}
+    - ${TEST_SCRIPT} ${TEST_PREFIX}
+    - cd ${TEST_CMP_DIR}
+    - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
+    - echo "Compare test done"
+
+esp32_test:
+  <<: *test_template
+  dependencies:
+    - esp32_lin_amd64
+  variables:
+    PLATFORM_NAME: "linux-amd64"
+    CONF_TARGET: "esp32ulp-elf"
+    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/compare"
+
+esp32s2_test:
+  <<: *test_template
+  dependencies:
+    - esp32s2_lin_amd64
+  variables:
+    PLATFORM_NAME: "linux-amd64"
+    CONF_TARGET: "esp32s2ulp-elf"
+    TEST_PREFIX: "./esp32s2ulp-elf-binutils/bin/esp32s2ulp-elf-"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32s2ulp/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32s2ulp/compare"
+
+#
+
+upload_to_http:
+  <<: *manual_action
+  stage: private_deploy
+  tags:
+    - deploy
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - cit_add_ssh_key "${HTTP_UPLOAD_KEY}"
+    # List of archives in dist/
+    - FILES=$(find dist -name file_\* -exec cat {} \+ | sort -u)
+    - cd dist
+    - scp ${FILES} "${HTTP_UPLOAD_DIR}/ulp"
+    # Show info
+    - echo -e "\nArchives were published there:\n\n$(for n in ${FILES}; do echo "${HTTP_PUBLIC_DIR}/ulp/${n}"; done)\n"
 
 push_master_to_github:
-  stage: deploy
+  stage: public_deploy
   only:
     - master
   when: on_success
   dependencies: []
-  variables:
-    GIT_STRATEGY: clone
   script:
     - *add_gh_key_remote
     - git push github HEAD:master
+
 
 get_gh_tools:
   stage: build
   <<: *release_tag_filter
   artifacts:
     paths:
-      - ${DIST_ART_DIR}
+      - dist
   variables:
     GIT_STRATEGY: none
   script:
     - *gh_getting_tool
-    - mkdir -p ${DIST_ART_DIR}
-    - mv ${GH_TOOL_NAME} ${DIST_ART_DIR}/
+    - mkdir -p dist
+    - mv ${GH_TOOL_NAME} dist/
 
 release_tag_draft:
   stage: release_stage1
@@ -350,7 +320,7 @@ release_tag_draft:
 Release_tag_submit:
   stage: release_submit
   <<: *release_tag_filter
-  <<: *release_submit_action
+  <<: *manual_action
   dependencies:
     - get_gh_tools
   variables:
@@ -361,7 +331,7 @@ Release_tag_submit:
 Pre-Release_tag_submit:
   stage: release_submit
   <<: *release_tag_filter
-  <<: *release_submit_action
+  <<: *manual_action
   dependencies:
     - get_gh_tools
   variables:
@@ -372,7 +342,7 @@ Pre-Release_tag_submit:
 Delete_tag_release:
   stage: release_submit
   <<: *release_tag_filter
-  <<: *release_submit_action
+  <<: *manual_action
   dependencies:
     - get_gh_tools
   variables:
