@@ -214,6 +214,22 @@ esp32s2_macos:
     CONF_HOST: "x86_64-apple-darwin12"
     CONF_TARGET: "esp32s2ulp-elf"
 
+esp32_lin_armel:
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross
+  variables:
+    PLATFORM_NAME: "linux-armel"
+    CONF_HOST: "arm-linux-gnueabi"
+    CONF_TARGET: "esp32ulp-elf"
+
+esp32s2_lin_armel:
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross
+  variables:
+    PLATFORM_NAME: "linux-armel"
+    CONF_HOST: "arm-linux-gnueabi"
+    CONF_TARGET: "esp32s2ulp-elf"
+
 # Tests
 
 .test_template: &test_template
@@ -234,7 +250,7 @@ esp32s2_macos:
     - git diff --exit-code -- . || (echo 'Differences found. Please check changes and commit new check files.'; exit 1)
     - echo "Compare test done"
 
-esp32_test:
+esp32_lin_test:
   <<: *test_template
   dependencies:
     - esp32_lin_amd64
@@ -245,12 +261,43 @@ esp32_test:
     TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/check_all.sh"
     TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/compare"
 
-esp32s2_test:
+esp32s2_lin_test:
   <<: *test_template
   dependencies:
     - esp32s2_lin_amd64
   variables:
     PLATFORM_NAME: "linux-amd64"
+    CONF_TARGET: "esp32s2ulp-elf"
+    TEST_PREFIX: "./esp32s2ulp-elf-binutils/bin/esp32s2ulp-elf-"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32s2ulp/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32s2ulp/compare"
+
+esp32_armel_test:
+  <<: *test_template
+  image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
+  tags:
+    - linux_arm
+  dependencies:
+    - esp32_lin_armel
+  variables:
+    # Just for size optimization on RPi
+    GIT_DEPTH: 5
+    PLATFORM_NAME: "linux-armel"
+    CONF_TARGET: "esp32ulp-elf"
+    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/compare"
+
+esp32s2_armel_test:
+  <<: *test_template
+  image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
+  tags:
+    - linux_arm
+  dependencies:
+    - esp32s2_lin_armel
+  variables:
+    GIT_DEPTH: 5
+    PLATFORM_NAME: "linux-armel"
     CONF_TARGET: "esp32s2ulp-elf"
     TEST_PREFIX: "./esp32s2ulp-elf-binutils/bin/esp32s2ulp-elf-"
     TEST_SCRIPT: "./gas/testsuite/gas/esp32s2ulp/check_all.sh"
@@ -326,6 +373,12 @@ release_tag_draft:
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
     - PLATFORM_NAME="macos"
+    - CONF_TARGET="esp32s2ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-armel"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-armel"
     - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
 
