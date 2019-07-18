@@ -301,7 +301,7 @@ get_gh_tools:
 release_tag_draft:
   stage: release_stage1
   <<: *release_tag_filter
-  when: on_success
+  <<: *manual_action
   script:
     - *add_gh_key_remote
     - git push --force github ${CI_COMMIT_TAG}
@@ -310,11 +310,23 @@ release_tag_draft:
     - ${GH_TOOL} release -s ${GITHUB_TOKEN} --tag ${CI_COMMIT_TAG} --description "${RELEASE_DESC}" --draft
     - GH_REL_TAG=${CI_COMMIT_TAG}
     # Upload archives
-    - PLATFORM_NAME="linux64"
+    - PLATFORM_NAME="linux-amd64"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-amd64"
+    - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
     - PLATFORM_NAME="win32"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="win32"
+    - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
     - PLATFORM_NAME="macos"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="macos"
+    - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
 
 Release_tag_submit:
