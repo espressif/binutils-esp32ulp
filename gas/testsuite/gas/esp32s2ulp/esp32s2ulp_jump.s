@@ -55,6 +55,18 @@ jmp2:   nop
 	JUMPR check_jump1, check_thres1, EQ	
 	JUMPR check_jump2, check_thres1, EQ	
 	JUMPR check_jump2, check_thres2, EQ
+	JUMPR 0x04, 0x4, LE
+	JUMPR check_jump1, 0x4, LE
+	JUMPR 0x04, check_thres1, LE
+	JUMPR check_jump1, check_thres1, LE
+	JUMPR check_jump2, check_thres1, LE	
+	JUMPR check_jump2, check_thres2, LE	
+	JUMPR 0x04, 0x4, GE
+	JUMPR check_jump1, 0x4, GE
+	JUMPR 0x04, check_thres1, GE
+	JUMPR check_jump1, check_thres1, GE
+	JUMPR check_jump2, check_thres1, GE	
+	JUMPR check_jump2, check_thres2, GE	
 
 // Jumps commands...
     jumps 0x4, 0x04, EQ

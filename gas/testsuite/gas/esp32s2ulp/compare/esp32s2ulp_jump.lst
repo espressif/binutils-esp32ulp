@@ -61,19 +61,43 @@ ESP32S2ULP GAS  ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jump.s 			page 1
 ESP32S2ULP GAS  ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jump.s 			page 2
 
 
-  58              	
-  59              	// Jumps commands...
-  60 0090 04001288 	    jumps 0x4, 0x04, EQ
-  61 0094 04001288 	    jumps 0x04, check_thres1, EQ
-  62 0098 04008A8A 	    jumps check_jump1, check_thres1, EQ
-  63 009c 00008E8A 	    jumps check_jump1, check_thres2, EQ
-  64 00a0 0400928A 	    jumps check_jump2, check_thres1, EQ
-  65 00a4 0000968A 	    jumps check_jump2, check_thres2, EQ
-  66              	
-  67 00a8 00000288 	    jumps 0x0, 0x00, EQ
-  68 00ac 00800088 	    jumps 0x0, 0x00, LT
-  69 00b0 00800188 	    jumps 0x0, 0x00, GT
-  70 00b4 00800288 	    jumps 0x0, 0x00, LE
-  71 00b8 00800388 	    jumps 0x0, 0x00, GE
-  72              	
-  73              	    
+  58 0090 04000480 		JUMPR 0x04, 0x4, LE
+  58      04000680 
+  59 0098 04008882 		JUMPR check_jump1, 0x4, LE
+  59      04008E82 
+  60 00a0 04000480 		JUMPR 0x04, check_thres1, LE
+  60      04000680 
+  61 00a8 04009882 		JUMPR check_jump1, check_thres1, LE
+  61      04009E82 
+  62 00b0 0400A082 		JUMPR check_jump2, check_thres1, LE	
+  62      0400A682 
+  63 00b8 0000A882 		JUMPR check_jump2, check_thres2, LE	
+  63      0000AE82 
+  64 00c0 04000580 		JUMPR 0x04, 0x4, GE
+  64      04000680 
+  65 00c8 0400B982 		JUMPR check_jump1, 0x4, GE
+  65      0400BE82 
+  66 00d0 04000580 		JUMPR 0x04, check_thres1, GE
+  66      04000680 
+  67 00d8 0400C982 		JUMPR check_jump1, check_thres1, GE
+  67      0400CE82 
+  68 00e0 0400D182 		JUMPR check_jump2, check_thres1, GE	
+  68      0400D682 
+  69 00e8 0000D982 		JUMPR check_jump2, check_thres2, GE	
+  69      0000DE82 
+  70              	
+  71              	// Jumps commands...
+  72 00f0 04001288 	    jumps 0x4, 0x04, EQ
+  73 00f4 04001288 	    jumps 0x04, check_thres1, EQ
+  74 00f8 0400EA8A 	    jumps check_jump1, check_thres1, EQ
+  75 00fc 0000EE8A 	    jumps check_jump1, check_thres2, EQ
+  76 0100 0400F28A 	    jumps check_jump2, check_thres1, EQ
+  77 0104 0000F68A 	    jumps check_jump2, check_thres2, EQ
+  78              	
+  79 0108 00000288 	    jumps 0x0, 0x00, EQ
+  80 010c 00800088 	    jumps 0x0, 0x00, LT
+  81 0110 00800188 	    jumps 0x0, 0x00, GT
+  82 0114 00800288 	    jumps 0x0, 0x00, LE
+  83 0118 00800388 	    jumps 0x0, 0x00, GE
+  84              	
+  85              	    

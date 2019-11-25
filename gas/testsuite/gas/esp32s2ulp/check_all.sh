@@ -25,5 +25,9 @@ ${AS} -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_tsens.s > ./gas/testsuite/ga
 ${AS} -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_sleep.s > ./gas/testsuite/gas/esp32s2ulp/compare/esp32s2ulp_sleep.lst
 ${AS} -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_ld.s > ./gas/testsuite/gas/esp32s2ulp/compare/esp32s2ulp_ld.lst
 # This part used to check gas and linker together
-#./gas/as-new -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_st.s -o ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_st.elf
-#./ld/ld-new.exe -o ./gas/testsuite/gas/esp32s2ulp/compare/esp32s2ulp_st.bin -A elf32-esp32s2ulp ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_st.elf
+#./gas/as-new -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.s -o ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.elf
+#./ld/ld-new.exe -o ./gas/testsuite/gas/esp32s2ulp/compare/esp32s2ulp_jumpr.bin -A elf32-esp32s2ulp ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.elf
+#
+#${AS} -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.s > ./gas/testsuite/gas/esp32s2ulp/compare/esp32s2ulp_jumpr.lst
+#./gas/as-new -al ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.s -o ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.elf
+#./ld/ld-new.exe -o ./gas/testsuite/gas/esp32s2ulp/compare/esp32s2ulp_jumpr.bin -A elf32-esp32s2ulp ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_jumpr.elf

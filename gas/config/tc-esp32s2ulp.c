@@ -333,6 +333,13 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	case BFD_RELOC_ESP32S2ULP_JUMPR_STEP:
 		if (value < -0x8000 || value > 0x7fff)
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32S2ULP_JUMPR_STEP"));
+		
+		// if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		// {
+		// 	asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+		// 	if (sym->section->flags != 0) value = value >> 2;
+		// }
+		
 		value = value >> 2;
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
@@ -736,14 +743,66 @@ INSTR_T esp32s2ulp_gen_jump_i(Expr_Node* addr, int cond)
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
 }
 
+// Conditions for JUMPS instructions
+#define JUMPR_EQ 2 
+#define JUMPR_GT 1
+#define JUMPR_LT 0
+#define JUMPR_LE 3
+#define JUMPR_GE 4
+
 INSTR_T esp32s2ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond)
 {
 	int step_val = EXPR_VALUE(step);
 	int thresh_val = EXPR_VALUE(thresh);
+	if ((cond == JUMPR_LE) || (cond == JUMPR_GE)) // EQ == 3, GT = 4
+	{
+		unsigned int walk_cond = 0;
+		unsigned int result_cond = 0;
+		if (cond == JUMPR_LE) // EQ
+		{
+			//	Jumpr   step, threshold, LT
+			//	Jumpr   step, threshold, EQ
+			walk_cond = JUMPR_LT;
+			result_cond = JUMPR_EQ;
+		}
+		if (cond == JUMPR_GE) // GT
+		{
+			//	Jumpr   step,  threshold, GT
+			//	Jumpr   step, threshold,  EQ
 
-	//DEBUG_TRACE("dya_pass - esp32s2ulp_cmd_jump_relr\n");
-	unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val>>2);
-	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32S2ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32S2ULP_JUMPR_THRESH)));
+			walk_cond = JUMPR_GT;
+			result_cond = JUMPR_EQ;
+		}
+		unsigned int local_walk = I_JUMP_RELR(thresh_val, walk_cond, step_val>>2);
+		if (step_val < 0) step_val = step_val - 4;
+		unsigned int local_result = I_JUMP_RELR(thresh_val, result_cond, step_val>>2);
+
+		INSTR_T result = conscode(gencode(local_result), 
+					conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32S2ULP_JUMPR_STEP), 
+					Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32S2ULP_JUMPR_THRESH)));
+					
+		INSTR_T walk1 = conscode(gencode(local_walk), 
+					conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32S2ULP_JUMPR_STEP), 
+					Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32S2ULP_JUMPR_THRESH)));
+					
+		INSTR_T last_inst = walk1->next;
+		while (last_inst->next)
+		{
+			last_inst = last_inst->next;
+		}
+		walk1->mult = 0;
+		result->mult = 1;
+		last_inst->next = result;
+		return walk1;
+
+	} else 
+	{
+		//DEBUG_TRACE("dya_pass - esp32s2ulp_cmd_jump_relr\n");
+		unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val>>2);
+		return conscode(gencode(local_op), 
+					conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32S2ULP_JUMPR_STEP), 
+					Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32S2ULP_JUMPR_THRESH)));
+	}
 }
 
 

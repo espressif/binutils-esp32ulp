@@ -849,6 +849,14 @@ branchrel:
 	{
 	$$.r0 = 0;
 	}
+	| LE
+	{
+	$$.r0 = 3;
+	}
+	| GE
+	{
+	$$.r0 = 4;
+	}
 	;
 
 branchrels:
