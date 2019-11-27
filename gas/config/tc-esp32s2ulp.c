@@ -320,7 +320,7 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	case BFD_RELOC_ESP32S2ULP_STAGE:
 		if (value > 0xff)
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_STAGE"));
-		//value = value << 2;
+
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
 		temp_val &= ~((0xff << 4));
@@ -333,12 +333,6 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 	case BFD_RELOC_ESP32S2ULP_JUMPR_STEP:
 		if (value < -0x8000 || value > 0x7fff)
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_RELOC_ESP32S2ULP_JUMPR_STEP"));
-		
-		// if (fixP->fx_addsy != NULL)// relocation will be done not in linker
-		// {
-		// 	asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
-		// 	if (sym->section->flags != 0) value = value >> 2;
-		// }
 		
 		value = value >> 2;
 		temp_val = 0;

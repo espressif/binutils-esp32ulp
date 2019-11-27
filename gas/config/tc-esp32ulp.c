@@ -573,6 +573,21 @@ md_apply_fix(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_THRESH temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		//md_number_to_chars(where, value, 0);
 		break;
+	case BFD_RELOC_ESP32ULP_JUMPR_THRESHREL:
+		if ((value > 0x7fff) || (value < -0x7fff))
+			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_JUMPR_THRESHREL"));
+
+		value += 1; // jumpr target, threshold + 1, GE/LE
+
+		temp_val = 0;
+		value &= 0xffff;
+		memcpy(&temp_val, where, 4);
+		temp_val &= ~((0xffff << 0));
+		temp_val |= (value << 0);
+		memcpy(where, &temp_val, 4);
+		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_JUMPR_THRESHREL temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
+		//md_number_to_chars(where, value, 0);
+		break;
 
 	case BFD_RELOC_ESP32ULP_JUMPS_THRESH:
 		if ((value > 0x7f) || (value < -0x7f))
@@ -936,6 +951,7 @@ Expr_Node_Gen_Reloc(Expr_Node * head, int parent_reloc)
 		case BFD_RELOC_ESP32ULP_STAGE:
 		case BFD_RELOC_ESP32ULP_JUMPR_STEP:
 		case BFD_RELOC_ESP32ULP_JUMPR_THRESH:
+		case BFD_RELOC_ESP32ULP_JUMPR_THRESHREL:
 		case BFD_RELOC_ESP32ULP_JUMPS_THRESH:
 		case BFD_RELOC_ESP32ULP_REG_RW_HIGH:
 		case BFD_RELOC_ESP32ULP_REG_RW_LOW:
@@ -1123,14 +1139,78 @@ INSTR_T esp32ulp_gen_jump_relr(Expr_Node* addr, int judge, int thresh)
 	return conscode(gencode(local_op), Expr_Node_Gen_Reloc(addr, rel));
 }
 
+// Step to reach next instruction
+#define NEXT_INSTRUCTION_STEP  4
+
+// Conditions for JUMPR instructions
+#define JUMPR_LT 0
+#define JUMPR_GE 1
+#define JUMPR_LE 2
+#define JUMPR_EQ 3
+#define JUMPR_GT 4
+
 INSTR_T esp32ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond)
 {
 	int step_val = EXPR_VALUE(step);
 	int thresh_val = EXPR_VALUE(thresh);
+	// The original JUMPR instruction support only GE and LT instructions
+	// To support GT/EQ and LE instructions, the current instruction will be extended:
+	// GT:
+	// 		jumpr target, threshold + 1, GE
+	// LE:
+	// 		jumpr target, threshold + 1, LT
+	//
+	// EQ:
+	// 		jumpr out, threshold + 1, GE
+	// 		jumpr target, threshold, GE
+	//    out: next follow code
+	//   
+	if (cond == JUMPR_LE) 
+	{
+		unsigned int local_op = I_JUMP_RELR(thresh_val + 1, JUMPR_LT, step_val>>2);
+		return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESHREL)));
+	} else if (cond == JUMPR_GT)
+	{		
+		unsigned int local_op = I_JUMP_RELR(thresh_val + 1, JUMPR_GE, step_val>>2);
+		return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESHREL)));
+	} else if (cond == JUMPR_EQ)
+	{
+		// Step over next jumps
+		unsigned int local_walk = I_JUMP_RELR(thresh_val + 1, JUMPR_GE, (NEXT_INSTRUCTION_STEP*2) >> 2);
+		// In case of back jump, we have to add additional jumps instruction to the step value
+		if (step_val < 0) step_val = step_val - 4;
 
-	//DEBUG_TRACE("dya_pass - esp32ulp_cmd_jump_relr\n");
-	unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val>>2);
-	return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESH)));
+		// Step to the target instruction
+		unsigned int local_result = I_JUMP_RELR(thresh_val, JUMPR_GE, step_val >> 2);
+
+		// Main instruction that makes jump
+		INSTR_T result = conscode(gencode(local_result),
+			conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP),
+			Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESH)
+			)
+			);
+		// Additional instructiion for add additional check of the condition
+		INSTR_T walk1 = conscode(gencode(local_walk),
+			conctcode(Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESHREL), NULL
+			)
+			);
+
+		// We have to find last instruction in walk1 and connect
+		// result to them
+		INSTR_T last_inst = walk1->next;
+		while (last_inst->next)
+		{
+			last_inst = last_inst->next;
+		}
+		walk1->mult = 0;
+		result->mult = 1;
+		last_inst->next = result;
+		return walk1;
+	} else
+	{
+		unsigned int local_op = I_JUMP_RELR(thresh_val, cond, step_val>>2);
+		return conscode(gencode(local_op), conctcode(Expr_Node_Gen_Reloc(step, BFD_RELOC_ESP32ULP_JUMPR_STEP), Expr_Node_Gen_Reloc(thresh, BFD_RELOC_ESP32ULP_JUMPR_THRESH)));
+	}
 }
 
 // Conditions for JUMPS instructions
@@ -1139,9 +1219,6 @@ INSTR_T esp32ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond)
 #define JUMPS_LE 2
 #define JUMPS_LT 0
 #define JUMPS_GE 1
-
-// Step to reach next instruction
-#define NEXT_INSTRUCTION_STEP  4
 
 INSTR_T esp32ulp_cmd_jump_rels(Expr_Node* step, Expr_Node* thresh, int cond)
 {

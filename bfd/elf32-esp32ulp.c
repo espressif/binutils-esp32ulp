@@ -552,6 +552,20 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	(0x00ffff << 0),		/* dst_mask.  */
 	FALSE),			/* pcrel_offset.  */
 
+	HOWTO(R_ESP32ULP_JUMPR_THRESHREL,	/* type.  */
+	0,									/* rightshift.  */
+	2,									/* size (0 = byte, 1 = short, 2 = long).  */
+	16,									/* bitsize.  */
+	FALSE,								/* pc_relative.  */
+	0,									/* bitpos.  */
+	complain_overflow_signed, 			/* complain_on_overflow.  */
+	NULL,								/* special_function.  */
+	"R_ESP32ULP_JUMPR_THRESHREL",		/* name.  */
+	FALSE,								/* partial_inplace.  */
+	(0x00ffff << 0),					/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 0),					/* dst_mask.  */
+	FALSE),								/* pcrel_offset.  */
+
 	HOWTO(R_ESP32ULP_JUMPS_THRESH,		/* type.  */
 	0,									/* rightshift.  */
 	2,									/* size (0 = byte, 1 = short, 2 = long).  */
@@ -796,6 +810,7 @@ static const struct esp32ulp_reloc_map esp32ulp_reloc_map[] =
 
 	{ BFD_RELOC_ESP32ULP_JUMPR_STEP, R_ESP32ULP_JUMPR_STEP },
 	{ BFD_RELOC_ESP32ULP_JUMPR_THRESH, R_ESP32ULP_JUMPR_THRESH },
+	{ BFD_RELOC_ESP32ULP_JUMPR_THRESHREL, R_ESP32ULP_JUMPR_THRESHREL },
 	{ BFD_RELOC_ESP32ULP_JUMPS_THRESH, R_ESP32ULP_JUMPS_THRESH },
 
 	{ BFD_RELOC_ESP32ULP_REG_RW_HIGH, R_ESP32ULP_REG_RW_HIGH },
