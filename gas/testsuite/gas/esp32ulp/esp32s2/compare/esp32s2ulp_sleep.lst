@@ -1,0 +1,19 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_sleep.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              	
+   4              	        .set wait_delay1, 0x04
+   5              	        .set wait_delay2, 0x04
+   6              	        .global wait_delay2
+   7              	
+   8              	        .global __start
+   9              	__start:
+  10              	        
+  11 0002 0000     	        .text
+  12              	        .global jmp2         
+  13 0000 00000040 	        nop
+  14 0004 04000040 	        SLEEP   0x04        
+  15 0008 04000040 	        SLEEP   wait_delay1        
+  16 000c 00000040 	        SLEEP   wait_delay2

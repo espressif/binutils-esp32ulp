@@ -22,29 +22,34 @@
 
 #define REG_T Register *
 
-INSTR_T esp32ulp_gen_progctrl (int, int);
+INSTR_T esp32ulp_gen_wait(void);
 
 INSTR_T esp32ulp_gen_alu_op(int, int, int);
 INSTR_T esp32ulp_gen_alu_ADDR(int, int, int);
 INSTR_T esp32ulp_gen_alu_ADDI(int, int, int);
 INSTR_T esp32ulp_gen_jump_r(int, int);
 INSTR_T esp32ulp_gen_jump_i(Expr_Node* , int);
-INSTR_T esp32ulp_gen_jump_relr(Expr_Node*, int, int);
-INSTR_T esp32ulp_gen_jump_rels(Expr_Node*, int, int);
 INSTR_T esp32ulp_move_const2reg(int, int);
+
+INSTR_T esp32ulp_wr_mem_stlh(int low_hi, int dst_reg, int src_reg, Expr_Node* offset);
+INSTR_T esp32ulp_wr_mem_st32(int dst_reg, int src_reg, Expr_Node* offset, Expr_Node* label);
+INSTR_T esp32ulp_wr_mem_sti32(int dst_reg, int src_reg, Expr_Node* label);
+INSTR_T esp32ulp_wr_mem_st_l(int low_hi, int dst_reg, int src_reg, Expr_Node* offset, Expr_Node* label);
+INSTR_T esp32ulp_wr_mem_sti_l(int dst_reg, int src_reg, Expr_Node* label);
+INSTR_T esp32ulp_wr_mem_sti(int dst_reg, int src_reg);
+INSTR_T esp32ulp_wr_mem_sto(Expr_Node* offset);
+
 INSTR_T esp32ulp_move_addr2reg(int, Expr_Node*);
 INSTR_T esp32ulp_wr_mem_addr(int dst_reg, int src_reg, Expr_Node* addr);
-INSTR_T esp32ulp_wr_mem_offset(int dst_reg, int src_reg, int addr);
-INSTR_T esp32ulp_rd_mem_addr(int dst_reg, int src_reg, Expr_Node* addr);
-INSTR_T esp32ulp_rd_mem_offset(int dst_reg, int src_reg, int addr);
+INSTR_T esp32ulp_rd_mem_addr(int lh, int dst_reg, int src_reg, Expr_Node* addr);
 INSTR_T esp32ulp_cmd_halt(void);
 INSTR_T esp32ulp_cmd_sleep(Expr_Node*  cycles);
 INSTR_T esp32ulp_cmd_wakeup(Expr_Node*  wake);
 INSTR_T esp32ulp_cmd_wait(Expr_Node* cycles);
 INSTR_T esp32ulp_cmd_tsens(int dreg, Expr_Node* delay);
 INSTR_T esp32ulp_cmd_adc(int dreg,  Expr_Node* sar_sel, Expr_Node* mux);
-INSTR_T esp32ulp_gen_alu_r(int dst, int src1, int src2, int operation);
-INSTR_T esp32ulp_gen_alu_i(int dst, int src1, Expr_Node* imm, int operation);
+INSTR_T esp32ulp_gen_alur(int dst, int src1, int src2, int operation);
+INSTR_T esp32ulp_gen_alui(int dst, int src1, Expr_Node* imm, int operation);
 INSTR_T esp32ulp_cmd_stage(int dir, Expr_Node* imm);
 INSTR_T esp32ulp_cmd_stage_rst(void);
 INSTR_T esp32ulp_cmd_jump_relr(Expr_Node* step, Expr_Node* thresh, int cond);

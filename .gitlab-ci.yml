@@ -258,8 +258,19 @@ esp32_lin_test:
     PLATFORM_NAME: "linux-amd64"
     CONF_TARGET: "esp32ulp-elf"
     TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
-    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/check_all.sh"
-    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/compare"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32/compare"
+
+esp32_lin_test_s2:
+  <<: *test_template
+  dependencies:
+    - esp32_lin_amd64
+  variables:
+    PLATFORM_NAME: "linux-amd64"
+    CONF_TARGET: "esp32ulp-elf"
+    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32s2/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32s2/compare"
 
 esp32s2_lin_test:
   <<: *test_template
@@ -285,8 +296,24 @@ esp32_armel_test:
     PLATFORM_NAME: "linux-armel"
     CONF_TARGET: "esp32ulp-elf"
     TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
-    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/check_all.sh"
-    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/compare"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32/compare"
+
+esp32_armel_test_s2:
+  <<: *test_template
+  image: $CI_DOCKER_REGISTRY/rpi-esp-idf-env:1
+  tags:
+    - linux_arm
+  dependencies:
+    - esp32_lin_armel
+  variables:
+    # Just for size optimization on RPi
+    GIT_DEPTH: 5
+    PLATFORM_NAME: "linux-armel"
+    CONF_TARGET: "esp32ulp-elf"
+    TEST_PREFIX: "./esp32ulp-elf-binutils/bin/esp32ulp-elf-"
+    TEST_SCRIPT: "./gas/testsuite/gas/esp32ulp/esp32s2/check_all.sh"
+    TEST_CMP_DIR: "gas/testsuite/gas/esp32ulp/esp32s2/compare"
 
 esp32s2_armel_test:
   <<: *test_template

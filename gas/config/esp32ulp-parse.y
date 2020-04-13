@@ -30,11 +30,15 @@
 
 #define IS_IMM(expr, bits)  value_match (expr, bits, 0, 1, 1)
 #define IS_UIMM(expr, bits)  value_match (expr, bits, 0, 1, 0)
-#define PROGCTRL(prgfunc, poprnd) \
-	esp32ulp_gen_progctrl (prgfunc, poprnd)
 
-#define ALU_ADDR(dst, src1, src2)  \
-	esp32ulp_gen_alu_ADDR(dst.regno, src1.regno, src2.regno)
+/* Definitiaon of ULP CPU type. */
+extern int ulp_cpu_type;
+
+/* ============================================================*/
+/* Definitions of functions to process ULP assembler commands. */
+
+#define WAIT_NOP() \
+	esp32ulp_gen_wait()
 
 #define ALU_ADDI(dst, src1, imm)  \
 	esp32ulp_gen_alu_ADDI(dst.regno, src1.regno, imm)
@@ -43,9 +47,6 @@
 	esp32ulp_gen_jump_r(dst.regno, cond)
 #define JUMP_I(dst, cond)  \
 	esp32ulp_gen_jump_i(dst, cond)
-
-#define JUMP_RELR(dst, judge, tresh)  \
-	esp32ulp_gen_jump_relr(dst, judge, tresh)
 
 #define CMD_JUMPR(step, tresh, cond)  \
 	esp32ulp_cmd_jump_relr(step, tresh, cond)
@@ -57,13 +58,29 @@
 #define MOVE_E2R(dst, addr)  \
 	esp32ulp_move_addr2reg(dst.regno, addr)
 
+#define WR_MEM_ST32(dst, src, offset, label) \
+	esp32ulp_wr_mem_st32(dst.regno,  src.regno, offset, label)
+#define WR_MEM_STLR(lh, dst, src, offset)  \
+	esp32ulp_wr_mem_stlh(lh, dst.regno,  src.regno, offset)
+#define WR_MEM_STI32(dst, src, label) \
+	esp32ulp_wr_mem_sti32(dst.regno,  src.regno, label)
+#define WR_MEM_ST_L(lh, dst, src, offset, label)  \
+	esp32ulp_wr_mem_st_l(lh, dst.regno,  src.regno, offset, label)
+#define WR_MEM_STI_L(dst, src, label)  \
+	esp32ulp_wr_mem_sti_l(dst.regno,  src.regno, label)
+#define WR_MEM_STI(dst, src)  \
+	esp32ulp_wr_mem_sti(dst.regno,  src.regno)
+
+
+#define WR_MEM_STO(offset)  \
+	esp32ulp_wr_mem_sto(offset)
+// ----------------------------------------------
+
+
 #define WR_MEM_ADDR(dst, src, addr)  \
 	esp32ulp_wr_mem_addr(dst.regno,  src.regno, addr)
-#define WR_MEM_OFFSET(dst, src, addr)  \
-	esp32ulp_wr_mem_offset(dst.regno,  src.regno, addr)
-
-#define RD_MEM_ADDR(dst, src, addr)  \
-	esp32ulp_rd_mem_addr(dst.regno,  src.regno, addr)
+#define RD_MEM_ADDR(lh, dst, src, addr)  \
+	esp32ulp_rd_mem_addr(lh, dst.regno,  src.regno, addr)
 #define RD_MEM_OFFSET(dst, src, addr)  \
 	esp32ulp_rd_mem_offset(dst.regno,  src.regno, addr)
 
@@ -76,8 +93,6 @@
 	esp32ulp_cmd_i2c_rd(i2c_addr, high, low, i2c_sel)
 #define CMD_I2C_WR(i2c_addr, high, low, i2c_sel, data) \
 	esp32ulp_cmd_i2c_wr(i2c_addr, high, low, i2c_sel, data)
-
-
 
 #define CMD_HALT()  \
 	 esp32ulp_cmd_halt()
@@ -95,16 +110,30 @@
 	esp32ulp_cmd_adc(dreg.regno, sar_sel, mux)
 
 #define CMD_ALUR(dst, src1, src2, operation)  \
-	 esp32ulp_gen_alu_r(dst.regno,src1.regno,src2.regno, operation)
+	 esp32ulp_gen_alur(dst.regno,src1.regno,src2.regno, operation)
 #define CMD_ALUI(dst, src1, imm, operation)  \
-	 esp32ulp_gen_alu_i(dst.regno, src1.regno, imm, operation)
+	 esp32ulp_gen_alui(dst.regno, src1.regno, imm, operation)
 #define CMD_ALUI_DIR(dst, imm, operation)  \
-	 esp32ulp_gen_alu_i(dst.regno, 0, imm, operation)
+	 esp32ulp_gen_alui(dst.regno, 0, imm, operation)
 
 #define CMD_STAGE(dir, imm)  \
 		esp32ulp_cmd_stage(dir, imm)
 #define CMD_STAGE_RST()  \
 		esp32ulp_cmd_stage_rst()
+
+
+#define ALU_SEL_ADD 0           /*!< Addition */
+#define ALU_SEL_SUB 1           /*!< Subtraction */
+#define ALU_SEL_AND 2           /*!< Logical AND */
+#define ALU_SEL_OR  3           /*!< Logical OR */
+#define ALU_SEL_MOV 4           /*!< Copy value (immediate to destination register or source register to destination register */
+#define ALU_SEL_LSH 5           /*!< Shift left by given number of bits */
+#define ALU_SEL_RSH 6           /*!< Shift right by given number of bits */
+#define ALU_SEL_SINC  0
+#define ALU_SEL_SDEC  1
+#define ALU_SEL_SRST  2
+
+/* ==========================================================================*/
 
 static int value_match (Expr_Node *, int, int, int, int);
 
@@ -183,8 +212,16 @@ extern int yylex (void);
 %token OR
 %token MOVE
 
+%token ST32
+%token STO
+%token STI
+%token STI32
 %token ST
+%token STL
+%token STH
 %token LD
+%token LDL
+%token LDH
 %token HALT
 %token WAKE
 %token SLEEP
@@ -265,9 +302,7 @@ extern int yylex (void);
 %type <expr> expr_1
 %type <instr> asm_1
 
-%type <r0> searchmod
 %type <r0> branchmod
-%type <r0> branchrel
 %type <r0> branchrels
 
 %type <expr> symbol
@@ -319,7 +354,7 @@ asm: asm_1 SEMICOLON
 asm_1:
 
 /* DYA operation  */
-/*ALU operations*/
+/* Main ULP operations*/
 
 	| ADD REG COMMA REG COMMA REG
 	{
@@ -477,8 +512,6 @@ asm_1:
 		notethat ("STAGE_DEC \n");
 		$$ =  CMD_STAGE(ALU_SEL_SDEC, $2);
 	}	
-	
-	
 /*=================================================================================================*/
 	| JUMP REG
 	{
@@ -528,9 +561,23 @@ asm_1:
 			return yyerror ("Register mismatch");
 		}
 	}
-	| JUMPR expr COMMA expr COMMA branchrel
+	| JUMPR expr COMMA expr COMMA branchrels
 	{
-		if (IS_IMM ($2, 7) && IS_IMM ($4, 16))
+		if (CPU_TYPE_ESP32ULP == ulp_cpu_type)
+		{
+			if (!IS_IMM ($2, 7))
+			{
+				return yyerror ("Jump adress is out of range.");
+			}
+		}
+		if (CPU_TYPE_ESP32ULP_S2 == ulp_cpu_type)
+		{
+			if (!IS_IMM ($2, 8))
+			{
+				return yyerror ("Jump adress is out of range.");
+			}
+		}
+		if (IS_IMM ($4, 16))
 		{
 			notethat ("JUMPR : rel_addr, threshold, condition\n");
 			$$ =  CMD_JUMPR($2, $4, $6.r0);
@@ -552,16 +599,132 @@ asm_1:
 			return yyerror ("Jump adress is to far");
 		}
 	}
-	| ST REG COMMA REG COMMA expr
+	| ST32 REG COMMA REG COMMA expr COMMA expr
 	{
 		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
-			notethat ("ST : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
-			$$ =  WR_MEM_ADDR($2, $4, $6);
+			notethat ("ST32 : Rdst, Rsrs, offset, label; Mem [ Rsrc + offset ] = { PC[ 10 : 0 ], 3�b0, label[ 1 : 0 ], Rdst[ 15 : 0 ] }\n");
+			$$ =  WR_MEM_ST32($2, $4, $6, $8);
 		}
 		else
 		{
 			return yyerror ("Register mismatch");
+		}
+	}
+	| STI32 REG COMMA REG COMMA expr
+	{
+		if (IS_UIMM ($6, 2) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STI32 : Rdst, Rsrs, label (autoincrement offset); Mem [ Rsrc + offset ] = { PC[ 10 : 0 ], 3�b0, label[ 1 : 0 ], Rdst[ 15 : 0 ] }\n");
+			$$ =  WR_MEM_STI32($2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| ST REG COMMA REG COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			if (CPU_TYPE_ESP32ULP == ulp_cpu_type) 
+			{
+				notethat ("ST : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
+				$$ =  WR_MEM_ADDR($2, $4, $6);
+			}
+			if (CPU_TYPE_ESP32ULP_S2 == ulp_cpu_type) 
+			{
+				notethat ("STL : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
+				$$ =  WR_MEM_STLR(0, $2, $4, $6);
+			}
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STL REG COMMA REG COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STL : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
+			$$ =  WR_MEM_STLR(0, $2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STH REG COMMA REG COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STH : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
+			$$ =  WR_MEM_STLR(1, $2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STL REG COMMA REG COMMA expr COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STL : Rdst, Rsrs, offset,label;  Mem [ Rsrs + offset ] = { label[ 1 : 0 ], Rdst[ 13 : 0 ] } (depends on H/L bit)\n");
+			$$ =  WR_MEM_ST_L(0, $2, $4, $6, $8);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STH REG COMMA REG COMMA expr COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STH : Rdst, Rsrs, offset,label;  Mem [ Rsrs + offset ] = { label[ 1 : 0 ], Rdst[ 13 : 0 ] } (depends on H/L bit)\n");
+			$$ =  WR_MEM_ST_L(1, $2, $4, $6, $8);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STI REG COMMA REG COMMA expr
+	{
+		if (IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STI : Rdst, Rsrs,label;  Mem [ Rsrs + offset ] = { label[ 1 : 0 ], Rdst[ 13 : 0 ] } (depends on H/L bit)\n");
+			$$ =  WR_MEM_STI_L($2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STI REG COMMA REG
+	{
+		if (IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("STI : Rdst, Rsrs;  Mem [ Rsrs + offset ] = Rdst } (depends on H/L bit)\n");
+			$$ =  WR_MEM_STI($2, $4);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| STO expr
+	{
+		if (IS_UIMM ($2, 11))
+		{
+			notethat ("STO Offset;  Offset = value }\n");
+			$$ =  WR_MEM_STO($2);
+		}
+		else
+		{
+			return yyerror ("Offset mismatch");
 		}
 	}
 	| LD REG COMMA REG COMMA expr
@@ -569,7 +732,31 @@ asm_1:
 		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("LD : Rdst, Rsrs, offset, Rdst = MEM[Rsrc + offset]\n");
-			$$ =  RD_MEM_ADDR($2, $4, $6);
+			$$ =  RD_MEM_ADDR(0, $2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| LDL REG COMMA REG COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("LDL : Rdst, Rsrs, offset, Rdst = MEM[Rsrc + offset]\n");
+			$$ =  RD_MEM_ADDR(0, $2, $4, $6);
+		}
+		else
+		{
+			return yyerror ("Register mismatch");
+		}
+	}
+	| LDH REG COMMA REG COMMA expr
+	{
+		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		{
+			notethat ("LDH : Rdst, Rsrs, offset, Rdst = MEM[Rsrc + offset]\n");
+			$$ =  RD_MEM_ADDR(1, $2, $4, $6);
 		}
 		else
 		{
@@ -578,29 +765,29 @@ asm_1:
 	}
 	| NOP
 	{
-	  notethat ("ProgCtrl: NOP\n");
-	  $$ = PROGCTRL (0, 0);
+	  notethat ("Cmd: WAIT_NOP\n");
+	  $$ = WAIT_NOP ();
 	}	
 	| HALT
 	{
-	  notethat ("ProgCtrl: END\n");
+	  notethat ("Cmd: END\n");
 	  $$ = CMD_HALT ();
 	}	
 	| WAKE 
 	{
-	  notethat ("ProgCtrl: CMD_WAKEUP\n");
+	  notethat ("Cmd: CMD_WAKEUP\n");
 	  $$ = CMD_WAKEUP(NULL);
 	}	
 	| SLEEP expr
 	{
-	  notethat ("ProgCtrl: SLEEP\n");
+	  notethat ("Cmd: SLEEP\n");
 	  $$ = CMD_SLEEP($2);
 	}	
 	| TSENS REG COMMA expr
 	{
 		if (IS_DREG ($2))
 		{
-	        notethat ("ProgCtrl: TSENS\n");
+	        notethat ("Cmd: TSENS\n");
 			$$ =  CMD_TSENS($2, $4);
 		}
 		else
@@ -612,7 +799,7 @@ asm_1:
 	{
 		if (IS_DREG ($2))
 		{
-	        notethat ("ProgCtrl: ADC \n");
+	        notethat ("Cmd: ADC \n");
 			$$ =  CMD_ADC($2, $4, $6);
 		}
 		else
@@ -624,7 +811,7 @@ asm_1:
 	{
 		if (IS_DREG ($2))
 		{
-	        notethat ("ProgCtrl: ADC \n");
+	        notethat ("Cmd: ADC \n");
 			$$ =  CMD_ADC($2, $4, $6);
 		}
 		else
@@ -634,27 +821,27 @@ asm_1:
 	}	
 	| WAIT expr
 	{
-	  notethat ("ProgCtrl: WAIT  count\n");
+	  notethat ("Cmd: WAIT  count\n");
 	  $$ = CMD_WAIT($2);
 	}	
 	| REG_RD expr COMMA expr COMMA expr
 	{
-		notethat ("ProgCtrl: REG_RD addr, high, low, \n");
+		notethat ("Cmd: REG_RD addr, high, low, \n");
 	    $$ = CMD_REG_RD($2, $4, $6);
 	}
 	| REG_WR expr COMMA expr COMMA expr COMMA expr
 	{
-		notethat ("ProgCtrl: REG_WR  addr, high, low, value\n");
+		notethat ("Cmd: REG_WR  addr, high, low, value\n");
 	    $$ = CMD_REG_WR($2, $4, $6, $8);
 	}
 	| I2C_RD expr COMMA expr COMMA expr COMMA expr
 	{
-		notethat ("ProgCtrl: I2C_RD - i2c_addr, high, low, i2c_sel\n");
+		notethat ("Cmd: I2C_RD - i2c_addr, high, low, i2c_sel\n");
 	    $$ = CMD_I2C_RD($2, $4, $6, $8);
 	}
 	| I2C_WR expr COMMA expr COMMA expr COMMA expr COMMA expr
 	{
-		notethat ("ProgCtrl: I2C_WR - i2c_addr, value, high, low, i2c_sel\n");
+		notethat ("Cmd: I2C_WR - i2c_addr, value, high, low, i2c_sel\n");
 	    $$ = CMD_I2C_WR($2, $6, $8, $10, $4);
 	}
 	/* --------------------------------------------------------------------------------------------------*/
@@ -669,29 +856,6 @@ branchmod:
 	| OV
 	{
 	$$.r0 = 2;
-	}
-	;
-
-branchrel:
-    GE
-	{
-	$$.r0 = 1;
-	}
-	| LT
-	{
-	$$.r0 = 0;
-	}
-	| LE
-	{
-	$$.r0 = 2;
-	}
-	| EQ
-	{
-	$$.r0 = 3;
-	}
-	| GT
-	{
-	$$.r0 = 4;
 	}
 	;
 
@@ -717,34 +881,6 @@ branchrels:
 	$$.r0 = 1;
 	}
 	;
-
-searchmod:
-    GE
-	{
-	$$.r0 = 1;
-	}
-	| GT
-	{
-	$$.r0 = 2;
-	}
-	| LE
-	{
-	$$.r0 = 3;
-	}
-	| LT
-	{
-	$$.r0 = 4;
-	}
-	| OV
-	{
-	$$.r0 = 5;
-	}
-	| EQ
-	{
-	$$.r0 = 6;
-	}
-	;
-
 
 /* Expressions and Symbols.  */
 

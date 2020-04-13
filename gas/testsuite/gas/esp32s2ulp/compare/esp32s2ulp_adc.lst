@@ -28,3 +28,11 @@ ESP32S2ULP GAS  ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_adc.s 			page 1
   25              	
   26 0010 01000050 		ADC   R1, min_adc_sel2, min_adc_mux2, min_adc_cyc2
   27 0014 01000050 		ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
+  28              	
+  29              	
+  30              		.set  min_adc_sel2, 0 - 0  
+  31              		.set  max_adc_sel2, 1 + 0  
+  32              		.set  min_adc_mux2, 0 - 0  
+  33              		.set  max_adc_mux2, 15 + 0  
+  34              		.set  min_adc_cyc2, 0 - 0
+  35              		.set  max_adc_cyc2, 65535 + 0

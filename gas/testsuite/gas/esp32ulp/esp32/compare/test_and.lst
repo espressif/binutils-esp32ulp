@@ -1,0 +1,15 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32/test_and.s 			page 1
+
+
+   1              		.text
+   2              	    .set ttt, 4
+   3              	    
+   4              	    .set bit_mask, 0x8000 
+   5              	    
+   6              	
+   7              	start:
+   8 0000 08004872 	    and r0, r2, bit_mask
+   9 0004 00000040 	    nop
+  10 0008 00000040 	    nop
+  11 000c 00000040 	    nop
+  12              	

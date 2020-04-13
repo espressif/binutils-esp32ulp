@@ -86,4 +86,13 @@ extern unsigned int esp32ulp_anomaly_checks;
 #define AC_05000074 0x00000001
 #define ENABLE_AC_05000074 (esp32ulp_anomaly_checks & AC_05000074)
 
+/* Branch conditions for jump instructions */
+
+#define BRCOND_EQ 3 
+#define BRCOND_GT 4
+#define BRCOND_LE 2
+#define BRCOND_LT 0
+#define BRCOND_GE 1
+
+
 /* end of tc-esp32ulp.h */

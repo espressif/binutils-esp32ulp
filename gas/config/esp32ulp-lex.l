@@ -56,8 +56,16 @@ int yylex (void);
 [jJ][uU][mM][pP]                        { BEGIN 0; return JUMP;}
 [jJ][uU][mM][pP][rR]                    { BEGIN 0; return JUMPR;}
 [jJ][uU][mM][pP][sS]                    { BEGIN 0; return JUMPS;}
+[sS][tT][3][2]                          return ST32;
+[sS][tT][iI][3][2]                      return STI32;
+[sS][tT][oO]                            return STO;
+[sS][tT][iI]                            return STI;
 [sS][tT]                                return ST;
+[sS][tT][lL]                            return STL;
+[sS][tT][hH]                            return STH;
 [lL][dD]                                return LD;
+[lL][dD][lL]                            return LDL;
+[lL][dD][hH]                            return LDH;
 [hH][aA][lL][tT]                        return HALT;
 [wW][aA][kK][eE]                        return WAKE;
 [sS][lL][eE][eE][pP]                    return SLEEP;

@@ -1,0 +1,74 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_jumpr.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              	
+   4              	        .set  check_jump1, 0x10
+   5              	        .set  check_jump2, 0x10
+   6              	        .global check_jump2
+   7              	        
+   8              	        .set  check_thres1, 0x04
+   9              	        .set  check_thres2, 0x04
+  10              	        .global check_thres2
+  11              	        
+  12              	
+  13              	        .global __start
+  14              	__start:
+  15              	        
+  16 0002 0000     	        .text
+  17              	        .global jmp2         
+  18 0000 00000040 	        nop
+  19              	
+  20              	// Relative Jump
+  21 0004 04000480 		JUMPR 0x04, 0x4, LT
+  22 0008 04000480 		JUMPR 0x04, 0x4, LE
+  22      04000680 
+  23 0010 04000680 		JUMPR 0x04, 0x4, EQ
+  24 0014 04000580 		JUMPR 0x04, 0x4, GT
+  25 0018 04000580 		JUMPR 0x04, 0x4, GE
+  25      04000680 
+  26              	
+  27 0020 05001180 		jumpr Check1, 0x05, GE
+  27      05000E80 
+  28 0028 04000580 		jumpr 0x04, 0x04, GE
+  28      04000680 
+  29              	Check1:
+  30 0030 04000680 		JUMPR 0x04, 0x4, EQ
+  31 0034 00000040 	        nop
+  32 0038 00000040 	        nop
+  33 003c 04000480 		JUMPR 0x04, 0x4, LE
+  33      04000680 
+  34 0044 04003482 		JUMPR check_jump1, 0x4, LT
+  35 0048 04003A82 		JUMPR check_jump1, 0x4, EQ
+  36 004c 04003C82 		JUMPR check_jump1, 0x4, LE
+  36      04004282 
+  37 0054 04000480 		JUMPR 0x04, check_thres1, LE
+  37      04000680 
+  38              	check_jump3:
+  39 005c 04004C82 		JUMPR check_jump1, check_thres1, LE
+  39      04005282 
+  40 0064 04005482 		JUMPR check_jump2, check_thres1, LE	
+  40      04005A82 
+  41 006c 00005C82 		JUMPR check_jump2, check_thres2, LE	
+  41      00006282 
+  42 0074 00001982 		JUMPR check_jump3, check_thres2, GT	
+  43              	
+  44 0078 00001E82 		JUMPR check_jump3, check_thres2, EQ
+  45 007c 00001180 		jumpr Check2, check_thres2, GE
+  45      00000E80 
+  46 0084 00002982 		jumpr check_jump3, check_thres2, GE
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_jumpr.s 			page 2
+
+
+  46      00002E82 
+  47              	Check2:
+  48 008c 00000040 	        nop
+  49 0090 00000040 	        nop
+  50 0094 00000040 	        nop
+  51 0098 00000040 	        nop
+  52              	
+  53              	
+  54              	
+  55              	        
+  56              	    

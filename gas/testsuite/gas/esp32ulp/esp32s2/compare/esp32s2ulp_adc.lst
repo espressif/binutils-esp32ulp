@@ -1,0 +1,38 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_adc.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              		.set  min_adc_sel, 0 - 0  
+   4              		.set  max_adc_sel, 1 + 0  
+   5              		.set  min_adc_mux, 0 - 0  
+   6              		.set  max_adc_mux, 15 + 0  
+   7              		.set  min_adc_cyc, 0 - 0
+   8              		.set  max_adc_cyc, 65535 + 0
+   9              		.global  min_adc_sel2
+  10              		.global  max_adc_sel2
+  11              		.global  min_adc_mux2
+  12              		.global  max_adc_mux2
+  13              		.global  min_adc_cyc2
+  14              		.global  max_adc_cyc2
+  15              	    .global __start
+  16              	
+  17              	__start:
+  18              	        
+  19 0002 0000     	        .text                                   //Text section definition
+  20              	    	
+  21 0000 01000050 		ADC   R1, 0, 0, 0
+  22 0004 01000050 		ADC   R1, min_adc_sel, min_adc_mux, min_adc_cyc
+  23 0008 7D000050 		ADC   R1, 1, 15, 0xffff
+  24 000c 7D000050 		ADC   R1, max_adc_sel, max_adc_mux, max_adc_cyc
+  25              	
+  26 0010 01000050 		ADC   R1, min_adc_sel2, min_adc_mux2, min_adc_cyc2
+  27 0014 01000050 		ADC   R1, max_adc_sel2, max_adc_mux2, max_adc_cyc2
+  28              	
+  29              	
+  30              		.set  min_adc_sel2, 0 - 0  
+  31              		.set  max_adc_sel2, 1 + 0  
+  32              		.set  min_adc_mux2, 0 - 0  
+  33              		.set  max_adc_mux2, 15 + 0  
+  34              		.set  min_adc_cyc2, 0 - 0
+  35              		.set  max_adc_cyc2, 65535 + 0

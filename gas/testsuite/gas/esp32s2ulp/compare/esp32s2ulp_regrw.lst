@@ -44,8 +44,16 @@ ESP32S2ULP GAS  ./gas/testsuite/gas/esp32s2ulp/esp32s2ulp_regrw.s 			page 1
   41              		.global  max_reg_Low2
   42              		.global  min_reg_data2
   43              		.global  max_reg_data2
-  44              	
-  45 0020 00000020 		REG_RD  min_reg_Addr2, min_reg_High2, min_reg_Low2 	
-  46 0024 00000020 		REG_RD  max_reg_Addr2, max_reg_High2, max_reg_Low2 
-  47 0028 00000010 		REG_WR  min_reg_Addr2, min_reg_High2, min_reg_Low2, min_reg_data2
-  48 002c 00000010 		REG_WR  max_reg_Addr2, max_reg_High2, max_reg_Low2, max_reg_data2
+  44              	    .set  min_reg_Addr2, 0 - 0
+  45              	    .set  max_reg_Addr2, 0x3ff + 0
+  46              	    .set  min_reg_High2, 0 - 0
+  47              	    .set  max_reg_High2, 31 + 0
+  48              	    .set  min_reg_Low2, 0 - 0
+  49              	    .set  max_reg_Low2, 31 + 0
+  50              	    .set  min_reg_data2, 0 - 0
+  51              	    .set  max_reg_data2, 255 + 0
+  52              	
+  53 0020 00000020 		REG_RD  min_reg_Addr2, min_reg_High2, min_reg_Low2 	
+  54 0024 00000020 		REG_RD  max_reg_Addr2, max_reg_High2, max_reg_Low2 
+  55 0028 00000010 		REG_WR  min_reg_Addr2, min_reg_High2, min_reg_Low2, min_reg_data2
+  56 002c 00000010 		REG_WR  max_reg_Addr2, max_reg_High2, max_reg_Low2, max_reg_data2

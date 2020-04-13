@@ -503,7 +503,7 @@ static reloc_howto_type esp32s2ulp_howto_table[] =
 	HOWTO(R_ESP32S2ULP_REG_RW_HIGH,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	5,							/* bitsize.  */
+	6,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	23,							/* bitpos.  */
 	complain_overflow_unsigned,	/* complain_on_overflow.  */
@@ -517,7 +517,7 @@ static reloc_howto_type esp32s2ulp_howto_table[] =
 	HOWTO(R_ESP32S2ULP_REG_RW_LOW,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	5,							/* bitsize.  */
+	6,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	18,							/* bitpos.  */
 	complain_overflow_unsigned,	/* complain_on_overflow.  */

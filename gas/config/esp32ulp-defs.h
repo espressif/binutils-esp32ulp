@@ -236,5 +236,29 @@ extern "C" {
 }
 #endif
 
+
+long check_reg_range(fixS* fixP, long value);
+
+/* Flags to set in the elf header */
+#define DEFAULT_FLAGS 0
+
+#define INIT(t)  t c_code = init_##t
+#define ASSIGN(x) c_code.opcode |= ((x & c_code.mask_##x)<<c_code.bits_##x)
+#define ASSIGNF(x,f) c_code.opcode |= ((x & c_code.mask_##f)<<c_code.bits_##f)
+
+#define GEN_OPCODE32()  \
+	conscode (gencode (HI (c_code.opcode)), \
+	conscode (gencode (LO (c_code.opcode)), NULL_CODE))
+
+#define GEN_OPCODE16()  \
+	conscode (gencode (c_code.opcode), NULL_CODE)
+
+
+/*  32 BIT INSTRUCTIONS.  */
+#define GEN_OPCODE32_DYA(opcode)  \
+	conscode (gencode (opcode), NULL_CODE)
+
+INSTR_T Expr_Node_Gen_Reloc_R(Expr_Node * head);
+
 #endif  /* ESP32ULP_PARSE_H */
 

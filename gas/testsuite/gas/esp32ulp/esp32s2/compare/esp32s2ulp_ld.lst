@@ -1,0 +1,25 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_ld.s 			page 1
+
+
+   1              	
+   2              	        .data                                   //Data section definition
+   3 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   4              	        .set      offs, 0x20                    // Define constant offs
+   5              	
+   6              	        .set      offs2, 0x20                    // Define constant offs
+   7              	        .global   offs2
+   8              	
+   9              	
+  10              	        .global __start
+  11              	__start:
+  12              	        
+  13 0002 0000     	        .text                                   //Text section definition
+  14 0000 092000D0 	        LD       R1, R2, 0x20                  
+  15 0004 092000D0 	        LD       R1, R2, offs                   
+  16 0008 090000D0 	        LD       R1, R2, offs2                   
+  17 000c 092000D0 	        LDL       R1, R2, 0x20                  
+  18 0010 092000D0 	        LDL       R1, R2, offs                   
+  19 0014 090000D0 	        LDL       R1, R2, offs2                   
+  20 0018 092000D8 	        LDH       R1, R2, 0x20                  
+  21 001c 092000D8 	        LDH       R1, R2, offs                   
+  22 0020 090000D8 	        LDH       R1, R2, offs2                   

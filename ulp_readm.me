@@ -1,0 +1,13 @@
+The main idea, that assembler is always the same.
+All ULP cores have one esp32ulp-parse.y file that must be updated if new commands added.
+This file will be converted to the *.c file and will be linkedd to the project.
+For each assembler command in common tc-esp32ulp_common.c file the processing function (command function) will be called.
+Inside of the command function the switch have to shoose the target core.
+
+To include new ULP core to the binutils, please follow the next steps:
+
+1. In file tc-esp32ulp in md_parse_option() define your ULP version.
+2. Add new instructions into esp32ulp-parse.y and esp32ulp-lex.l files.
+3. Add new files with instructions processing into the project in the same way as tc-esp32ulp_esp32.c (just search text tc-esp32ulp_esp32.).
+4. Add mew command processing into the elf32-esp32ulp.c and not forget to increase ESP32ULP_RELOC_MAX
+...

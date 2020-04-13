@@ -1,0 +1,24 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_wait.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              	        .set min_wait1, 0
+   4              	        .set max_wait1, 0xffff
+   5              	
+   6              	        .set min_wait2, 0x00
+   7              	        .set max_wait2, 0xffff
+   8              	        .global min_wait2
+   9              	        .global max_wait2
+  10              	
+  11              	        .global __start
+  12              	__start:
+  13              	        
+  14 0002 0000     	        .text                                   //Text section definition
+  15              	    
+  16 0000 00000040 	        WAIT  0
+  17 0004 FFFF0040 	        WAIT  0xffff
+  18 0008 00000040 	        WAIT  min_wait1
+  19 000c FFFF0040 	        WAIT  max_wait1
+  20 0010 00000040 	        WAIT  min_wait2
+  21 0014 00000040 	        WAIT  max_wait2

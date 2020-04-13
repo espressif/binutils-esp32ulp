@@ -1,0 +1,55 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_alu.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              	
+   4              	        .global __start
+   5              	__start:
+   6              	        
+   7 0002 0000     	        .text                                   //Text section definition    	
+   8              	// Register operations - relative operations
+   9 0000 39000070 	        Add R1, R2, R3
+  10 0004 39002070 	        Sub R1, R2, R3
+  11 0008 39004070 	        And R1, R2, R3
+  12 000c 39006070 	        Or  R1, R2, R3
+  13 0010 3900C070 	        RSH R1, R2, R3
+  14 0014 3900A070 	        LSH R1, R2, R3
+  15 0018 29008070 	        MOVE R1, R2
+  16              	
+  17              	        .set   im_data_d, 0xff
+  18              	        .set   im_data_r, 0xff
+  19              	        .global im_data_r
+  20              	
+  21 001c F90F0074 	        Add R1, R2, 0xff
+  22 0020 F90F0074 	        Add R1, R2, im_data_d
+  23 0024 09000074 	        Add R1, R2, im_data_r
+  24 0028 F90F2074 	        Sub R1, R2, 0xff
+  25 002c F90F2074 	        Sub R1, R2, im_data_d
+  26 0030 09002074 	        Sub R1, R2, im_data_r
+  27 0034 F90F4074 	        And R1, R2, 0xff
+  28 0038 F90F4074 	        And R1, R2, im_data_d
+  29 003c 09004074 	        And R1, R2, im_data_r
+  30 0040 F90F6074 	        Or R1, R2, 0xff
+  31 0044 F90F6074 	        Or R1, R2, im_data_d
+  32 0048 09006074 	        Or R1, R2, im_data_r
+  33 004c F90FC074 	        RSH R1, R2, 0xff
+  34 0050 F90FC074 	        RSH R1, R2, im_data_d
+  35 0054 0900C074 	        RSH R1, R2, im_data_r
+  36 0058 F90FA074 	        LSH R1, R2, 0xff
+  37 005c F90FA074 	        LSH R1, R2, im_data_d
+  38 0060 0900A074 	        LSH R1, R2, im_data_r
+  39 0064 F10F8074 	        MOVE R1, 0xff
+  40 0068 F10F8074 	        MOVE R1, im_data_d
+  41 006c 01008074 	        MOVE R1, im_data_r
+  42              	
+  43 0070 00004078 	        STAGE_RST
+  44 0074 F00F0078 	        STAGE_INC   0xff
+  45 0078 F00F0078 	        STAGE_INC   im_data_d
+  46 007c 00000078 	        STAGE_INC   im_data_r
+  47 0080 F00F2078 	        STAGE_DEC   0xff
+  48 0084 F00F2078 	        STAGE_DEC   im_data_d
+  49 0088 00002078 	        STAGE_DEC   im_data_r
+  50              	
+  51              	
+  52              	

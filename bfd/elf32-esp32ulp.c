@@ -180,6 +180,83 @@ static bfd_reloc_status_type esp32ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_e
 	return bfd_reloc_ok;
 }
 
+static bfd_reloc_status_type esp32s2ulp_jumprelr_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
+{
+	bfd_vma relocation;
+	bfd_size_type addr = reloc_entry->address;
+	bfd_vma output_base = 0;
+	asection *output_section;
+	bfd_boolean relocatable = (output_bfd != NULL);
+
+	//DEBUG_TRACE("dya_pass esp32s2ulp_jumprelr_reloc: relocatable=%i\n", (int)relocatable);
+
+	/* Is the address of the relocation really within the section?  */
+	if (reloc_entry->address > bfd_get_section_limit(abfd, input_section))
+		return bfd_reloc_outofrange;
+
+	if (bfd_is_und_section(symbol->section)
+		&& (symbol->flags & BSF_WEAK) == 0
+		&& !relocatable)
+		return bfd_reloc_undefined;
+
+	output_section = symbol->section->output_section;
+	relocation = symbol->value;
+	/* Convert input-section-relative symbol value to absolute.  */
+	if (relocatable)
+		output_base = 0;
+	else
+		output_base = output_section->vma;
+
+	if ((symbol->name
+		&& symbol->section->name
+		&& !strcmp(symbol->name, symbol->section->name))
+		|| !relocatable)
+	{
+		relocation += output_base + symbol->section->output_offset;
+	}
+
+	relocation += reloc_entry->addend;
+
+	if (relocatable)
+	{
+		/* This output will be relocatable ... like ld -r. */
+		reloc_entry->address += input_section->output_offset;
+		reloc_entry->addend += symbol->section->output_offset;
+		//DEBUG_TRACE("dya_pass esp32s2ulp_jumprelr_reloc: address=%08x, addend=%08x, symbol->value=%08x\n", (int)reloc_entry->address, (int)reloc_entry->addend, (int)symbol->value);
+	}
+	else
+	{
+		reloc_entry->addend = 0;
+	}
+
+	/* Here the variable relocation holds the final address of the
+	symbol we are relocating against, plus any addend.  */
+	unsigned int ddd = 0;
+	memcpy(&ddd, (unsigned char *)data + addr, 4);
+	relocation -= reloc_entry->address;
+	//DEBUG_TRACE("dya_pass esp32s2ulp_jumprelr_reloc: relocation=%08x, ddd=%08x\n", (unsigned int)relocation, ddd);
+	ddd &= ~(0x000000ff < 18);
+	int reloc = (int)relocation;
+	reloc = reloc >> 2;
+	//printf("relock=%i \n",reloc);
+	if ((reloc > 0x7f) || (reloc < -0x7f))
+	{
+		return bfd_reloc_outofrange;
+	}
+	if (reloc >= 0)
+	{
+		ddd |= ((reloc & 0x7f) << 18);
+	}
+	else
+	{
+		reloc = -reloc;
+		ddd |= ((reloc & 0x7f) << 18) | (0x01 << 25);
+	}
+	memcpy((unsigned char *)data + addr, &ddd, 4);
+	//DEBUG_TRACE("dya_pass esp32s2ulp_jumprelr_reloc: final = reloc=%08x, ddd=%08x\n", (unsigned int)reloc, ddd);
+	return bfd_reloc_ok;
+}
+
 static bfd_reloc_status_type esp32ulp_bfd_reloc(bfd *abfd, arelent *reloc_entry, asymbol *symbol, void * data, asection *input_section, bfd *output_bfd, char **error_message ATTRIBUTE_UNUSED)
 {
 	bfd_vma relocation;
@@ -297,7 +374,7 @@ static bfd_reloc_status_type esp32ulp_bfd_reloc(bfd *abfd, arelent *reloc_entry,
  */
 
 #define ESP32ULP_RELOC_MIN 0
-#define ESP32ULP_RELOC_MAX 0x21
+#define ESP32ULP_RELOC_MAX 56
 #define ESP32ULP_GNUEXT_RELOC_MIN 0x40
 #define ESP32ULP_GNUEXT_RELOC_MAX 0x43
 #define ESP32ULP_ARELOC_MIN 0xE0
@@ -583,7 +660,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_REG_RW_HIGH,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	5,							/* bitsize.  */
+	6,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	23,							/* bitpos.  */
 	complain_overflow_unsigned,	/* complain_on_overflow.  */
@@ -597,7 +674,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32ULP_REG_RW_LOW,	/* type.  */
 	0,							/* rightshift.  */
 	2,							/* size (0 = byte, 1 = short, 2 = long).  */
-	5,							/* bitsize.  */
+	6,							/* bitsize.  */
 	FALSE,						/* pc_relative.  */
 	18,							/* bitpos.  */
 	complain_overflow_unsigned,	/* complain_on_overflow.  */
@@ -705,6 +782,392 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	(0xf << 22),				/* src_mask.  */ // dya-pass - 0
 	(0xf << 22),				/* dst_mask.  */
 	FALSE),						/* pcrel_offset.  */
+// ================ Esp32s2 ===============
+
+	HOWTO(R_ESP32S2ULP_RIMM16,		/* type.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	11,								/* bitsize.  */
+	FALSE,							/* pc_relative.  */
+	2,								/* bitpos.  */
+	complain_overflow_unsigned,		/* complain_on_overflow.  */
+	NULL,			/* special_function.  */
+	"R_ESP32S2ULP_RIMM16",			/* name.  */
+	FALSE,							/* partial_inplace.  */
+	0x00001FFC,						/* src_mask.  */ // dya-pass - 0
+	0x00001FFC,						/* dst_mask.  */
+	FALSE),							/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_JUMPR,			/* type.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	8,								/* bitsize.  */
+	TRUE,							/* pc_relative.  */
+	18,								/* bitpos.  */
+	complain_overflow_signed,		/* complain_on_overflow.  */
+	esp32s2ulp_jumprelr_reloc,		/* special_function.  */
+	"R_ESP32S2ULP_JUMPR",				/* name.  */
+	FALSE,							/* partial_inplace.  */
+	(0xff << 18),					/* src_mask.  */
+	(0xff << 18),					/* dst_mask.  */
+	TRUE),							/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_LOAD16,		/* type.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	11,								/* bitsize.  */
+	FALSE,							/* pc_relative.  */
+	2,								/* bitpos.  */
+	complain_overflow_unsigned,		/* complain_on_overflow.  */
+	NULL,			/* special_function.  */
+	"R_ESP32S2ULP_LOAD16",			/* name.  */
+	FALSE,							/* partial_inplace.  */
+	0x00001FFC,						/* src_mask.  */ // dya-pass - 0
+	0x00001FFC,						/* dst_mask.  */
+	FALSE),							/* pcrel_offset.  */
+	
+	HOWTO(R_ESP32S2ULP_WR_MEM,		/* type.  */
+	0,			                    /* rightshift.  */
+	2,			                    /* size (0 = byte, 1 = short, 2 = long).  */
+	16,			                    /* bitsize.  */
+	FALSE,			                /* pc_relative.  */
+	8,			                    /* bitpos.  */
+	complain_overflow_unsigned,     /* complain_on_overflow.  */
+	NULL,		                    /* special_function.  */
+	"R_ESP32S2ULP_WR_MEM",	        /* name.  */
+	FALSE,			                /* partial_inplace.  */
+	(0x7ff << 10),				    /* src_mask.  */ // dya-pass - 0
+	(0x7ff << 10),		            /* dst_mask.  */
+	FALSE),			                /* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_ALUI,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	16,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	4,			/* bitpos.  */
+	complain_overflow_signed, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_ALUI",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x00ffff << 4),	/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 4),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_WAIT,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	16,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	0,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_WAIT",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x00ffff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 0),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_TSENS_CYCLE,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	12,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	16,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_TSENS_CYCLE",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0xfff << 16),				/* src_mask.  */ // dya-pass - 0
+	(0xfff << 16),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_TSENS_DELAY,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	14,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	2,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_TSENS_DELAY",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x3fff << 2),				/* src_mask.  */ // dya-pass - 0
+	(0x3fff << 2),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_ADC_CYCLE,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	16,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	8,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_ADC_CYCLE",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x00ffff << 8),				/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 8),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_ADC_SEL,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	1,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	6,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_ADC_SEL",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x1 << 6),				/* src_mask.  */ // dya-pass - 0
+	(0x1 << 6),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_ADC_MUX,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	4,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	2,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_ADC_MUX",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x0f << 2),				/* src_mask.  */ // dya-pass - 0
+	(0x0f << 2),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_WAKE,		/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	1,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	0,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_WAKE",			/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x1 << 0),							/* src_mask.  */ // dya-pass - 0
+	(0x1 << 0),					/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_SLEEP,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	16,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	0,			/* bitpos.  */
+	complain_overflow_unsigned, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_SLEEP",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0xffff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0xffff << 0),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_STAGE,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	16,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	4,			/* bitpos.  */
+	complain_overflow_signed, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_STAGE",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x00ff << 4),				/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 4),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_JUMPR_STEP,	/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	8,			/* bitsize.  */
+	TRUE,			/* pc_relative.  */
+	18,			/* bitpos.  */
+	complain_overflow_signed, /* complain_on_overflow.  */
+	esp32s2ulp_jumprelr_reloc,	/* special_function.  */
+	"R_ESP32S2ULP_JUMPR_STEP",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x00ff << 18),			  /* src_mask.  */
+	(0x00ff << 18),		/* dst_mask.  */
+	TRUE),			/* pcrel_offset.  */
+
+
+	HOWTO(R_ESP32S2ULP_JUMPR_THRESH,		/* type.  */
+	0,			/* rightshift.  */
+	2,			/* size (0 = byte, 1 = short, 2 = long).  */
+	16,			/* bitsize.  */
+	FALSE,			/* pc_relative.  */
+	0,			/* bitpos.  */
+	complain_overflow_signed, /* complain_on_overflow.  */
+	NULL,		/* special_function.  */
+	"R_ESP32S2ULP_JUMPR_THRESH",	/* name.  */
+	FALSE,			/* partial_inplace.  */
+	(0x00ffff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0x00ffff << 0),		/* dst_mask.  */
+	FALSE),			/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_JUMPS_THRESH,		/* type.  */
+	0,									/* rightshift.  */
+	2,									/* size (0 = byte, 1 = short, 2 = long).  */
+	8,									/* bitsize.  */
+	FALSE,								/* pc_relative.  */
+	0,									/* bitpos.  */
+	complain_overflow_signed,			/* complain_on_overflow.  */
+	NULL,								/* special_function.  */
+	"R_ESP32S2ULP_JUMPS_THRESH",			/* name.  */
+	FALSE,								/* partial_inplace.  */
+	(0x00ff << 0),									/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 0),						/* dst_mask.  */
+	FALSE),								/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_REG_RW_HIGH,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	6,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	23,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_REG_RW_HIGH",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x3f << 23),							/* src_mask.  */ // dya-pass - 0
+	(0x3f << 23),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_REG_RW_LOW,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	6,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	18,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_REG_RW_LOW",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x3f << 18),				/* src_mask.  */ // dya-pass - 0
+	(0x3f << 18),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_REG_RW_ADDR,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	10,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	0,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_REG_RW_ADDR",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x3ff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0x3ff << 0),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_REG_RW_DATA,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	8,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	10,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_REG_RW_DATA",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x00ff << 10),				/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 10),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_I2C_RW_HIGH,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	16,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	19,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_I2C_RW_HIGH",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x7 << 19),				/* src_mask.  */ // dya-pass - 0
+	(0x7 << 19),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_I2C_RW_LOW,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	16,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	16,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_I2C_RW_LOW",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x7 << 16),				/* src_mask.  */ // dya-pass - 0
+	(0x7 << 16),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_I2C_RW_ADDR,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	8,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	0,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_I2C_RW_ADDR",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0xff << 0),				/* src_mask.  */ // dya-pass - 0
+	(0xff << 0),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_I2C_RW_DATA,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	16,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	8,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_I2C_RW_DATA",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0x00ff << 8),				/* src_mask.  */ // dya-pass - 0
+	(0x00ff << 8),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_I2C_RW_SEL,	/* type.  */
+	0,							/* rightshift.  */
+	2,							/* size (0 = byte, 1 = short, 2 = long).  */
+	16,							/* bitsize.  */
+	FALSE,						/* pc_relative.  */
+	22,							/* bitpos.  */
+	complain_overflow_unsigned,	/* complain_on_overflow.  */
+	NULL,						/* special_function.  */
+	"R_ESP32S2ULP_I2C_RW_SEL",		/* name.  */
+	FALSE,						/* partial_inplace.  */
+	(0xf << 22),				/* src_mask.  */ // dya-pass - 0
+	(0xf << 22),				/* dst_mask.  */
+	FALSE),						/* pcrel_offset.  */
+
+	HOWTO(R_ESP32S2ULP_WR_MEM_LABEL,/* type.  */
+	0,			                    /* rightshift.  */
+	2,			                    /* size (0 = byte, 1 = short, 2 = long).  */
+	2,			                    /* bitsize.  */
+	FALSE,			                /* pc_relative.  */
+	4,			                    /* bitpos.  */
+	complain_overflow_unsigned,     /* complain_on_overflow.  */
+	NULL,		                    /* special_function.  */
+	"R_ESP32S2ULP_WR_MEM_LABEL",	/* name.  */
+	FALSE,			                /* partial_inplace.  */
+	(0x3 << 4),                     /* src_mask.  */ // dya-pass - 0
+	(0x3 << 4),	                    /* dst_mask.  */
+	FALSE),			                /* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_RESERVE,	/* type.  */
 	0,			/* rightshift.  */
@@ -824,6 +1287,41 @@ static const struct esp32ulp_reloc_map esp32ulp_reloc_map[] =
 	{ BFD_RELOC_ESP32ULP_I2C_RW_DATA, R_ESP32ULP_I2C_RW_DATA },
 	{ BFD_RELOC_ESP32ULP_I2C_RW_SEL, R_ESP32ULP_I2C_RW_SEL },
 
+//S2
+	{ BFD_RELOC_ESP32S2ULP_16_IMM, R_ESP32S2ULP_RIMM16 },
+	{ BFD_RELOC_ESP32S2ULP_JUMPR, R_ESP32S2ULP_JUMPR },
+	{ BFD_RELOC_ESP32S2ULP_16_LOAD, R_ESP32S2ULP_LOAD16 },
+	{ BFD_RELOC_ESP32S2ULP_WR_MEM, R_ESP32S2ULP_WR_MEM },
+	{ BFD_RELOC_ESP32S2ULP_ALUI, R_ESP32S2ULP_ALUI },
+	{ BFD_RELOC_ESP32S2ULP_WAIT, R_ESP32S2ULP_WAIT },
+	{ BFD_RELOC_ESP32S2ULP_TSENS_CYCLE, R_ESP32S2ULP_TSENS_CYCLE },
+	{ BFD_RELOC_ESP32S2ULP_TSENS_DELAY, R_ESP32S2ULP_TSENS_DELAY },
+
+	{ BFD_RELOC_ESP32S2ULP_ADC_CYCLE, R_ESP32S2ULP_ADC_CYCLE },
+	{ BFD_RELOC_ESP32S2ULP_ADC_SEL, R_ESP32S2ULP_ADC_SEL },
+	{ BFD_RELOC_ESP32S2ULP_ADC_MUX, R_ESP32S2ULP_ADC_MUX },
+	{ BFD_RELOC_ESP32S2ULP_WAKE, R_ESP32S2ULP_WAKE },
+	{ BFD_RELOC_ESP32S2ULP_SLEEP, R_ESP32S2ULP_SLEEP },
+
+	{ BFD_RELOC_ESP32S2ULP_STAGE, R_ESP32S2ULP_STAGE },
+
+	{ BFD_RELOC_ESP32S2ULP_JUMPR_STEP, R_ESP32S2ULP_JUMPR_STEP },
+	{ BFD_RELOC_ESP32S2ULP_JUMPR_THRESH, R_ESP32S2ULP_JUMPR_THRESH },
+	{ BFD_RELOC_ESP32S2ULP_JUMPS_THRESH, R_ESP32S2ULP_JUMPS_THRESH },
+
+	{ BFD_RELOC_ESP32S2ULP_REG_RW_HIGH, R_ESP32S2ULP_REG_RW_HIGH },
+	{ BFD_RELOC_ESP32S2ULP_REG_RW_LOW, R_ESP32S2ULP_REG_RW_LOW },
+	{ BFD_RELOC_ESP32S2ULP_REG_RW_ADDR, R_ESP32S2ULP_REG_RW_ADDR },
+	{ BFD_RELOC_ESP32S2ULP_REG_RW_DATA, R_ESP32S2ULP_REG_RW_DATA },
+
+	{ BFD_RELOC_ESP32S2ULP_I2C_RW_HIGH, R_ESP32S2ULP_I2C_RW_HIGH },
+	{ BFD_RELOC_ESP32S2ULP_I2C_RW_LOW, R_ESP32S2ULP_I2C_RW_LOW },
+	{ BFD_RELOC_ESP32S2ULP_I2C_RW_ADDR, R_ESP32S2ULP_I2C_RW_ADDR },
+	{ BFD_RELOC_ESP32S2ULP_I2C_RW_DATA, R_ESP32S2ULP_I2C_RW_DATA },
+	{ BFD_RELOC_ESP32S2ULP_I2C_RW_SEL, R_ESP32S2ULP_I2C_RW_SEL },
+
+	{ BFD_RELOC_ESP32S2ULP_WR_MEM_LABEL, R_ESP32S2ULP_WR_MEM_LABEL },
+
 	{ BFD_RELOC_ESP32ULP_RESERVE, R_ESP32ULP_RESERVE },
 
 	{ BFD_RELOC_ESP32ULP_GOT, R_ESP32ULP_GOT },
@@ -840,6 +1338,7 @@ arelent *cache_ptr,
 Elf_Internal_Rela *dst)
 {
 	unsigned int r_type;
+	printf("esp32ulp_info_to_howto enter \n");
 
 	r_type = ELF32_R_TYPE(dst->r_info);
 
@@ -861,10 +1360,12 @@ bfd_reloc_code_real_type code)
 	unsigned int i;
 	unsigned int r_type = (unsigned int)-1;
 
+
 	for (i = sizeof(esp32ulp_reloc_map) / sizeof(esp32ulp_reloc_map[0]); i--;)
 		if (esp32ulp_reloc_map[i].bfd_reloc_val == code)
 			r_type = esp32ulp_reloc_map[i].esp32ulp_reloc_val;
 
+	//printf("esp32ulp_bfd_reloc_type_lookup enter r_type=0x%8.8x\n", r_type);
 	if (r_type <= ESP32ULP_RELOC_MAX)
 		return &esp32ulp_howto_table[r_type];
 
@@ -879,6 +1380,8 @@ esp32ulp_bfd_reloc_name_lookup(bfd *abfd ATTRIBUTE_UNUSED,
 const char *r_name)
 {
 	unsigned int i;
+
+	//printf("esp32ulp_bfd_reloc_name_lookup enter \n");
 
 	for (i = 0;
 		i < (sizeof(esp32ulp_howto_table)
@@ -1144,6 +1647,52 @@ bfd_vma value, bfd_vma addend)
 		//DEBUG_TRACE("dya_pass - esp32ulp_final_link_relocate: ddd=%08x, value=%08x, addr=%08x\n", ddd, (int)value, (int)address);
 		return r;
 	}
+	if ((r_type == R_ESP32S2ULP_JUMPR) || (r_type == R_ESP32S2ULP_JUMPR_STEP))
+	{
+		bfd_reloc_status_type r = bfd_reloc_ok;
+
+		if (address > bfd_get_section_limit(input_bfd, input_section))
+			return bfd_reloc_outofrange;
+
+		value = value << 2;
+		//printf("intput value = %i, ", (int)value);
+		value += addend;
+
+		/* Perform usual pc-relative correction.  */
+		value -= input_section->output_section->vma + input_section->output_offset;
+		value -= address;
+		
+		Elf_Internal_Shdr * symtab_hdr = &elf_tdata(input_bfd)->symtab_hdr;
+
+		unsigned long r_symndx = ELF32_R_SYM(rel->r_info);
+
+		unsigned int ddd = 0;
+		memcpy(&ddd, contents + address, 4);
+		ddd &= ~(0xff << 18);
+		int compare = (int)value;
+		compare = compare >> 2;
+		//printf("final reloc, compare=%i, value=%i, addend=%i, address=%i, vma=%i, flags=%08x, r_symndx=%08x, symtab_hdr->sh_info=%08x\n", compare, (unsigned int)value, (unsigned int)addend, (unsigned int)address, (unsigned int)input_section->output_section->vma, (unsigned int)input_section->flags, (unsigned int)r_symndx, (unsigned int)symtab_hdr->sh_info);
+		if (r_symndx >= symtab_hdr->sh_info) // Apply only for global symbols
+		{
+			if ((compare > 127) || (compare < -128))
+			{
+				return bfd_reloc_outofrange;
+			}
+//            ddd |= ((compare & 0x000000ff) << 18);
+			if ((compare) >= 0)
+			{
+				ddd |= ((compare & 0x0000007f) << 18);
+			}
+			else
+			{
+				compare = -compare;
+				ddd |= ((compare & 0x0000007f) << 18) | (1 << 25);
+			}
+			memcpy(contents + address, &ddd, 4);
+		}
+		//DEBUG_TRACE("dya_pass - esp32s2ulp_final_link_relocate: ddd=%08x, value=%08x, addr=%08x\n", ddd, (int)value, (int)address);
+		return r;
+	}
 
 	return _bfd_final_link_relocate(howto, input_bfd, input_section, contents,
 		rel->r_offset, value, addend);
@@ -1223,8 +1772,6 @@ bfd_vma value, bfd_vma addend)
 
 
 
-
-
 static bfd_boolean
 esp32ulp_relocate_section(bfd * output_bfd,
 struct bfd_link_info *info,
@@ -1253,7 +1800,7 @@ struct bfd_link_info *info,
 
 	rel = relocs;
 	relend = relocs + input_section->reloc_count;
-	//DEBUG_TRACE("dya_pass - esp32ulp_relocate_section\n");
+	// DEBUG_TRACE("dya_pass - esp32ulp_relocate_section\n");
 	for (; rel < relend; rel++, i++)
 	{
 		int r_type;
@@ -1440,7 +1987,7 @@ struct bfd_link_info *info,
 
 		default:
 		do_default :
-				//DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
+				// DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate rel->r_addend=%i\n", (int)rel->r_addend);
 //				old_reloc = (unsigned int)relocation;
 				if (section_flags != 0) relocation = relocation >> 2;
 //				printf("relocation - 999 = %08x, old_reloc = %08x, input_section->flags = %08x, section name = %s\n", (unsigned int)relocation, (unsigned int)old_reloc, section_flags, input_section->name);
@@ -1448,7 +1995,8 @@ struct bfd_link_info *info,
 				   r = esp32ulp_final_link_relocate(rel, howto, input_bfd, input_section,
 					   contents, address,
 					   relocation, rel->r_addend);
-
+					// DEBUG_TRACE("dya_pass esp32ulp_final_link_relocate r = %i\n", (int)r);
+					
 				   break;
 		}
 

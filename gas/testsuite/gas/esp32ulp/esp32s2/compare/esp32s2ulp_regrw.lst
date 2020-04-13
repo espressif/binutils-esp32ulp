@@ -1,0 +1,59 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_regrw.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              	        .set      offs, 0x20                    // Define constant offs
+   4              	        .set      lab1, 0x01                    // Define constant offs
+   5              	
+   6              	        .set      offs2, 0x20                    // Define constant offs
+   7              	        .set      lab2,  0x1                    // Define constant offs
+   8              	        .global   lab2
+   9              	        .global   offs2
+  10              	
+  11              	
+  12              	        .global __start
+  13              	__start:
+  14              	        
+  15 0002 0000     	        .text                                   //Text section definition
+  16              	    
+  17              	    .set  min_reg_Addr, 0 - 0
+  18              	    .set  max_reg_Addr, 0x3ff + 0
+  19              	    .set  min_reg_High, 0 - 0
+  20              	    .set  max_reg_High, 31 + 0
+  21              	    .set  min_reg_Low, 0 - 0
+  22              	    .set  max_reg_Low, 31 + 0
+  23              	    .set  min_reg_data, 0 - 0
+  24              	    .set  max_reg_data, 255 + 0
+  25              	
+  26 0000 00000020 		REG_RD  0, 0, 0 	
+  27 0004 FF03FC2F 		REG_RD  0x3ff, 31, 31 	
+  28 0008 00000010 		REG_WR  0, 0, 0, 0 	
+  29 000c FFFFFF1F 		REG_WR  0x3ff, 31, 31, 255 	
+  30              	
+  31 0010 00000020 		REG_RD  min_reg_Addr, min_reg_High, min_reg_Low 	
+  32 0014 FF03FC2F 		REG_RD  max_reg_Addr, max_reg_High, max_reg_Low
+  33 0018 00000010 		REG_WR  min_reg_Addr, min_reg_High, min_reg_Low, min_reg_data
+  34 001c FFFFFF1F 		REG_WR  max_reg_Addr, max_reg_High, max_reg_Low, max_reg_data
+  35              	
+  36              		.global  min_reg_Addr2
+  37              		.global  max_reg_Addr2
+  38              		.global  min_reg_High2
+  39              		.global  max_reg_High2
+  40              		.global  min_reg_Low2
+  41              		.global  max_reg_Low2
+  42              		.global  min_reg_data2
+  43              		.global  max_reg_data2
+  44              	    .set  min_reg_Addr2, 0 - 0
+  45              	    .set  max_reg_Addr2, 0x3ff + 0
+  46              	    .set  min_reg_High2, 0 - 0
+  47              	    .set  max_reg_High2, 31 + 0
+  48              	    .set  min_reg_Low2, 0 - 0
+  49              	    .set  max_reg_Low2, 31 + 0
+  50              	    .set  min_reg_data2, 0 - 0
+  51              	    .set  max_reg_data2, 255 + 0
+  52              	
+  53 0020 00000020 		REG_RD  min_reg_Addr2, min_reg_High2, min_reg_Low2 	
+  54 0024 00000020 		REG_RD  max_reg_Addr2, max_reg_High2, max_reg_Low2 
+  55 0028 00000010 		REG_WR  min_reg_Addr2, min_reg_High2, min_reg_Low2, min_reg_data2
+  56 002c 00000010 		REG_WR  max_reg_Addr2, max_reg_High2, max_reg_Low2, max_reg_data2

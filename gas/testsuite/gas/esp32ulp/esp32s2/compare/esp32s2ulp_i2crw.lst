@@ -1,0 +1,35 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_i2crw.s 			page 1
+
+
+   1              	        .data                                   //Data section definition
+   2 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   3              	        .set i2c_addr, 0x77
+   4              	        .set i2c_data1, 0x40
+   5              	        .set i2c_high, 0x00
+   6              	        .set i2c_low,  0x01
+   7              	        .set i2c_sel,  0x00
+   8              	        .set test_val,  1
+   9              	
+  10              	        .set i2c_addr2, 0x77
+  11              	        .set i2c_data2, 0x40
+  12              	        .set i2c_high2, 0x00
+  13              	        .set i2c_low2,  0x01
+  14              	        .set i2c_sel2,  0x00
+  15              	        .global i2c_addr2
+  16              	        .global i2c_data2
+  17              	        .global i2c_high2
+  18              	        .global i2c_low2
+  19              	        .global i2c_sel2
+  20              	
+  21              	        .global __start
+  22              	__start:
+  23              	        
+  24 0002 0000     	        .text                                   //Text section definition
+  25              	    
+  26 0000 77400138 	    	I2C_WR  0x77, 0x40, 0x00,0x01,0x00
+  27 0004 77400138 	    	I2C_WR  i2c_addr, i2c_data1, i2c_high,i2c_low,i2c_sel
+  28 0008 00000038 	    	I2C_WR  i2c_addr2, i2c_data2, i2c_high2,i2c_low2,i2c_sel2
+  29              	
+  30 000c 77000130 	    	I2C_RD  0x77,      0x00,0x01,0x00
+  31 0010 77000130 	    	I2C_RD  i2c_addr,  i2c_high,i2c_low,i2c_sel
+  32 0014 00000030 	    	I2C_RD  i2c_addr2, i2c_high2,i2c_low2,i2c_sel2

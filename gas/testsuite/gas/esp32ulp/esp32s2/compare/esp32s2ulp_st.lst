@@ -1,0 +1,63 @@
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_st.s 			page 1
+
+
+   1              	
+   2              	        .data                                   //Data section definition
+   3 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
+   4              	        .set      offs, 0x20                    // Define constant offs
+   5              	        .set      lab1, 0x01                    // Define constant offs
+   6              	
+   7              	        .set      offs2, 0x20                    // Define constant offs
+   8              	        .set      lab2,  0x1                    // Define constant offs
+   9              	        .global   lab2
+  10              	        .global   offs2
+  11              	        
+  12              	
+  13              	        .global __start
+  14              	__start:
+  15              	        
+  16 0002 0000     	        .text                                   //Text section definition
+  17 0000 89210068 	        STL       R1, R2, 0x20                  // 89210068
+  18 0004 89210068 	        STL       R1, R2, offs                  // 89210068
+  19 0008 99200068 	        STL       R1, R2, offs,  1              // 99200068
+  20 000c 99200068 	        STL       R1, R2, offs,  lab1           // 99200068
+  21 0010 99000068 	        STL       R1, R2, offs2, lab1           // 
+  22 0014 89200068 	        STL       R1, R2, offs,  lab2           // 
+  23 0018 89000068 	        STL       R1, R2, offs2, lab2           // 
+  24              	
+  25 001c C9210068 	        STH       R1, R2, 0x20                  // C9210068
+  26 0020 C9210068 	        STH       R1, R2, offs                  // C9210068
+  27 0024 D9200068 	        STH       R1, R2, offs,  1              // D9200068
+  28 0028 D9200068 	        STH       R1, R2, offs,  lab1           // D9200068
+  29 002c D9000068 	        STH       R1, R2, offs2, lab1           // 
+  30 0030 C9200068 	        STH       R1, R2, offs,  lab2           // 
+  31 0034 C9000068 	        STH       R1, R2, offs2, lab2           // 
+  32 0038 00000040 	        NOP
+  33 003c 00000040 	        NOP
+  34              	
+  35              	//      ST32  Rdst, Rsrc, offset, label                           
+  36 0040 19100068 	        ST32  R1, R2, 0x10, 1                  // 19100068
+  37 0044 19200068 	        ST32  R1, R2, offs, lab1               // 19200068
+  38 0048 09200068 	        ST32  R1, R2, offs, lab2               // 09200068
+  39 004c 09000068 	        ST32  R1, R2, offs2,lab2               // 09000068
+  40              	//      STI   Rdst, Rsrc, label      
+  41 0050 19000062 	        STI32 R1, R2, 1                        // 19000062
+  42 0054 19000062 	        STI32 R1, R2, lab1                     // 19000062
+  43 0058 00000040 	        NOP
+  44 005c 89010062 	        STI   R1, R2                           // 89010062  
+  45 0060 99000062 	        STI   R1, R2, 1                        // 99000062 
+  46 0064 99000062 	        STI   R1, R2, lab1                     // 99000062 
+  47 0068 89000062 	        STI   R1, R2, lab2
+  48 006c 00000040 	        NOP
+  49 0070 00200064 	        STO   0x20
+  50 0074 00200064 	        STO   offs
+  51 0078 00000064 	        STO   offs2
+  52 007c 00000040 	        NOP
+  53 0080 00000040 	        NOP
+  54 0084 00000040 	        NOP
+  55 0088 00000040 	        NOP
+  56              	
+  57              	// After operation value at Addr1 will be = 1
+ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_st.s 			page 2
+
+

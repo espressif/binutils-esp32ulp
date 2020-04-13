@@ -117,6 +117,7 @@ am__objects_1 = app.$(OBJEXT) as.$(OBJEXT) atof-generic.$(OBJEXT) \
 	listing.$(OBJEXT) literal.$(OBJEXT) macro.$(OBJEXT) \
 	messages.$(OBJEXT) output-file.$(OBJEXT) read.$(OBJEXT) \
 	remap.$(OBJEXT) sb.$(OBJEXT) stabs.$(OBJEXT) subsegs.$(OBJEXT) \
+	tc-esp32ulp_esp32.$(OBJEXT) tc-esp32ulp_esp32s2.$(OBJEXT) \
 	symbols.$(OBJEXT) write.$(OBJEXT)
 am_as_new_OBJECTS = $(am__objects_1)
 as_new_OBJECTS = $(am_as_new_OBJECTS)
@@ -433,6 +434,8 @@ TARGET_CPU_CFILES = \
 	config/tc-bfin.c \
 	config/tc-esp32ulp.c \
 	config/tc-esp32s2ulp.c \
+	config/tc-esp32ulp_esp32.c \
+	config/tc-esp32ulp_esp32s2.c \
 	config/tc-cr16.c \
 	config/tc-cris.c \
 	config/tc-crx.c \
@@ -814,6 +817,8 @@ distclean-compile:
 
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/app.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/as.Po@am__quote@
+#@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comfig/tc-esp32ulp_esp32.Po@am__quote@
+#@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/comfig/tc-esp32ulp_esp32s2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-generic.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-ieee.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atof-vax.Po@am__quote@
@@ -1065,6 +1070,34 @@ tc-esp32ulp.obj: config/tc-esp32ulp.c
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp.c' object='tc-esp32ulp.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp.obj `if test -f 'config/tc-esp32ulp.c'; then $(CYGPATH_W) 'config/tc-esp32ulp.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp.c'; fi`
+
+tc-esp32ulp_esp32.o: config/tc-esp32ulp_esp32.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32ulp_esp32.o -MD -MP -MF $(DEPDIR)/tc-esp32ulp_esp32.Tpo -c -o tc-esp32ulp_esp32.o `test -f 'config/tc-esp32ulp_esp32.c' || echo '$(srcdir)/'`config/tc-esp32ulp_esp32.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-esp32ulp_esp32.Tpo $(DEPDIR)/tc-esp32ulp_esp32.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp_esp32.c' object='tc-esp32ulp_esp32.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp_esp32.o `test -f 'config/tc-esp32ulp_esp32.c' || echo '$(srcdir)/'`config/tc-esp32ulp_esp32.c
+
+tc-esp32ulp_esp32.obj: config/tc-esp32ulp_esp32.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32ulp_esp32.obj -MD -MP -MF $(DEPDIR)/tc-esp32ulp_esp32.Tpo -c -o tc-esp32ulp_esp32.obj `if test -f 'config/tc-esp32ulp_esp32.c'; then $(CYGPATH_W) 'config/tc-esp32ulp_esp32.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp_esp32.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-esp32ulp_esp32.Tpo $(DEPDIR)/tc-esp32ulp_esp32.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp_esp32.c' object='tc-esp32ulp_esp32.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp_esp32.obj `if test -f 'config/tc-esp32ulp_esp32.c'; then $(CYGPATH_W) 'config/tc-esp32ulp_esp32.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp_esp32.c'; fi`
+
+tc-esp32ulp_esp32s2.o: config/tc-esp32ulp_esp32s2.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32ulp_esp32s2.o -MD -MP -MF $(DEPDIR)/tc-esp32ulp_esp32s2.Tpo -c -o tc-esp32ulp_esp32s2.o `test -f 'config/tc-esp32ulp_esp32s2.c' || echo '$(srcdir)/'`config/tc-esp32ulp_esp32s2.c
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-esp32ulp_esp32s2.Tpo $(DEPDIR)/tc-esp32ulp_esp32s2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp_esp32s2.c' object='tc-esp32ulp_esp32s2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp_esp32s2.o `test -f 'config/tc-esp32ulp_esp32s2.c' || echo '$(srcdir)/'`config/tc-esp32ulp_esp32s2.c
+
+tc-esp32ulp_esp32s2.obj: config/tc-esp32ulp_esp32s2.c
+@am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32ulp_esp32s2.obj -MD -MP -MF $(DEPDIR)/tc-esp32ulp_esp32s2.Tpo -c -o tc-esp32ulp_esp32s2.obj `if test -f 'config/tc-esp32ulp_esp32s2.c'; then $(CYGPATH_W) 'config/tc-esp32ulp_esp32s2.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp_esp32s2.c'; fi`
+@am__fastdepCC_TRUE@	$(am__mv) $(DEPDIR)/tc-esp32ulp_esp32s2.Tpo $(DEPDIR)/tc-esp32ulp_esp32s2.Po
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	source='config/tc-esp32ulp_esp32s2.c' object='tc-esp32ulp_esp32s2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCC_FALSE@	DEPDIR=$(DEPDIR) $(CCDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCC_FALSE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -c -o tc-esp32ulp_esp32s2.obj `if test -f 'config/tc-esp32ulp_esp32s2.c'; then $(CYGPATH_W) 'config/tc-esp32ulp_esp32s2.c'; else $(CYGPATH_W) '$(srcdir)/config/tc-esp32ulp_esp32s2.c'; fi`
 
 tc-esp32s2ulp.o: config/tc-esp32s2ulp.c
 @am__fastdepCC_TRUE@	$(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS) -MT tc-esp32s2ulp.o -MD -MP -MF $(DEPDIR)/tc-esp32s2ulp.Tpo -c -o tc-esp32s2ulp.o `test -f 'config/tc-esp32s2ulp.c' || echo '$(srcdir)/'`config/tc-esp32s2ulp.c
