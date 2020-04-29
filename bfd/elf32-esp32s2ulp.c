@@ -300,10 +300,10 @@ static reloc_howto_type esp32s2ulp_howto_table[] =
 	HOWTO(R_ESP32S2ULP_WR_MEM,		/* type.  */
 	0,			                    /* rightshift.  */
 	2,			                    /* size (0 = byte, 1 = short, 2 = long).  */
-	16,			                    /* bitsize.  */
+	13,			                    /* bitsize.  */
 	FALSE,			                /* pc_relative.  */
 	8,			                    /* bitpos.  */
-	complain_overflow_unsigned,     /* complain_on_overflow.  */
+	complain_overflow_signed,       /* complain_on_overflow.  */
 	NULL,		                    /* special_function.  */
 	"R_ESP32S2ULP_WR_MEM",	        /* name.  */
 	FALSE,			                /* partial_inplace.  */

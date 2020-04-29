@@ -30,8 +30,8 @@
 	.global  max_threshs3
 
 
-	.set  min_wr_mem2, 0 - 0
-	.set  max_wr_mem2, 2047 + 0
+	.set  min_wr_mem2, -1024
+	.set  max_wr_mem2, 1023
 	.global  min_wr_mem2
 	.global  max_wr_mem2
 
