@@ -625,7 +625,7 @@ asm_1:
 	}
 	| ST REG COMMA REG COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			if (CPU_TYPE_ESP32ULP == ulp_cpu_type) 
 			{
@@ -645,7 +645,7 @@ asm_1:
 	}
 	| STL REG COMMA REG COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("STL : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
 			$$ =  WR_MEM_STLR(0, $2, $4, $6);
@@ -657,7 +657,7 @@ asm_1:
 	}
 	| STH REG COMMA REG COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("STH : Rdst, Rsrs, offset, MEM[Rsrc + offset] =  Rdst\n");
 			$$ =  WR_MEM_STLR(1, $2, $4, $6);
@@ -669,7 +669,7 @@ asm_1:
 	}
 	| STL REG COMMA REG COMMA expr COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("STL : Rdst, Rsrs, offset,label;  Mem [ Rsrs + offset ] = { label[ 1 : 0 ], Rdst[ 13 : 0 ] } (depends on H/L bit)\n");
 			$$ =  WR_MEM_ST_L(0, $2, $4, $6, $8);
@@ -681,7 +681,7 @@ asm_1:
 	}
 	| STH REG COMMA REG COMMA expr COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("STH : Rdst, Rsrs, offset,label;  Mem [ Rsrs + offset ] = { label[ 1 : 0 ], Rdst[ 13 : 0 ] } (depends on H/L bit)\n");
 			$$ =  WR_MEM_ST_L(1, $2, $4, $6, $8);
@@ -729,7 +729,7 @@ asm_1:
 	}
 	| LD REG COMMA REG COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("LD : Rdst, Rsrs, offset, Rdst = MEM[Rsrc + offset]\n");
 			$$ =  RD_MEM_ADDR(0, $2, $4, $6);
@@ -741,7 +741,7 @@ asm_1:
 	}
 	| LDL REG COMMA REG COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("LDL : Rdst, Rsrs, offset, Rdst = MEM[Rsrc + offset]\n");
 			$$ =  RD_MEM_ADDR(0, $2, $4, $6);
@@ -753,7 +753,7 @@ asm_1:
 	}
 	| LDH REG COMMA REG COMMA expr
 	{
-		if (IS_UIMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
+		if (IS_IMM ($6, 11) && IS_DREG ($2) && IS_DREG ($4))
 		{
 			notethat ("LDH : Rdst, Rsrs, offset, Rdst = MEM[Rsrc + offset]\n");
 			$$ =  RD_MEM_ADDR(1, $2, $4, $6);

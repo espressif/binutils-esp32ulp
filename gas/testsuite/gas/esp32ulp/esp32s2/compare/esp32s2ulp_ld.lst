@@ -6,20 +6,33 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_ld.s 			page 1
    3 0000 7B00     	Addr1:  .word     123                           // Define label Addr1 16 bit
    4              	        .set      offs, 0x20                    // Define constant offs
    5              	
-   6              	        .set      offs2, 0x20                    // Define constant offs
+   6              	        .set      offs2, 0x20                   // Define constant offs
    7              	        .global   offs2
    8              	
-   9              	
-  10              	        .global __start
-  11              	__start:
-  12              	        
-  13 0002 0000     	        .text                                   //Text section definition
-  14 0000 092000D0 	        LD       R1, R2, 0x20                  
-  15 0004 092000D0 	        LD       R1, R2, offs                   
-  16 0008 090000D0 	        LD       R1, R2, offs2                   
-  17 000c 092000D0 	        LDL       R1, R2, 0x20                  
-  18 0010 092000D0 	        LDL       R1, R2, offs                   
-  19 0014 090000D0 	        LDL       R1, R2, offs2                   
-  20 0018 092000D8 	        LDH       R1, R2, 0x20                  
-  21 001c 092000D8 	        LDH       R1, R2, offs                   
-  22 0020 090000D8 	        LDH       R1, R2, offs2                   
+   9              	        .set      offs_min, -1024               // Define min constant offs
+  10              	        .set      offs_max,  1023               // Define max constant offs
+  11              	        .global   offs2_min
+  12              	        .global   offs2_max
+  13              	        .set      offs2_min, -1024               // Define min constant offs
+  14              	        .set      offs2_max,  1023               // Define max constant offs
+  15              	
+  16              	
+  17              	        .global __start
+  18              	__start:
+  19              	        
+  20 0002 0000     	        .text                                   //Text section definition
+  21 0000 092000D0 	        LD       R1, R2, 0x20                  
+  22 0004 092000D0 	        LD       R1, R2, offs                   
+  23 0008 090000D0 	        LD       R1, R2, offs2                   
+  24 000c 092000D0 	        LDL       R1, R2, 0x20                  
+  25 0010 092000D0 	        LDL       R1, R2, offs                   
+  26 0014 090000D0 	        LDL       R1, R2, offs2                   
+  27 0018 092000D8 	        LDH       R1, R2, 0x20                  
+  28 001c 092000D8 	        LDH       R1, R2, offs                   
+  29 0020 090000D8 	        LDH       R1, R2, offs2                   
+  30 0024 09001CD0 	        LD       R1, R2, -1024
+  31 0028 09FC03D0 	        LD       R1, R2, 1023
+  32 002c 0900FCFF 	        LD       R1, R2, offs_min
+  33 0030 09FC03D0 	        LD       R1, R2, offs_max
+  34 0034 090000D0 	        LD       R1, R2, offs2_min
+  35 0038 090000D0 	        LD       R1, R2, offs2_max

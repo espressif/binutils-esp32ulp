@@ -433,7 +433,7 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	FALSE,							/* pc_relative.  */
 	2,								/* bitpos.  */
 	complain_overflow_unsigned,		/* complain_on_overflow.  */
-	NULL,			/* special_function.  */
+	NULL,							/* special_function.  */
 	"R_ESP32ULP_LOAD16",			/* name.  */
 	FALSE,							/* partial_inplace.  */
 	0x00001FFC,						/* src_mask.  */ // dya-pass - 0
@@ -441,18 +441,18 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	FALSE),							/* pcrel_offset.  */
 	
 	HOWTO(R_ESP32ULP_WR_MEM,		/* type.  */
-	0,			/* rightshift.  */
-	2,			/* size (0 = byte, 1 = short, 2 = long).  */
-	13,			/* bitsize.  */
-	FALSE,			/* pc_relative.  */
-	8,			/* bitpos.  */
-	complain_overflow_unsigned, /* complain_on_overflow.  */
-	NULL,		/* special_function.  */
-	"R_ESP32ULP_WR_MEM",	/* name.  */
-	FALSE,			/* partial_inplace.  */
-	(0x7ff << 10),				/* src_mask.  */ // dya-pass - 0
-	(0x7ff << 10),		/* dst_mask.  */
-	FALSE),			/* pcrel_offset.  */
+	0,								/* rightshift.  */
+	2,								/* size (0 = byte, 1 = short, 2 = long).  */
+	13,								/* bitsize.  */
+	FALSE,							/* pc_relative.  */
+	8,								/* bitpos.  */
+	complain_overflow_signed, 		/* complain_on_overflow.  */
+	NULL,							/* special_function.  */
+	"R_ESP32ULP_WR_MEM",			/* name.  */
+	FALSE,							/* partial_inplace.  */
+	(0x7ff << 10),					/* src_mask.  */ // dya-pass - 0
+	(0x7ff << 10),					/* dst_mask.  */
+	FALSE),							/* pcrel_offset.  */
 
 	HOWTO(R_ESP32ULP_ALUI,		/* type.  */
 	0,			/* rightshift.  */
@@ -829,10 +829,10 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	HOWTO(R_ESP32S2ULP_WR_MEM,		/* type.  */
 	0,			                    /* rightshift.  */
 	2,			                    /* size (0 = byte, 1 = short, 2 = long).  */
-	16,			                    /* bitsize.  */
+	13,			                    /* bitsize.  */
 	FALSE,			                /* pc_relative.  */
 	8,			                    /* bitpos.  */
-	complain_overflow_unsigned,     /* complain_on_overflow.  */
+	complain_overflow_signed,       /* complain_on_overflow.  */
 	NULL,		                    /* special_function.  */
 	"R_ESP32S2ULP_WR_MEM",	        /* name.  */
 	FALSE,			                /* partial_inplace.  */

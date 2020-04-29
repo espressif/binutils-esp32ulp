@@ -321,7 +321,7 @@ void md_apply_fix_esp32(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 
 	case BFD_RELOC_ESP32ULP_WR_MEM:
 		value = value >> 2;
-		if ((value > 2047) || (value < 0))
+		if ((value > 1023) || (value < -1024))
 			as_bad_where(fixP->fx_file, fixP->fx_line, _("rel too far BFD_WR_MEM"));
 		temp_val = 0;
 		memcpy(&temp_val, where, 4);
