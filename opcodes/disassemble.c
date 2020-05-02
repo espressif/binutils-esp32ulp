@@ -35,6 +35,7 @@
 #define ARCH_d30v
 #define ARCH_dlx
 #define ARCH_epiphany
+#define ARCH_esp32ulp
 #define ARCH_fr30
 #define ARCH_frv
 #define ARCH_ft32
@@ -240,6 +241,11 @@ disassembler (bfd *abfd)
 #ifdef ARCH_epiphany
     case bfd_arch_epiphany:
       disassemble = print_insn_epiphany;
+      break;
+#endif
+#ifdef ARCH_esp32ulp
+    case bfd_arch_esp32ulp:
+      disassemble = print_insn_esp32ulp;
       break;
 #endif
 #ifdef ARCH_fr30
