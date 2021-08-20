@@ -179,3 +179,9 @@ labelsd:  STAGE_DEC  1                          // stage_cnt--;
         REG_WR      0x20, 1, 2,0x10            // REG[0x120] = 0x10[1:2]
 
         HALT                                    // Move chip to powerdown
+
+// JUMPR negative offset
+        JUMPR     -16, 20, GE                   //Jump to address "position - 16" if value in R0 >= 20
+
+// JUMPS negative offset
+        JUMPS     -16, 20, EQ                   //Jump to address “position - 16” if value in Stage_Cnt == 20

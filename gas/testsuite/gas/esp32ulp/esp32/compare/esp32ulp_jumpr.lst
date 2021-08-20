@@ -64,3 +64,9 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32/esp32ulp_jumpr.s 			page 1
   54              	
   55              	        
   56              	    
+  57 007c 04000283 		JUMPR -0x04, 0x4, LT
+  58 0080 05000283 		JUMPR -0x04, 0x4, LE
+  59 0084 05000582 		JUMPR -0x04, 0x4, EQ
+  59      04000583 
+  60 008c 05000383 		JUMPR -0x04, 0x4, GT
+  61 0090 04000383 		JUMPR -0x04, 0x4, GE

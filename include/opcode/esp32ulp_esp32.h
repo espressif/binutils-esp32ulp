@@ -110,7 +110,7 @@ typedef struct {
 #define I_JUMP_RELR(thresh, jud, stp) { *(unsigned int*)&(jump_alu_relr ){ \
     .threshold = thresh, \
     .judge = jud, \
-    .step = stp, \
+    .step = ((stp < 0) ? ((-stp) | (1 << 7)) : stp) , \
     .sub_opcode = SUB_OPCODE_BR, \
     .opcode = OPCODE_BRANCH } }
 
@@ -129,7 +129,7 @@ typedef struct {
 #define I_JUMP_RELS(thresh, jud, stp) { *(unsigned int*)&(jump_alu_rels ){ \
     .threshold = thresh, \
     .judge = jud, \
-    .step = stp, \
+    .step = ((stp < 0) ? ((-stp) | (1 << 7)) : stp) , \
     .sub_opcode = SUB_OPCODE_BS, \
     .opcode = OPCODE_BRANCH } }
 

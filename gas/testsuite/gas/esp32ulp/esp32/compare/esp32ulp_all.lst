@@ -193,3 +193,10 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32/esp32ulp_all.s 			page 1
  179 0154 20408810 	        REG_WR      0x20, 1, 2,0x10            // REG[0x120] = 0x10[1:2]
  180              	
  181 0158 000000B0 	        HALT                                    // Move chip to powerdown
+ 182              	
+ 183              	// JUMPR negative offset
+ 184 015c 14000983 	        JUMPR     -16, 20, GE                   //Jump to address "position - 16" if value in R0 >=
+ 185              	
+ 186              	// JUMPS negative offset
+ 187 0160 14000484 	        JUMPS     -16, 20, EQ                   //Jump to address “position - 16” if value in S
+ 187      14000B85 
