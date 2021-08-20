@@ -101,3 +101,18 @@ ESP32ULP GAS  ./gas/testsuite/gas/esp32ulp/esp32s2/esp32s2ulp_jump.s 			page 1
   83 0118 00800388 	    jumps 0x0, 0x00, GE
   84              	
   85              	    
+  86              	    //jumpr with negative offset
+  87 011c 00000682 	    jumpr -0x4, 0x00, EQ
+  88 0120 00000482 	    jumpr -0x4, 0x00, LT
+  89 0124 00000582 	    jumpr -0x4, 0x00, GT
+  90 0128 00000482 	    jumpr -0x4, 0x00, LE
+  90      00000A82 
+  91 0130 00000582 	    jumpr -0x4, 0x00, GE
+  91      00000A82 
+  92              	
+  93              	    //jumps with negative offset
+  94 0138 0000128A 	    jumps -0x4, 0x00, EQ
+  95 013c 0080108A 	    jumps -0x4, 0x00, LT
+  96 0140 0080118A 	    jumps -0x4, 0x00, GT
+  97 0144 0080128A 	    jumps -0x4, 0x00, LE
+  98 0148 0080138A 	    jumps -0x4, 0x00, GE
