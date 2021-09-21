@@ -154,9 +154,8 @@ esp32_lin_amd64:
     CONF_TARGET: "esp32ulp-elf"
 
 esp32s2_lin_amd64:
-  <<: *build_template_linux
+  extends: esp32_lin_amd64
   variables:
-    PLATFORM_NAME: "linux-amd64"
     CONF_TARGET: "esp32s2ulp-elf"
 
 
@@ -183,15 +182,25 @@ esp32_win:
     CONF_TARGET: "esp32ulp-elf"
 
 esp32s2_win:
-  <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win-cross
+  extends: esp32_win
   variables:
-    PLATFORM_NAME: "win32"
+    CONF_TARGET: "esp32s2ulp-elf"
+
+esp32_win64:
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-win64-cross
+  variables:
+    PLATFORM_NAME: "win64"
     ARCHIVE_TOOL: "zip -r"
     ARCHIVE_EXT: "zip"
-    CC: "i686-w64-mingw32-gcc"
-    CXX: "i686-w64-mingw32-g++"
-    CONF_HOST: "i686-w64-mingw32"
+    CC: "x86_64-w64-mingw32-gcc"
+    CXX: "x86_64-w64-mingw32-g++"
+    CONF_HOST: "x86_64-w64-mingw32"
+    CONF_TARGET: "esp32ulp-elf"
+
+esp32s2_win64:
+  extends: esp32_win64
+  variables:
     CONF_TARGET: "esp32s2ulp-elf"
 
 esp32_macos:
@@ -205,13 +214,8 @@ esp32_macos:
     CONF_TARGET: "esp32ulp-elf"
 
 esp32s2_macos:
-  <<: *build_template_crossbuild
-  image: $CI_DOCKER_REGISTRY/esp32-toolchain-macos-cross
+  extends: esp32_macos
   variables:
-    PLATFORM_NAME: "macos"
-    CC: "x86_64-apple-darwin12-clang"
-    CXX: "x86_64-apple-darwin12-clang++"
-    CONF_HOST: "x86_64-apple-darwin12"
     CONF_TARGET: "esp32s2ulp-elf"
 
 esp32_lin_armel:
@@ -223,11 +227,34 @@ esp32_lin_armel:
     CONF_TARGET: "esp32ulp-elf"
 
 esp32s2_lin_armel:
+  extends: esp32_lin_armel
+  variables:
+    CONF_TARGET: "esp32s2ulp-elf"
+
+esp32_lin_arm64:
   <<: *build_template_crossbuild
   image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross
   variables:
-    PLATFORM_NAME: "linux-armel"
-    CONF_HOST: "arm-linux-gnueabi"
+    PLATFORM_NAME: "linux-arm64"
+    CONF_HOST: "aarch64-linux-gnu"
+    CONF_TARGET: "esp32ulp-elf"
+
+esp32s2_lin_arm64:
+  extends: esp32_lin_arm64
+  variables:
+    CONF_TARGET: "esp32s2ulp-elf"
+
+esp32_lin_armhf:
+  <<: *build_template_crossbuild
+  image: $CI_DOCKER_REGISTRY/esp32-toolchain-arm-cross
+  variables:
+    PLATFORM_NAME: "linux-armhf"
+    CONF_HOST: "arm-linux-gnueabihf"
+    CONF_TARGET: "esp32ulp-elf"
+
+esp32s2_lin_armhf:
+  extends: esp32_lin_armhf
+  variables:
     CONF_TARGET: "esp32s2ulp-elf"
 
 # Tests
@@ -396,6 +423,12 @@ release_tag_draft:
     - PLATFORM_NAME="win32"
     - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
+    - PLATFORM_NAME="win64"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="win64"
+    - CONF_TARGET="esp32s2ulp-elf"
+    - *gh_upload_archive
     - PLATFORM_NAME="macos"
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
@@ -406,6 +439,18 @@ release_tag_draft:
     - CONF_TARGET="esp32ulp-elf"
     - *gh_upload_archive
     - PLATFORM_NAME="linux-armel"
+    - CONF_TARGET="esp32s2ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-armhf"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-armhf"
+    - CONF_TARGET="esp32s2ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-arm64"
+    - CONF_TARGET="esp32ulp-elf"
+    - *gh_upload_archive
+    - PLATFORM_NAME="linux-arm64"
     - CONF_TARGET="esp32s2ulp-elf"
     - *gh_upload_archive
 
