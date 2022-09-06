@@ -652,6 +652,14 @@ void md_apply_fix_esp32(fixS *fixP, valueT *valueP, segT seg ATTRIBUTE_UNUSED)
 		memcpy(where, &temp_val, 4);
 		//DEBUG_TRACE("dya_pass - md_apply_fix:BFD_RELOC_ESP32ULP_I2C_RW_DATA temp_val=%08x value=%08x\n", (unsigned int)temp_val, (unsigned int)value);
 		break;
+	case BFD_RELOC_32:
+		if (fixP->fx_addsy != NULL)// relocation will be done not in linker
+		{
+			asymbol *sym = symbol_get_bfdsym(fixP->fx_addsy);
+			if (sym->section->flags != 0) value = value >> 2;
+		}
+		md_number_to_chars(where, value, 4);
+		break;
 
 	default:
 		fprintf(stderr, "Relocation %d not handled in Esp32 gas." " Contact support.\n", fixP->fx_r_type);

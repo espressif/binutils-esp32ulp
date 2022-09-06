@@ -1169,6 +1169,20 @@ static reloc_howto_type esp32ulp_howto_table[] =
 	(0x3 << 4),	                    /* dst_mask.  */
 	FALSE),			                /* pcrel_offset.  */
 
+	HOWTO(R_BFD_RELOC_32,           /* type.  */
+	0,			                    /* rightshift.  */
+	2,			                    /* size (0 = byte, 1 = short, 2 = long).  */
+	32,			                    /* bitsize.  */
+	FALSE,			                /* pc_relative.  */
+	0,			                    /* bitpos.  */
+	complain_overflow_bitfield,     /* complain_on_overflow.  */
+	NULL,		                    /* special_function.  */
+	"32",	                        /* name.  */
+	FALSE,			                /* partial_inplace.  */
+	0xffffffff,                     /* src_mask.  */ // dya-pass - 0
+	0xffffffff,	                    /* dst_mask.  */
+	FALSE),			                /* pcrel_offset.  */
+
 	HOWTO(R_ESP32ULP_RESERVE,	/* type.  */
 	0,			/* rightshift.  */
 	2,			/* size (0 = byte, 1 = short, 2 = long).  */
@@ -1321,6 +1335,8 @@ static const struct esp32ulp_reloc_map esp32ulp_reloc_map[] =
 	{ BFD_RELOC_ESP32S2ULP_I2C_RW_SEL, R_ESP32S2ULP_I2C_RW_SEL },
 
 	{ BFD_RELOC_ESP32S2ULP_WR_MEM_LABEL, R_ESP32S2ULP_WR_MEM_LABEL },
+
+	{ BFD_RELOC_32, R_BFD_RELOC_32 },
 
 	{ BFD_RELOC_ESP32ULP_RESERVE, R_ESP32ULP_RESERVE },
 
